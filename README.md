@@ -13,3 +13,6 @@ FreeRTOS based HAL library.
   * Colored-LCD.
   * Keypad.
   * Push buttons.
+
+# Important notes:
+  * Priority of HAL drivers **must** be higher than other non-hard real time tasks. Also, hard real time tasks **must** not be ready/running all the time. Otherwise, HAL drivers will not work properly.

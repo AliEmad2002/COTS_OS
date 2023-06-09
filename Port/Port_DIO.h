@@ -102,9 +102,22 @@ static inline uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumbe
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vHOS_DIO_WritePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucState)
+static inline void vHOS_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucState)
 {
 	HAL_GPIO_WritePin(portArr[ucPortNumber], 1 << ucPinNumber, ucState);
+}
+
+/*
+ * Toggles pin output value
+ *
+ * Notes:
+ * 		-	Pin must be initially initialized as digital output.
+ *
+ * 		-	DIO clock (if controlled) must be initially enabled.
+ */
+static inline void vHOS_DIO_togglePin(uint8_t ucPortNumber, uint8_t ucPinNumber)
+{
+	HAL_GPIO_TogglePin(portArr[ucPortNumber], 1 << ucPinNumber);
 }
 
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */

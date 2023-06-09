@@ -24,9 +24,17 @@
  *
  * Notes:
  * 		-	Values which are not used in the current target can be deleted.
+ *
  * 		-	If additional values are needed, they can be added here.
+ *
+ * 		-	Remember that static variables/functions are created each time the
+ * 			file gets included, and non-static definitions in header cause "redefinition error".
+ * 			Therefore, variables (if any) and non-static nor inline functions better
+ * 			be defined in "Port_DIO.c" and externed here.
+ * 			On the other hand, static and inline functions are normally defined
+ * 			in a header.
  */
-static GPIO_TypeDef* const portArr[] = {GPIOA, GPIOB, GPIOC};
+extern GPIO_TypeDef* const portArr[];
 
 /*
  * Initializes pin as digital input.
@@ -39,7 +47,7 @@ static GPIO_TypeDef* const portArr[] = {GPIOA, GPIOB, GPIOC};
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-void vHOS_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull)
+static inline void vHOS_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull)
 {
 	GPIO_InitTypeDef conf = {
 		.Pin = 1 << ucPinNumber,
@@ -57,7 +65,7 @@ void vHOS_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t uc
  * Notes:
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-void vHOS_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
+static inline void vHOS_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
 {
 	GPIO_InitTypeDef conf = {
 		.Pin = 1 << ucPinNumber,
@@ -79,8 +87,7 @@ void vHOS_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-inline __attribute__(( always_inline))
-uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumber)
+static inline uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumber)
 {
 	return HAL_GPIO_ReadPin(portArr[ucPortNumber], 1 << ucPinNumber);
 }
@@ -95,8 +102,7 @@ uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumber)
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-inline __attribute__(( always_inline))
-void vHOS_DIO_WritePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucState)
+static inline void vHOS_DIO_WritePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucState)
 {
 	HAL_GPIO_WritePin(portArr[ucPortNumber], 1 << ucPinNumber, ucState);
 }

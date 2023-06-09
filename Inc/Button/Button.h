@@ -8,6 +8,8 @@
 #ifndef HAL_OS_INC_BUTTON_BUTTON_H_
 #define HAL_OS_INC_BUTTON_BUTTON_H_
 
+#include "Inc/Button/ButtonConfig.h"
+
 /*
  * "Button" structure.
  *

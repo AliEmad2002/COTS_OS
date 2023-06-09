@@ -45,6 +45,10 @@ void vButton_manager(void* pvParams)
 		/*	loop on created buttons	*/
 		for (i = 0; i < usNumberOfUsedButtons; i++)
 		{
+			/*	if button is disabled, skip it	*/
+			if (xButtonArr[usNumberOfUsedButtons].ucIsEnabled == 0)
+				continue;
+
 			/*	read digital level of button's DIO pin	*/
 			pinLevel = ucHOS_DIO_readPin(xButtonArr[i].ucPortNumber, xButtonArr[i].ucPinNumber);
 
@@ -119,7 +123,26 @@ void vHOS_Button_init(	uint8_t ucPortNumber,
 	xButtonArr[usNumberOfUsedButtons].ucFilterN = ucFilterN;
 	xButtonArr[usNumberOfUsedButtons].ucCurrentState = RELEASED;
 	xButtonArr[usNumberOfUsedButtons].ucNumberOfPressedSamples = 0;
+	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 1;
 
 	/*	Increment buttons counter	*/
 	usNumberOfUsedButtons++;
+}
+
+void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle)
+{
+	/*	check pointer first	*/
+	configASSERT(xButtonArr <= pxButtonHandle && pxButtonHandle < xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t));
+
+	/*	Enable	*/
+	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 1;
+}
+
+void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle)
+{
+	/*	check pointer first	*/
+	configASSERT(xButtonArr <= pxButtonHandle && pxButtonHandle < xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t));
+
+	/*	Disable	*/
+	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 0;
 }

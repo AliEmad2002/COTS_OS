@@ -44,6 +44,8 @@ typedef struct{
 	uint8_t ucCurrentState;
 
 	uint8_t ucNumberOfPressedSamples;
+
+	uint8_t ucIsEnabled;
 }xHOS_Button_t;
 
 /*
@@ -64,5 +66,20 @@ void vHOS_Button_init(	uint8_t ucPortNumber,
 						uint8_t ucFilterN,
 						xHOS_Button_t* pxButtonHandle	);
 
+/*
+ * Enables button.
+ *
+ * Notes:
+ * 		-	Buttons are initially enabled on creation.
+ */
+void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle);
+
+/*
+ * Disables button. (Presses are ignored)
+ *
+ * Notes:
+ * 		-	Buttons are initially enabled on creation.
+ */
+void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle);
 
 #endif /* HAL_OS_INC_BUTTON_BUTTON_H_ */

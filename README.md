@@ -8,12 +8,18 @@ FreeRTOS based HAL library.
   * A lot more time-efficient than baremetal drivers.
   * Uses DMA (if available) for excessive memory using drivers (like SD-card).
 
-# Available drivers and thier highlights:
+# Available drivers:
   * SD-Card (FAT32).
   * Colored-LCD.
   * Keypad.
   * Push buttons
     * Uses N-samples filtering method.
+    * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_example_1.c
+       
+       https://github.com/AliEmad2002/HAL_OS/assets/99054912/809e45ac-fcf3-4692-9f22-9152126abfa4
+
+
+    
 
 # Important notes:
   * Priority of HAL drivers **must** be higher than or equal to other non-hard real time tasks. Also, hard real time tasks **must** not be ready/running all the time. Otherwise, HAL drivers will not work properly. (in other words, HAL_OS drivers are of "normal priority")

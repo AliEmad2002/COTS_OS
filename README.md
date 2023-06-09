@@ -7,7 +7,7 @@ FreeRTOS based HAL library.
     * MCAL dependancies are ported using "MCAL_Port.h".
   * A lot more time-efficient than baremetal drivers.
   * Uses DMA (if available) for excessive memory using drivers (like SD-card).
-  * Object are statically allocated (in .data) (remember: heap==>dynamic, stack==>function, .data==>initialized static, .bss==>uninitialized static)
+  * Object are statically allocated (in .bss) (remember: heap==>dynamic, stack==>function, .data==>initialized static, .bss==>uninitialized static)
 
 # Available drivers:
   * SD-Card (FAT32).

@@ -8,7 +8,10 @@
 #ifndef HAL_OS_INC_HAL_OS_H_
 #define HAL_OS_INC_HAL_OS_H_
 
-void vHOS_init(void);
+#include "FreeRTOS.h"
+#include "Inc/Button/Button.h"
+
+BaseType_t xHOS_init(void);
 
 
 

@@ -20,6 +20,18 @@
 #include "stm32f1xx_hal.h"
 
 /*
+ * Port and pin combine structure.
+ *
+ * Notes:
+ * 		-	Used in drivers having large number of pins (like 7-segment multiplexer)
+ * 			to half size taken by pin and port data.
+ */
+typedef struct{
+	uint8_t unPort : 4;
+	uint8_t unPin  : 4;
+}xHOS_DIO_t;
+
+/*
  * Driver-long needed values.
  *
  * Notes:

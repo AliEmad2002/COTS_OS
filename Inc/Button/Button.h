@@ -21,11 +21,15 @@
  * 		-	Presses are filtered using the simple pressed/pre-pressed method.
  * 			That is, callback will be executed only after these three states occur
  * 			in sequence:
- * 				1-	Button's level is invert of "ucPressedLevel". (i.e.: "ucCurrentState" = "RELEASED")
- * 				2-	Button's level is "ucPressedLevel". (i.e.: "ucCurrentState" = "PRE_PRESSED")
- * 				3-	Button's level is "ucPressedLevel". (i.e.: "ucCurrentState" = "PRESSED")
+ * 				1-	Button's level is invert of "ucPressedLevel".
+ * 					(i.e.: "ucCurrentState" = "RELEASED")
+ * 				2-	Button's level is "ucPressedLevel". for "ucFilterN-1" consecutive
+ * 					samples. (i.e.: "ucCurrentState" = "PRE_PRESSED")
+ * 				3-	Button's level is "ucPressedLevel". for the "ucFilterN"th sample
+ * 					in row. (i.e.: "ucCurrentState" = "PRESSED")
  */
 typedef struct{
+	/*	configuration parameters	*/
 	uint8_t ucPortNumber;
 
 	uint8_t ucPinNumber;
@@ -34,8 +38,13 @@ typedef struct{
 
 	uint8_t ucPressedLevel;
 
+	uint8_t ucFilterN;
+
+	/*	runtime changing parameters	*/
 	uint8_t ucCurrentState;
-}HOS_Button_t;
+
+	uint8_t ucNumberOfPressedSamples;
+}xHOS_Button_t;
 
 /*
  * Initializes button object.
@@ -52,11 +61,8 @@ void vHOS_Button_init(	uint8_t ucPortNumber,
 						uint8_t ucPinNumber,
 						void (*pfCallback)(void),
 						uint8_t ucPressedLevel,
-						HOS_Button_t* xButtonHandle	);
+						uint8_t ucFilterN,
+						xHOS_Button_t* pxButtonHandle	);
 
-/*
- * Deletes button object.
- */
-void vHOS_Button_delete(HOS_Button_t* xButtonHandle);
 
 #endif /* HAL_OS_INC_BUTTON_BUTTON_H_ */

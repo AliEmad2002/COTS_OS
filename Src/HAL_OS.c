@@ -38,6 +38,7 @@ BaseType_t xHOS_init(void)
 {
 	TaskHandle_t createdHandle;
 
+#if configHOS_BUTTON_EN
 	createdHandle = xTaskCreateStatic(	vButton_manager,
 										"Buttons",
 										uiBUTTON_STACK_SIZE_IN_WORDS,
@@ -47,6 +48,9 @@ BaseType_t xHOS_init(void)
 										&xButtonDriverTask	);
 	if (createdHandle == NULL)
 		return pdFAIL;
+#endif	/*	configHOS_BUTTON_EN	*/
+
+
 
 	return pdPASS;
 }

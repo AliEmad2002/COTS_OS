@@ -18,8 +18,9 @@
 #include "Port/Port_Breakpoint.h"
 
 /*	SELF	*/
-#include "Inc/Button/ButtonConfig.h"
 #include "Inc/Button/Button.h"
+
+#if configHOS_BUTTON_EN
 
 static xHOS_Button_t xButtonArr[configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS];
 static uint16_t usNumberOfUsedButtons = 0;
@@ -46,7 +47,7 @@ void vButton_manager(void* pvParams)
 		for (i = 0; i < usNumberOfUsedButtons; i++)
 		{
 			/*	if button is disabled, skip it	*/
-			if (xButtonArr[usNumberOfUsedButtons].ucIsEnabled == 0)
+			if (xButtonArr[i].ucIsEnabled == 0)
 				continue;
 
 			/*	read digital level of button's DIO pin	*/
@@ -129,6 +130,9 @@ void vHOS_Button_init(	uint8_t ucPortNumber,
 	usNumberOfUsedButtons++;
 }
 
+/*
+ * See header file for info.
+ */
 void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle)
 {
 	/*	check pointer first	*/
@@ -138,6 +142,9 @@ void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle)
 	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 1;
 }
 
+/*
+ * See header file for info.
+ */
 void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle)
 {
 	/*	check pointer first	*/
@@ -146,3 +153,5 @@ void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle)
 	/*	Disable	*/
 	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 0;
 }
+
+#endif	/*	configHOS_BUTTON_EN	*/

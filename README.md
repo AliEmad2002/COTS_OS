@@ -5,7 +5,7 @@ FreeRTOS based HAL library.
   * Easly ported:
     * As FreeRTOS itself is portable, change its files with these of your target and configure "FreeRTOS_Config.h".
     * MCAL dependancies are ported using files in "Port" folder.
-  * A lot more time-efficient than baremetal drivers.
+  * A lot more time-efficient (less CPU load) than baremetal drivers.
   * Uses DMA (if available) for excessive memory using drivers (like SD-card).
 
 # Available drivers:

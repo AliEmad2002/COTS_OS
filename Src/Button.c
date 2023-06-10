@@ -22,12 +22,18 @@
 
 #if configHOS_BUTTON_EN
 
+/*
+ * Static objects:
+ */
 static xHOS_Button_t xButtonArr[configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS];
 static uint16_t usNumberOfUsedButtons = 0;
 
+/*	Helping functions/macros	*/
 #define RELEASED 		0
 #define PRE_PRESSED		1
 #define PRESSED			2
+
+#define pxTOP_PTR	(xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t))
 
 /*
  * If "configHOS_BUTTON_EN" was enabled, a task that uses this function will be
@@ -106,20 +112,21 @@ xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
 	vHOS_DIO_initPinInput(ucPortNumber, ucPinNumber, ucPull);
 
 	/*	store button data in "xButtonArr"	*/
-	xButtonArr[usNumberOfUsedButtons].ucPortNumber = ucPortNumber;
-	xButtonArr[usNumberOfUsedButtons].ucPinNumber = ucPinNumber;
-	xButtonArr[usNumberOfUsedButtons].pfCallback = pfCallback;
-	xButtonArr[usNumberOfUsedButtons].ucPressedLevel = ucPressedLevel;
-	xButtonArr[usNumberOfUsedButtons].ucFilterN = ucFilterN;
-	xButtonArr[usNumberOfUsedButtons].ucCurrentState = RELEASED;
-	xButtonArr[usNumberOfUsedButtons].ucNumberOfPressedSamples = 0;
-	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 1;
+	xHOS_Button_t* pxHandle = &xButtonArr[usNumberOfUsedButtons];
+	pxHandle->ucPortNumber = ucPortNumber;
+	pxHandle->ucPinNumber = ucPinNumber;
+	pxHandle->pfCallback = pfCallback;
+	pxHandle->ucPressedLevel = ucPressedLevel;
+	pxHandle->ucFilterN = ucFilterN;
+	pxHandle->ucCurrentState = RELEASED;
+	pxHandle->ucNumberOfPressedSamples = 0;
+	pxHandle->ucIsEnabled = 1;
 
 	/*	Increment buttons counter	*/
 	usNumberOfUsedButtons++;
 
 	/*	return pointer to the new handle	*/
-	return &xButtonArr[usNumberOfUsedButtons - 1];
+	return pxHandle;
 }
 
 /*
@@ -128,7 +135,7 @@ xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
 void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle)
 {
 	/*	check pointer first	*/
-	configASSERT(xButtonArr <= pxButtonHandle && pxButtonHandle < xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t));
+	configASSERT(xButtonArr <= pxButtonHandle && pxButtonHandle < pxTOP_PTR);
 
 	/*	Enable	*/
 	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 1;

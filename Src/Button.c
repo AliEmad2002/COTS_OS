@@ -92,29 +92,18 @@ void vButton_manager(void* pvParams)
 /*
  * See header file for info.
  */
-void vHOS_Button_init(	uint8_t ucPortNumber,
-						uint8_t ucPinNumber,
-						void (*pfCallback)(void),
-						uint8_t ucPressedLevel,
-						uint8_t ucFilterN,
-						xHOS_Button_t* pxButtonHandle	)
+xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
+									uint8_t ucPinNumber,
+									void (*pfCallback)(void),
+									uint8_t ucPressedLevel,
+									uint8_t ucFilterN	)
 {
 	/*	check (assert) if there's enough memory to add new button	*/
 	configASSERT(usNumberOfUsedButtons < configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS);
-//	if (usNumberOfUsedButtons == configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS)
-//	{
-//		vHOS_Print("Number of maximum possible buttons reached!\n");
-//		vHOS_Breakpoint();
-//		while(1);
-//	}
 
 	/*	initialize DIO pin as an input, pulled with invert of "ucPressedLevel"	*/
 	uint8_t ucPull = ucPressedLevel ? 2 : 1;
 	vHOS_DIO_initPinInput(ucPortNumber, ucPinNumber, ucPull);
-
-	/*	Assign pointer to button handle	*/
-	if (pxButtonHandle != NULL)
-		pxButtonHandle = &xButtonArr[usNumberOfUsedButtons];
 
 	/*	store button data in "xButtonArr"	*/
 	xButtonArr[usNumberOfUsedButtons].ucPortNumber = ucPortNumber;
@@ -128,6 +117,9 @@ void vHOS_Button_init(	uint8_t ucPortNumber,
 
 	/*	Increment buttons counter	*/
 	usNumberOfUsedButtons++;
+
+	/*	return pointer to the new handle	*/
+	return &xButtonArr[usNumberOfUsedButtons - 1];
 }
 
 /*

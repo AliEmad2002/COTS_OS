@@ -58,15 +58,13 @@ typedef struct{
  *
  *		-	user can't create buttons more than "configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS".
  *
- *		-	"xButtonHandle" would be assigned by this function to a pointer of
- *			the just created button. If not needed, it is set to "NULL".
+ *		-	returns pointer to the created handle.
  */
-void vHOS_Button_init(	uint8_t ucPortNumber,
-						uint8_t ucPinNumber,
-						void (*pfCallback)(void),
-						uint8_t ucPressedLevel,
-						uint8_t ucFilterN,
-						xHOS_Button_t* pxButtonHandle	);
+xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
+									uint8_t ucPinNumber,
+									void (*pfCallback)(void),
+									uint8_t ucPressedLevel,
+									uint8_t ucFilterN	);
 
 /*
  * Enables button.
@@ -83,5 +81,13 @@ void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle);
  * 		-	Buttons are initially enabled on creation.
  */
 void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle);
+
+/*
+ * Reads button.
+ *
+ * Notes:
+ * 		-	Returns 1 if button state is "PRESSED", 0 otherwise.
+ */
+uint8_t ucHOS_Button_Read(xHOS_Button_t* pxButtonHandle);
 
 #endif /* HAL_OS_INC_BUTTON_BUTTON_H_ */

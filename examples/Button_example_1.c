@@ -127,7 +127,7 @@ void tasks_init(void)
  */
 void button_init(void)
 {
-	vHOS_Button_init(1, 1, callback, 1, 3, NULL);
+	(void)pxHOS_Button_init(1, 1, callback, 1, 3);
 }
 
 int main(void)

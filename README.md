@@ -10,6 +10,7 @@ FreeRTOS based HAL library.
 
 # Available drivers:
   * SD-Card (FAT32).
+  * ESP8266 WiFi module.
   * Colored-LCD.
   * Keypad.
   * Push buttons

@@ -7,6 +7,7 @@
 
 /*	LIB	*/
 #include <stdint.h>
+#include "Library/Bit_Math.h"
 
 /*	FreeRTOS	*/
 #include "FreeRTOS.h"
@@ -22,17 +23,29 @@
 
 #if configHOS_SEVEN_SEGMENT_EN
 
+/*
+ * Static objects:
+ */
 static xHOS_SevenSegmentMux_t pxSevenSegmentMuxArr[configHOS_SEVEN_SEGMENT_MUX_MAX_NUMBER_OF_DIGITS];
 static uint16_t usNumberOfUsedHandles = 0;
 
-static uint8_t pucSegmentStateArr[16] = {
-
+static uint8_t pucSegmentStateArr[] = {
+	0b00111111,	/*	0	*/
+	0b00000110,	/*	1	*/
+	0b01011011,	/*	2	*/
+	0b01001111,	/*	3	*/
+	0b01100110,	/*	4	*/
+	0b01101101,	/*	5	*/
+	0b01111101,	/*	6	*/
+	0b00000111,	/*	7	*/
+	0b01111111,	/*	8	*/
+	0b01101111	/*	9	*/
 };
 
 /*
  * Helping functions/macros.
  */
-static inline vDisableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
+static inline void vDisableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
 	uint8_t current = pxHandle->ucCurrentActiveDigit;
 	vHOS_DIO_writePin(	pxHandle->pxDigitEnablePortPinArr[current].unPort,
@@ -40,7 +53,7 @@ static inline vDisableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 						!(pxHandle->ucEnableActiveLevel)	);
 }
 
-static inline vEnableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
+static inline void vEnableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
 	uint8_t current = pxHandle->ucCurrentActiveDigit;
 	vHOS_DIO_writePin(	pxHandle->pxDigitEnablePortPinArr[current].unPort,
@@ -55,13 +68,50 @@ static inline vEnableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 		(pxHandle)->ucCurrentActiveDigit = 0;                           	\
 }
 
-/*	TODO: test this	*/
-#define ucNIBBLE(pucArr, i) (((pucArr)[(i)/2] >> (((i)%2)*4)) & 0x0F)
+/*
+ * Gets the DIO level that achieves the requested "ucState" based on "ucActiveLevel".
+ *
+ * Truth table:
+ *       ucState   ucActiveLevel   level
+ *         0             0           1
+ *         0             1           0
+ *         1             0           0
+ *         1             1           1
+ */
+#define ucGET_LEVEL(ucState, ucActiveLevel) (!((ucState) ^ (ucActiveLevel)))
 
-static inline vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
+static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
+	/*	Extract values	*/
+	xHOS_DIO_t* pxSegArr = pxHandle->pxSegmentPortPinArr;
+	uint8_t ucActiveLevel = pxHandle->ucSegmentActiveLevel;
+	uint8_t ucCurrent = pxHandle->ucCurrentActiveDigit;
+	uint8_t ucVal = ucGET_NIBBLE(pxHandle->pucDisplayBuffer, ucCurrent);
+	uint8_t ucStates = pucSegmentStateArr[ucVal];
+	uint8_t ucPort, ucPin, ucState, ucLevel;
+	uint8_t i;
 
+	/*	Apply states on the segments	*/
+	for (i = 0; i < 7; i++)
+	{
+		ucPort = pxSegArr[i].unPort;
+		ucPin = pxSegArr[i].unPin;
+		ucState = ucGET_BIT(ucStates, i);
+		ucLevel = ucGET_LEVEL(ucState, ucActiveLevel);
+		vHOS_DIO_writePin(ucPort, ucPin, ucLevel);
+	}
+
+	/*	if point active is on the currently active digit, activate it, otherwise de-activate it	*/
+	ucState = (pxHandle->cPointIndex == (int8_t)ucCurrent);
+	ucPort = pxSegArr[7].unPort;
+	ucPin = pxSegArr[7].unPin;
+	ucLevel = ucGET_LEVEL(ucState, ucActiveLevel);
+	vHOS_DIO_writePin(ucPort, ucPin, ucLevel);
 }
+
+#define pxTOP_PTR	\
+	(	pxSevenSegmentMuxArr + \
+		configHOS_SEVEN_SEGMENT_MUX_MAX_NUMBER_OF_OBJECTS * sizeof(xHOS_SevenSegmentMux_t)	)
 
 /*
  * If "configHOS_SEVEN_SEGMENT_EN" was enabled, a task that uses this function will be
@@ -93,8 +143,10 @@ void vSevenSegmentMux_manager(void* pvParams)
 			vINCREMENT_CURRENT_ACTIVE_COUNTER(pxHandle);
 
 			/*	write currently active digit from the buffer	*/
+			vWriteCurrentlyActiveDigit(pxHandle);
 
-
+			/*	enable currently active digit	*/
+			vEnableCurrentlyActiveDigit(pxHandle);
 		}
 
 		/*	Delay until next update time	*/
@@ -109,24 +161,111 @@ xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	xHOS_DIO_t* pxSegmentPortPin
 													xHOS_DIO_t* pxDigitEnablePortPinArr,
 													uint8_t ucSegmentActiveLevel,
 													uint8_t ucEnableActiveLevel,
-													uint8_t ucNumberOfDigits	);
+													uint8_t ucNumberOfDigits	)
+{
+	uint8_t i;
+	uint8_t ucPort, ucPin;
+	xHOS_SevenSegmentMux_t* pxHandle;
+
+	/*	check (assert) if there's enough memory to add new button	*/
+	configASSERT(usNumberOfUsedHandles < configHOS_SEVEN_SEGMENT_MUX_MAX_NUMBER_OF_OBJECTS);
+
+	/*	initialize segments pins as digital outputs, initially in-active	*/
+	for (i = 0; i < 8; i++)
+	{
+		ucPort = pxSegmentPortPinArr[i].unPort;
+		ucPin = pxSegmentPortPinArr[i].unPin;
+		vHOS_DIO_initPinOutput(ucPort, ucPin);
+		vHOS_DIO_writePin(ucPort, ucPin, ucGET_LEVEL(0, ucSegmentActiveLevel));
+	}
+
+	/*	initialize digit enable pins as digital outputs, initially in-active	*/
+	for (i = 0; i < ucNumberOfDigits; i++)
+	{
+		ucPort = pxDigitEnablePortPinArr[i].unPort;
+		ucPin = pxDigitEnablePortPinArr[i].unPin;
+		vHOS_DIO_initPinOutput(ucPort, ucPin);
+		vHOS_DIO_writePin(ucPort, ucPin, ucGET_LEVEL(0, ucEnableActiveLevel));
+	}
+
+	/*	add new object to driver's objects static array	*/
+	pxHandle = &pxSevenSegmentMuxArr[usNumberOfUsedHandles];
+	pxHandle->pxSegmentPortPinArr = pxSegmentPortPinArr;
+	pxHandle->pxDigitEnablePortPinArr = pxDigitEnablePortPinArr;
+	pxHandle->ucSegmentActiveLevel = ucSegmentActiveLevel;
+	pxHandle->ucEnableActiveLevel = ucEnableActiveLevel;
+	pxHandle->ucIsEnabled = 0;
+	pxHandle->ucNumberOfDigits = ucNumberOfDigits;
+	pxHandle->ucCurrentActiveDigit = 0;
+	pxHandle->cPointIndex = -1;
+
+	/*	display buffer is initially all-zeros	*/
+	for (i = 0; i < (ucNumberOfDigits+1)/2; i++)
+	{
+		pxHandle->pucDisplayBuffer[i] = 0;
+	}
+
+	return pxHandle;
+}
 
 /*
  * See header file for info.
  */
 void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle,
 									uint32_t uiNum,
-									int8_t cPointIndex	);
+									int8_t cPointIndex	)
+{
+	/*	check pointer first	*/
+	configASSERT(
+		(pxSevenSegmentMuxArr <= pxSevenSegmentMuxHandle) &&
+		(pxSevenSegmentMuxHandle < pxTOP_PTR));
+
+    uint8_t i;
+    uint8_t ucDigVal;
+    uint8_t* pucDigArr = pxSevenSegmentMuxHandle->pucDisplayBuffer;
+    uint8_t ucNDigs = pxSevenSegmentMuxHandle->ucNumberOfDigits;
+
+    for (i = 0; i < ucNDigs; i++)
+    {
+    	ucDigVal = uiNum % 10;
+    	vWRT_NIBBLE(pucDigArr, i, ucDigVal);
+    	uiNum = uiNum / 10;
+        if (uiNum == 0)
+            break;
+    }
+    for (i = i + 1; i < ucNDigs; i++)
+    {
+    	vWRT_NIBBLE(pucDigArr, i, 0);
+    }
+
+    pxSevenSegmentMuxHandle->cPointIndex = cPointIndex;
+}
 
 /*
  * See header file for info.
  */
-void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle);
+void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle)
+{
+	/*	check pointer first	*/
+	configASSERT(
+		(pxSevenSegmentMuxArr <= pxSevenSegmentMuxHandle) &&
+		(pxSevenSegmentMuxHandle < pxTOP_PTR));
+
+	pxSevenSegmentMuxHandle->ucIsEnabled = 1;
+}
 
 /*
  * See header file for info.
  */
-void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle);
+void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle)
+{
+	/*	check pointer first	*/
+	configASSERT(
+		(pxSevenSegmentMuxArr <= pxSevenSegmentMuxHandle) &&
+		(pxSevenSegmentMuxHandle < pxTOP_PTR));
+
+	pxSevenSegmentMuxHandle->ucIsEnabled = 0;
+}
 
 
 #endif	/*	configHOS_SEVEN_SEGMENT_EN	*/

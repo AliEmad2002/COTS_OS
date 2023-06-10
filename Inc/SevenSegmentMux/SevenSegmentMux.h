@@ -90,7 +90,7 @@ void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle
  * Enables "xHOS_SevenSegmentMux_t" object.
  *
  * Notes:
- * 		-	Objects are initially enabled on creation.
+ * 		-	Objects are initially disabled on creation.
  */
 void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle);
 
@@ -98,7 +98,7 @@ void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle
  * Disables "xHOS_SevenSegmentMux_t" object.
  *
  * Notes:
- * 		-	Objects are initially enabled on creation.
+ * 		-	Objects are initially disabled on creation.
  */
 void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle);
 

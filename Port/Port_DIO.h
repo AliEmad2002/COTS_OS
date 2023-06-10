@@ -110,13 +110,13 @@ static inline uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumbe
  * Notes:
  * 		-	Pin must be initially initialized as digital output.
  *
- *		-	"state": 0 for low level, 1 for high level.
+ *		-	"ucLevel": 0 for low level, 1 for high level.
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vHOS_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucState)
+static inline void vHOS_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucLevel)
 {
-	HAL_GPIO_WritePin(portArr[ucPortNumber], 1 << ucPinNumber, ucState);
+	HAL_GPIO_WritePin(portArr[ucPortNumber], 1 << ucPinNumber, ucLevel);
 }
 
 /*

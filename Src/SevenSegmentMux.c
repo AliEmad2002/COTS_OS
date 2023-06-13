@@ -23,9 +23,14 @@
 
 #if configHOS_SEVEN_SEGMENT_EN
 
-/*
+/*******************************************************************************
+ * Private configurations:
+ ******************************************************************************/
+#define uiSEVEN_SEGMENT_MUX_STACK_SIZE	configMINIMAL_STACK_SIZE
+
+/*******************************************************************************
  * Static objects:
- */
+ ******************************************************************************/
 static xHOS_SevenSegmentMux_t pxSevenSegmentMuxArr[configHOS_SEVEN_SEGMENT_MUX_MAX_NUMBER_OF_DIGITS];
 static uint16_t usNumberOfUsedHandles = 0;
 
@@ -42,9 +47,14 @@ static uint8_t pucSegmentStateArr[] = {
 	0b01101111	/*	9	*/
 };
 
-/*
+/*	Driver's stacks and task handle	*/
+static StackType_t pxSevenSegmentMuxStack[uiSEVEN_SEGMENT_MUX_STACK_SIZE];
+static StaticTask_t xSevenSegmentMuxStaticTask;
+static TaskHandle_t xSevenSegmentMuxTaskHandle;
+
+/*******************************************************************************
  * Helping functions/macros.
- */
+ ******************************************************************************/
 static inline void vDisableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
 	uint8_t current = pxHandle->ucCurrentActiveDigit;
@@ -113,6 +123,9 @@ static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 	(	pxSevenSegmentMuxArr + \
 		configHOS_SEVEN_SEGMENT_MUX_MAX_NUMBER_OF_OBJECTS * sizeof(xHOS_SevenSegmentMux_t)	)
 
+/*******************************************************************************
+ * RTOS Task code:
+ ******************************************************************************/
 /*
  * If "configHOS_SEVEN_SEGMENT_EN" was enabled, a task that uses this function will be
  * created in the "xHOS_init()".
@@ -154,6 +167,30 @@ void vSevenSegmentMux_manager(void* pvParams)
 	}
 }
 
+/*
+ * Initializes the task responsible for this  driver.
+ * Notes:
+ * 		-	This function is externed and called in "HAL_OS.c".
+ */
+BaseType_t xSevenSegmentMux_initTask(void)
+{
+	xSevenSegmentMuxTaskHandle = xTaskCreateStatic(	vSevenSegmentMux_manager,
+													"SSMux",
+													uiSEVEN_SEGMENT_MUX_STACK_SIZE,
+													NULL,
+													configNORMAL_TASK_PRIORITY,
+													pxSevenSegmentMuxStack,
+													&xSevenSegmentMuxStaticTask	);
+	if (xSevenSegmentMuxTaskHandle == NULL)
+		return pdFAIL;
+
+	else
+		return pdPASS;
+}
+
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
 /*
  * See header file for info.
  */

@@ -9,6 +9,7 @@
 #define HAL_OS_INC_SEVENSEGMENTMUX_SEVENSEGMENTMUX_H_
 
 #include "Inc/SevenSegmentMux/SevenSegmentMuxConfig.h"
+#include "Port/Port_DIO.h"
 
 /*
  * "xHOS_SevenSegmentMux_t" structure.

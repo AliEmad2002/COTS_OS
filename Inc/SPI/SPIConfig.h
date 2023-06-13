@@ -8,6 +8,9 @@
 #ifndef HAL_OS_INC_SPI_SPICONFIG_H_
 #define HAL_OS_INC_SPI_SPICONFIG_H_
 
+#define configHOS_SPI_EN					1
+
+#if configHOS_SPI_EN
 #define configHOS_SPI_NUMBER_OF_UNITS		1
 
 /*
@@ -30,6 +33,6 @@
 	(!ucHOS_SPI_IS_BUSY((ucUnitNumber)))
 
 
-
+#endif	/*	configHOS_SPI_EN	*/
 
 #endif /* HAL_OS_INC_SPI_SPICONFIG_H_ */

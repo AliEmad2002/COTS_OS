@@ -121,6 +121,15 @@ static inline void vHOS_SPI_disable(uint8_t ucUnitNumber)
 }
 
 /*
+ * Enables transfer complete interrupt.
+ */
+static inline void vHOS_SPI_enableTransferCompleteInterrupt(uint8_t ucUnitNumber)
+{
+	SPI_voidEnableInterrupt(ucUnitNumber, SPI_Interrupt_TxEmpty);
+	vHOS_Interrupt_enableIRQ(35 + ucUnitNumber);
+}
+
+/*
  * Checks if SPI unit is busy.
  */
 #define ucHOS_SPI_IS_BUSY(ucUnitNumber)	(SPI_IS_BUSY(ucUnitNumber))

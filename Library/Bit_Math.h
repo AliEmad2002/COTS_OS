@@ -10,8 +10,15 @@
 
 #include "Std_Types.h"
 
-/*	evaluates i-th bit of x	*/
-#define ucGET_BIT(x, i) (((x) >> (i)) & 1)
+#define vSET_BIT(reg, n)				((reg) |= 1<<(n))
+
+#define ucGET_BIT(x, i) 				(((x) >> (i)) & 1)
+
+#define vCLR_BIT(reg, n)				((reg) &= ~(1<<(n)))
+
+#define vTGL_BIT(reg, n)				((reg) ^= 1<<(n))
+
+#define vWRT_BIT(reg, n, val)			((val) ? vSET_BIT((reg), (n)) : vCLR_BIT((reg), (n)))
 
 /*
  * evaluates i-th nibble of "arr". (Follows little endianness)
@@ -40,26 +47,13 @@
 	}                                                          \
 }
 
-/******************************************************************************
- * LEGACY CODE (For MCAL files)
- *****************************************************************************/
-#define SET_BIT(reg, n)					((reg) |= 1<<(n))
-
-#define CLR_BIT(reg, n)					((reg) &= ~(1<<(n)))
-
-#define TGL_BIT(reg, n)					((reg) ^= 1<<(n))
-
-#define GET_BIT(reg, n)					(((reg)>>(n)) & 1)
-
-#define WRT_BIT(reg, n, val)			((val) ? SET_BIT((reg), (n)) : CLR_BIT((reg), (n)))
-
 /*	2^n	*/
-#define POW_TWO(n)						(1 << (n))
+#define uiPOW_TWO(n)						(1 << (n))
 
 /*	maximum of n-bits (2^n - 1) */
-#define MAX_N_BITS(n)					(POW_TWO((n)) - 1)
+#define uiMAX_N_BITS(n)					(uiPOW_TWO((n)) - 1)
 
-#define GET_REG_SEC(reg, start, len)	(((reg) >> (start)) & (POW_TWO((len)) - 1))
+#define uiGET_REG_SEC(reg, start, len)	(((reg) >> (start)) & (uiPOW_TWO((len)) - 1))
 
 /*
  * Edit a block of bytes in a register to a new value
@@ -70,12 +64,12 @@
  */
 static inline void BitMath_voidEditRegister(u32* regPtr, u8 start, u32 val, u8 len)
 {
-	*regPtr = (*regPtr & ~((POW_TWO(len)-1) << start)) | (val << start);
+	*regPtr = (*regPtr & ~((uiPOW_TWO(len)-1) << start)) | (val << start);
 }
 
-#define EDT_REG(reg, start, val, len)	BitMath_voidEditRegister((u32*)&(reg), start, val, len)
+#define vEDT_REG(reg, start, val, len)	BitMath_voidEditRegister((u32*)&(reg), start, val, len)
 
-#define GET_WORD_AT(basePtr, offset)	\
+#define uiGET_WORD_AT(basePtr, offset)	\
 	(*((u32*)((u32)(basePtr) + (offset) * 4)))
 
 #endif /* HAL_OS_LIB_BIT_MATH_H_ */

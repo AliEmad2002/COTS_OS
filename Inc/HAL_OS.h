@@ -10,6 +10,8 @@
 
 #include "FreeRTOS.h"
 #include "Inc/Button/Button.h"
+#include "Inc/SevenSegmentMux/SevenSegmentMux.h"
+#include "Inc/SPI/SPI.h"
 
 BaseType_t xHOS_init(void);
 

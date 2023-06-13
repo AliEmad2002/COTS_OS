@@ -21,11 +21,18 @@
 /*	SELF	*/
 #include "Inc/SPI/SPI.h"
 
+#if configHOS_SPI_EN
+
 typedef struct{
 	uint8_t* arr;
 	uint32_t current;
 	uint32_t size;
 }xSPI_Buffer_t;
+
+/*******************************************************************************
+ * Private configurations:
+ ******************************************************************************/
+#define uiSPI_STACK_SIZE		configMINIMAL_STACK_SIZE
 
 /*******************************************************************************
  * Global and static variables:
@@ -75,10 +82,14 @@ void vSPIn_Task(void* pvParams)
 	}
 }
 
-/*******************************************************************************
- * API functions:
- ******************************************************************************/
-void vHOS_SPI_init(void)
+/*
+ * Initializes the task/s responsible for this  driver.
+ * Notes:
+ * 		-	This function is externed and called in "HAL_OS.c".
+ *		-	HW settings like frame format and clock mode must be initially set
+ * 		by user.
+ */
+BaseType_t xHOS_SPI_initTasks(void)
 {
 	for (uint8_t i = 0; i < configHOS_SPI_NUMBER_OF_UNITS; i++)
 	{
@@ -101,15 +112,25 @@ void vHOS_SPI_init(void)
 		pucParamArr[i] = i;
 		pxSPITaskHandleArr[i] = xTaskCreateStatic(	vSPIn_Task,
 													"",
-													configMINIMAL_STACK_SIZE,
+													uiSPI_STACK_SIZE,
 													&pucParamArr[i],
 													configNORMAL_TASK_PRIORITY,
 													puxSPITaskStackArr[i],
 													&pxSPITaskStaticHandleArr[i]	);
 
+		if (pxSPITaskHandleArr[i] == NULL)
+			return pdFAIL;
+
+		/*	Enable TC interrupt	*/
+		vHOS_SPI_enableTransferCompleteInterrupt(i);
 	}
+
+	return pdPASS;
 }
 
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
 void vHOS_SPI_send(uint8_t ucUnitNumber, uint8_t* pucArr, uint32_t uiSize)
 {
 	pxSPIBufferArr[ucUnitNumber].arr = pucArr;
@@ -191,3 +212,4 @@ int main() {
 
 
 
+#endif	/*	configHOS_SPI_EN	*/

@@ -22,19 +22,34 @@
 
 #if configHOS_BUTTON_EN
 
-/*
+/*******************************************************************************
+ * Private configurations:
+ ******************************************************************************/
+#define uiBUTTON_STACK_SIZE		configMINIMAL_STACK_SIZE
+
+/*******************************************************************************
  * Static objects:
- */
+ ******************************************************************************/
 static xHOS_Button_t xButtonArr[configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS];
 static uint16_t usNumberOfUsedButtons = 0;
 
-/*	Helping functions/macros	*/
+/*	Driver's stacks and task handle	*/
+static StackType_t pxButtonStack[uiBUTTON_STACK_SIZE];
+static StaticTask_t xButtonStaticTask;
+static TaskHandle_t xButtonTaskHandle;
+
+/*******************************************************************************
+ * Helping functions/macros.
+ ******************************************************************************/
 #define RELEASED 		0
 #define PRE_PRESSED		1
 #define PRESSED			2
 
 #define pxTOP_PTR	(xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t))
 
+/*******************************************************************************
+ * RTOS Task code:
+ ******************************************************************************/
 /*
  * If "configHOS_BUTTON_EN" was enabled, a task that uses this function will be
  * created in the "xHOS_init()".
@@ -95,6 +110,30 @@ void vButton_manager(void* pvParams)
 	}
 }
 
+/*
+ * Initializes the task responsible for this  driver.
+ * Notes:
+ * 		-	This function is externed and called in "HAL_OS.c".
+ */
+BaseType_t xButton_initTask(void)
+{
+	xButtonTaskHandle = xTaskCreateStatic(	vButton_manager,
+											"Button",
+											uiBUTTON_STACK_SIZE,
+											NULL,
+											configNORMAL_TASK_PRIORITY,
+											pxButtonStack,
+											&xButtonStaticTask	);
+	if (xButtonTaskHandle == NULL)
+		return pdFAIL;
+
+	else
+		return pdPASS;
+}
+
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
 /*
  * See header file for info.
  */

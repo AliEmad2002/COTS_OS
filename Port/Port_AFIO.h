@@ -16,10 +16,20 @@
  * If the ported target does not have one, mapping functions are left empty.
  */
 
+#include "stm32f1xx_hal.h"
+
 static inline void vPort_AFIO_mapSpi(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 {
+	if (ucUnitNumber == 1)	/*	SPI2 in STM32F103 has one map only	*/
+		return;
 
+	if (ucMapNumber == 0)
+		__HAL_AFIO_REMAP_SPI1_DISABLE();
+	else
+		__HAL_AFIO_REMAP_SPI1_ENABLE();
 }
+
+
 
 
 

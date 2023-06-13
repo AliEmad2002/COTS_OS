@@ -25,25 +25,35 @@
 #include "stm32f1xx_hal.h"
 #include "cmsis_gcc.h"
 
-static inline void vHOS_Interrupt_enableGlobalInterrupt()
+static inline void vPort_Interrupt_enableGlobalInterrupt()
 {
 	__enable_irq();
 }
 
-static inline void vHOS_Interrupt_disableGlobalInterrupt()
+static inline void vPort_Interrupt_disableGlobalInterrupt()
 {
 	__disable_irq();
 }
 
-static inline void vHOS_Interrupt_enableIRQ(uint8_t ucIRQNumber)
+static inline void vPort_Interrupt_enableIRQ(uint8_t ucIRQNumber)
 {
 	HAL_NVIC_EnableIRQ(ucIRQNumber);
 }
 
-static inline void vHOS_Interrupt_disableIRQ(uint8_t ucIRQNumber)
+static inline void vPort_Interrupt_disableIRQ(uint8_t ucIRQNumber)
 {
 	HAL_NVIC_DisableIRQ(ucIRQNumber);
 }
 
+/*******************************************************************************
+ * IRQ numbers.
+ * Notes:
+ * 		-	Names must not be changed at all. Only value can be.
+ * 		-	Some IRQs must be in arrays, such as these of repeated units, like
+ * 			timers, SPI, UART, DMA, ... etc.
+ * 		-	If the ported target has only one unit, an array of IRQs must be remained
+ * 			as an array, it could be made of one element.
+ ******************************************************************************/
+extern const IRQn_Type pxPortInterruptSpiIrqNumberArr[];
 
 #endif /* HAL_OS_PORT_PORT_INTERRUPT_H_ */

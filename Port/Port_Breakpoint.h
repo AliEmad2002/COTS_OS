@@ -16,7 +16,7 @@
  */
 
 
-#define vHOS_Breakpoint()		\
+#define vPort_Breakpoint()		\
 {                               \
 	asm volatile("BKPT #0");    \
 }

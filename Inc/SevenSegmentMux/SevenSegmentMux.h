@@ -15,13 +15,8 @@
  * "xHOS_SevenSegmentMux_t" structure.
  *
  * Notes:
- * 		-	"pucSegmentPortPinArr[i]" holds port and pin numbers of i-th segment,
- * 			such that: 0-th segment == 'A' segment, ..., 7-th segment == '.' segment.
  *
- * 		-	"pxDigitEnablePortPinArr[i]" holds port and pin numbers of i-th digit
- * 			enable pin.
- *
- *	 	-	The above arrays are user allocated, defined and then passed
+ *	 	-	The first 4 arrays are user allocated, defined and then passed
  * 			to "pxHOS_SevenSegmentMux_init()" when creating object.
  *
  * 		-	"pucDisplayBuffer[]" in its i-th nibble holds the number to be displayed
@@ -46,9 +41,11 @@
  */
 typedef struct{
 	/*	Configuration parameters	*/
-	xHOS_DIO_t* pxSegmentPortPinArr;
+	uint8_t* pxSegmentPortNumberArr;
+	uint8_t* pxSegmentPinNumberArr;
 
-	xHOS_DIO_t* pxDigitEnablePortPinArr;
+	uint8_t* pxDigitEnablePortNumberArr;
+	uint8_t* pxDigitEnablePinNumberArr;
 
 	uint8_t ucSegmentActiveLevel : 1;
 
@@ -74,8 +71,10 @@ typedef struct{
  *
  * 		-	Returns pointer to the created handle. Used in the following functions.
  */
-xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	xHOS_DIO_t* pxSegmentPortPinArr,
-													xHOS_DIO_t* pxDigitEnablePortPinArr,
+xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	uint8_t* pxSegmentPortNumberArr,
+													uint8_t* pxSegmentPinNumberArr,
+													uint8_t* pxDigitEnablePortNumberArr,
+													uint8_t* pxDigitEnablePinNumberArr,
 													uint8_t ucSegmentActiveLevel,
 													uint8_t ucEnableActiveLevel,
 													uint8_t ucNumberOfDigits	);

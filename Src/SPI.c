@@ -17,6 +17,7 @@
 
 /*	MCAL (Ported)	*/
 #include "Port/Port_SPI.h"
+#include "Port/Port_Interrupt.h"
 
 /*	SELF	*/
 #include "Inc/SPI/SPI.h"
@@ -76,7 +77,7 @@ void vSPIn_Task(void* pvParams)
 		else
 		{
 			xSemaphoreTake(*pxHWMutexHandle, portMAX_DELAY);
-			vHOS_SPI_WRT_DR_NO_WAIT(ucUnitNumber, pxBuffer->arr[pxBuffer->current]);
+			vPort_SPI_WRT_DR_NO_WAIT(ucUnitNumber, pxBuffer->arr[pxBuffer->current]);
 			pxBuffer->current++;
 		}
 	}
@@ -122,7 +123,7 @@ BaseType_t xHOS_SPI_initTasks(void)
 			return pdFAIL;
 
 		/*	Enable TC interrupt	*/
-		vHOS_SPI_enableTransferCompleteInterrupt(i);
+		vPort_Interrupt_enableIRQ(pxPortInterruptSpiIrqNumberArr[i]);
 	}
 
 	return pdPASS;

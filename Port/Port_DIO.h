@@ -20,18 +20,6 @@
 #include "stm32f1xx_hal.h"
 
 /*
- * Port and pin combine structure.
- *
- * Notes:
- * 		-	Used in drivers having large number of pins (like 7-segment multiplexer)
- * 			to half size taken by pin and port data.
- */
-typedef struct{
-	uint8_t unPort : 4;
-	uint8_t unPin  : 4;
-}xHOS_DIO_t;
-
-/*
  * Driver-long needed values.
  *
  * Notes:
@@ -46,7 +34,7 @@ typedef struct{
  * 			On the other hand, static and inline functions are normally defined
  * 			in a header.
  */
-extern GPIO_TypeDef* const portArr[];
+extern GPIO_TypeDef* const pxPortDioPortArr[];
 
 /*
  * Initializes pin as digital input.
@@ -59,7 +47,7 @@ extern GPIO_TypeDef* const portArr[];
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vHOS_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull)
+static inline void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull)
 {
 	GPIO_InitTypeDef conf = {
 		.Pin = 1 << ucPinNumber,
@@ -68,7 +56,7 @@ static inline void vHOS_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumb
 		.Speed = GPIO_SPEED_FREQ_HIGH
 	};
 
-	HAL_GPIO_Init(portArr[ucPortNumber], &conf);
+	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
 }
 
 /*
@@ -77,7 +65,7 @@ static inline void vHOS_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumb
  * Notes:
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vHOS_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
+static inline void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
 {
 	GPIO_InitTypeDef conf = {
 		.Pin = 1 << ucPinNumber,
@@ -86,7 +74,7 @@ static inline void vHOS_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNum
 		.Speed = GPIO_SPEED_FREQ_HIGH
 	};
 
-	HAL_GPIO_Init(portArr[ucPortNumber], &conf);
+	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
 }
 
 /*
@@ -99,9 +87,9 @@ static inline void vHOS_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNum
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumber)
+static inline uint8_t ucPort_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumber)
 {
-	return HAL_GPIO_ReadPin(portArr[ucPortNumber], 1 << ucPinNumber);
+	return HAL_GPIO_ReadPin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber);
 }
 
 /*
@@ -114,9 +102,9 @@ static inline uint8_t ucHOS_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumbe
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vHOS_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucLevel)
+static inline void vPort_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucLevel)
 {
-	HAL_GPIO_WritePin(portArr[ucPortNumber], 1 << ucPinNumber, ucLevel);
+	HAL_GPIO_WritePin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber, ucLevel);
 }
 
 /*
@@ -127,9 +115,9 @@ static inline void vHOS_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, 
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vHOS_DIO_togglePin(uint8_t ucPortNumber, uint8_t ucPinNumber)
+static inline void vPort_DIO_togglePin(uint8_t ucPortNumber, uint8_t ucPinNumber)
 {
-	HAL_GPIO_TogglePin(portArr[ucPortNumber], 1 << ucPinNumber);
+	HAL_GPIO_TogglePin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber);
 }
 
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */

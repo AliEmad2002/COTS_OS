@@ -72,7 +72,7 @@ void vButton_manager(void* pvParams)
 				continue;
 
 			/*	read digital level of button's DIO pin	*/
-			pinLevel = ucHOS_DIO_readPin(xButtonArr[i].ucPortNumber, xButtonArr[i].ucPinNumber);
+			pinLevel = ucPort_DIO_readPin(xButtonArr[i].ucPortNumber, xButtonArr[i].ucPinNumber);
 
 			/*	if it is the pressed level	*/
 			if (pinLevel == xButtonArr[i].ucPressedLevel)
@@ -148,7 +148,7 @@ xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
 
 	/*	initialize DIO pin as an input, pulled with invert of "ucPressedLevel"	*/
 	uint8_t ucPull = ucPressedLevel ? 2 : 1;
-	vHOS_DIO_initPinInput(ucPortNumber, ucPinNumber, ucPull);
+	vPort_DIO_initPinInput(ucPortNumber, ucPinNumber, ucPull);
 
 	/*	store button data in "xButtonArr"	*/
 	xHOS_Button_t* pxHandle = &xButtonArr[usNumberOfUsedButtons];

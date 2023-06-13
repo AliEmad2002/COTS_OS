@@ -21,6 +21,6 @@
 #include <stdio.h>
 
 /*	TODO: ITM	*/
-#define vHOS_Print(...)	printf(__VA_ARGS__)
+#define vPort_Print(...)	printf(__VA_ARGS__)
 
 #endif /* HAL_OS_PORT_PORT_PRINT_H_ */

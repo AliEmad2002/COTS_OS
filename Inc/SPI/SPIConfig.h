@@ -30,7 +30,7 @@
  * 	for event checking.
  */
 #define configHOS_SPI_IS_TC(ucUnitNumber)	\
-	(!ucHOS_SPI_IS_BUSY((ucUnitNumber)))
+	(!ucPort_SPI_IS_BUSY((ucUnitNumber)))
 
 
 #endif	/*	configHOS_SPI_EN	*/

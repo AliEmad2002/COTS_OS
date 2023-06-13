@@ -57,17 +57,17 @@ static TaskHandle_t xSevenSegmentMuxTaskHandle;
  ******************************************************************************/
 static inline void vDisableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
-	uint8_t current = pxHandle->ucCurrentActiveDigit;
-	vHOS_DIO_writePin(	pxHandle->pxDigitEnablePortPinArr[current].unPort,
-						pxHandle->pxDigitEnablePortPinArr[current].unPin,
+	uint8_t ucCurrent = pxHandle->ucCurrentActiveDigit;
+	vPort_DIO_writePin(	pxHandle->pxDigitEnablePortNumberArr[ucCurrent],
+						pxHandle->pxDigitEnablePinNumberArr[ucCurrent],
 						!(pxHandle->ucEnableActiveLevel)	);
 }
 
 static inline void vEnableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
-	uint8_t current = pxHandle->ucCurrentActiveDigit;
-	vHOS_DIO_writePin(	pxHandle->pxDigitEnablePortPinArr[current].unPort,
-						pxHandle->pxDigitEnablePortPinArr[current].unPin,
+	uint8_t ucCurrent = pxHandle->ucCurrentActiveDigit;
+	vPort_DIO_writePin(	pxHandle->pxDigitEnablePortNumberArr[ucCurrent],
+						pxHandle->pxDigitEnablePinNumberArr[ucCurrent],
 						pxHandle->ucEnableActiveLevel	);
 }
 
@@ -93,7 +93,8 @@ static inline void vEnableCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 {
 	/*	Extract values	*/
-	xHOS_DIO_t* pxSegArr = pxHandle->pxSegmentPortPinArr;
+	uint8_t* pxSegPortNumberArr = pxHandle->pxSegmentPortNumberArr;
+	uint8_t* pxSegPinNumberArr = pxHandle->pxSegmentPinNumberArr;
 	uint8_t ucActiveLevel = pxHandle->ucSegmentActiveLevel;
 	uint8_t ucCurrent = pxHandle->ucCurrentActiveDigit;
 	uint8_t ucVal = ucGET_NIBBLE(pxHandle->pucDisplayBuffer, ucCurrent);
@@ -104,19 +105,19 @@ static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 	/*	Apply states on the segments	*/
 	for (i = 0; i < 7; i++)
 	{
-		ucPort = pxSegArr[i].unPort;
-		ucPin = pxSegArr[i].unPin;
+		ucPort = pxSegPortNumberArr[i];
+		ucPin = pxSegPinNumberArr[i];
 		ucState = ucGET_BIT(ucStates, i);
 		ucLevel = ucGET_LEVEL(ucState, ucActiveLevel);
-		vHOS_DIO_writePin(ucPort, ucPin, ucLevel);
+		vPort_DIO_writePin(ucPort, ucPin, ucLevel);
 	}
 
 	/*	if point active is on the currently active digit, activate it, otherwise de-activate it	*/
 	ucState = (pxHandle->cPointIndex == (int8_t)ucCurrent);
-	ucPort = pxSegArr[7].unPort;
-	ucPin = pxSegArr[7].unPin;
+	ucPort = pxSegPortNumberArr[7];
+	ucPin = pxSegPinNumberArr[7];
 	ucLevel = ucGET_LEVEL(ucState, ucActiveLevel);
-	vHOS_DIO_writePin(ucPort, ucPin, ucLevel);
+	vPort_DIO_writePin(ucPort, ucPin, ucLevel);
 }
 
 #define pxTOP_PTR	\
@@ -194,8 +195,10 @@ BaseType_t xSevenSegmentMux_initTask(void)
 /*
  * See header file for info.
  */
-xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	xHOS_DIO_t* pxSegmentPortPinArr,
-													xHOS_DIO_t* pxDigitEnablePortPinArr,
+xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	uint8_t* pxSegmentPortNumberArr,
+													uint8_t* pxSegmentPinNumberArr,
+													uint8_t* pxDigitEnablePortNumberArr,
+													uint8_t* pxDigitEnablePinNumberArr,
 													uint8_t ucSegmentActiveLevel,
 													uint8_t ucEnableActiveLevel,
 													uint8_t ucNumberOfDigits	)
@@ -210,25 +213,27 @@ xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	xHOS_DIO_t* pxSegmentPortPin
 	/*	initialize segments pins as digital outputs, initially in-active	*/
 	for (i = 0; i < 8; i++)
 	{
-		ucPort = pxSegmentPortPinArr[i].unPort;
-		ucPin = pxSegmentPortPinArr[i].unPin;
-		vHOS_DIO_initPinOutput(ucPort, ucPin);
-		vHOS_DIO_writePin(ucPort, ucPin, ucGET_LEVEL(0, ucSegmentActiveLevel));
+		ucPort = pxSegmentPortNumberArr[i];
+		ucPin = pxSegmentPinNumberArr[i];
+		vPort_DIO_initPinOutput(ucPort, ucPin);
+		vPort_DIO_writePin(ucPort, ucPin, ucGET_LEVEL(0, ucSegmentActiveLevel));
 	}
 
 	/*	initialize digit enable pins as digital outputs, initially in-active	*/
 	for (i = 0; i < ucNumberOfDigits; i++)
 	{
-		ucPort = pxDigitEnablePortPinArr[i].unPort;
-		ucPin = pxDigitEnablePortPinArr[i].unPin;
-		vHOS_DIO_initPinOutput(ucPort, ucPin);
-		vHOS_DIO_writePin(ucPort, ucPin, ucGET_LEVEL(0, ucEnableActiveLevel));
+		ucPort = pxDigitEnablePortNumberArr[i];
+		ucPin = pxDigitEnablePinNumberArr[i];
+		vPort_DIO_initPinOutput(ucPort, ucPin);
+		vPort_DIO_writePin(ucPort, ucPin, ucGET_LEVEL(0, ucEnableActiveLevel));
 	}
 
 	/*	add new object to driver's objects static array	*/
 	pxHandle = &pxSevenSegmentMuxArr[usNumberOfUsedHandles];
-	pxHandle->pxSegmentPortPinArr = pxSegmentPortPinArr;
-	pxHandle->pxDigitEnablePortPinArr = pxDigitEnablePortPinArr;
+	pxHandle->pxSegmentPortNumberArr = pxSegmentPortNumberArr;
+	pxHandle->pxSegmentPinNumberArr = pxSegmentPinNumberArr;
+	pxHandle->pxDigitEnablePortNumberArr = pxDigitEnablePortNumberArr;
+	pxHandle->pxDigitEnablePinNumberArr = pxDigitEnablePinNumberArr;
 	pxHandle->ucSegmentActiveLevel = ucSegmentActiveLevel;
 	pxHandle->ucEnableActiveLevel = ucEnableActiveLevel;
 	pxHandle->ucIsEnabled = 0;

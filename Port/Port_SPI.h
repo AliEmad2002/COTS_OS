@@ -174,13 +174,16 @@ static inline void vPort_SPI_disable(uint8_t ucUnitNumber)
 }
 
 /*
- * Enables transfer complete interrupt.
+ * Enables transfer buffer empty interrupt.
  */
-static inline void vPort_SPI_enableTransferCompleteInterrupt(uint8_t ucUnitNumber)
-{
-	//SPI_voidEnableInterrupt(ucUnitNumber, SPI_Interrupt_TxEmpty);
-	SET_BIT(pxPortSpiArr[ucUnitNumber]->CR2, SPI_CR2_TXEIE);
-}
+#define vPORT_SPI_ENABLE_TXE_INTERRUPT(ucUnitNumber)	\
+	(SET_BIT(pxPortSpiArr[(ucUnitNumber)]->CR2, SPI_CR2_TXEIE))
+
+/*
+ * Disables transfer buffer empty interrupt.
+ */
+#define vPORT_SPI_DISABLE_TXE_INTERRUPT(ucUnitNumber)	\
+	(CLEAR_BIT(pxPortSpiArr[(ucUnitNumber)]->CR2, SPI_CR2_TXEIE))
 
 /*
  * Checks if SPI unit is busy.

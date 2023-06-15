@@ -45,6 +45,11 @@ static inline void vPort_Interrupt_disableIRQ(uint8_t ucIRQNumber)
 	HAL_NVIC_DisableIRQ(ucIRQNumber);
 }
 
+static inline void vPort_Interrupt_setPriority(uint8_t ucIRQNumber, uint8_t ucPri)
+{
+	NVIC_SetPriority(ucIRQNumber, ucPri);
+}
+
 /*******************************************************************************
  * IRQ numbers.
  * Notes:

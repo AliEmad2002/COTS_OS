@@ -3,6 +3,12 @@
  *
  *  Created on: Jun 12, 2023
  *      Author: Ali Emad
+ *
+ * Notes:
+ * 		-	So far, SPI version-1 is the only SPI driver implemented. It does not
+ * 			use DMA.
+ *
+ * 		-	TODO: Implement SPI version-2 that uses DMA.
  */
 
 #ifndef HAL_OS_INC_SPI_SPI_H_

@@ -67,20 +67,26 @@ static volatile xSPI_Buffer_t pxSPIBufferArr[configHOS_SPI_NUMBER_OF_UNITS];
  * Mutexes:
  *
  * Notes:
- * 		-	Difference between "pxSPIUnitMutexArr[i]" and "pxSPITransferMutexArr[i]"
- * 			is mentioned in the header file.
+ * 		-	"pxSPIUnitMutexArr[i]" and "SpiTransferMutexArr[i]" are described in
+ * 			the header file.
  *
- * 		-	In addition, "pxSPIHWMutexArr[i]" is taken by SPI driver task before sending
- * 			a byte, and released by ISR. This is done to assure that SPI driver task
- * 			does not transfer another byte while the previous one has not yet ended.
+ * 		-	"pxSPIHWMutexArr[i]" is taken by SPI driver task before sending a byte,
+ * 			and released by ISR. This is done to assure that SPI driver task does
+ * 			not transfer another byte while the previous one has not yet ended.
+ *
+ * 		-	"pxSPIBufferMutexArr[i]" is used privately within driver's  data transferring
+ * 			functions, to assure that buffer of the SPI unit is not being accessed
+ * 			while used in the driver task.
  */
 static StaticSemaphore_t pxSPIHWStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 static StaticSemaphore_t pxSPIUnitStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 static StaticSemaphore_t pxSPITransferStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
+static StaticSemaphore_t pxSPIBufferStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 
 SemaphoreHandle_t pxSPIHWMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 SemaphoreHandle_t pxSPIUnitMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 SemaphoreHandle_t pxSPITransferMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
+SemaphoreHandle_t pxSPIBufferMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 
 /*
  * Byte direction setting array.
@@ -126,6 +132,7 @@ void vSPIn_Task(void* pvParams)
 		if (pxBuffer->uiCount == pxBuffer->uiSize)
 		{
 			xSemaphoreGive(*pxTransferMutexHandle);
+			xSemaphoreGive(pxSPIBufferMutexArr[ucUnitNumber]);
 			vTaskSuspend(*pxTaskHandle);
 		}
 
@@ -176,6 +183,11 @@ BaseType_t xHOS_SPI_initTasks(void)
 		configASSERT(pxSPITransferMutexArr[i] != NULL);
 		xSemaphoreGive(pxSPITransferMutexArr[i]);
 
+		/*	create buffer mutex	*/
+		pxSPIBufferMutexArr[i] = xSemaphoreCreateBinaryStatic(&pxSPIBufferStaticMutexArr[i]);
+		configASSERT(pxSPIBufferMutexArr[i] != NULL);
+		xSemaphoreGive(pxSPIBufferMutexArr[i]);
+
 		/*	create task	*/
 		pucParamArr[i] = i;
 		pxSPITaskHandleArr[i] = xTaskCreateStatic(	vSPIn_Task,
@@ -209,27 +221,27 @@ void vHOS_SPI_setByteDirection(uint8_t ucUnitNumber, uint8_t ucByteDirection)
 	pucSPIByteDirectionArr[ucUnitNumber] = ucByteDirection;
 }
 
-static uint8_t fads = 0;
 void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 {
+	xSemaphoreTake(pxSPIBufferMutexArr[ucUnitNumber], portMAX_DELAY);
+
 	pxSPIBufferArr[ucUnitNumber].pcArr = pcArr;
 	pxSPIBufferArr[ucUnitNumber].uiCount = 0;
 	pxSPIBufferArr[ucUnitNumber].uiSize = uiSize;
 
-	fads++;
 	vTaskResume(pxSPITaskHandleArr[ucUnitNumber]);
-}
-
-inline __attribute__((always_inline))
-SemaphoreHandle_t xHOS_SPI_getTransferMutexHandle(uint8_t ucUnitNumber)
-{
-	return pxSPITransferMutexArr[ucUnitNumber];
 }
 
 inline __attribute__((always_inline))
 SemaphoreHandle_t xHOS_SPI_getUnitMutexHandle(uint8_t ucUnitNumber)
 {
 	return pxSPIUnitMutexArr[ucUnitNumber];
+}
+
+inline __attribute__((always_inline))
+SemaphoreHandle_t xHOS_SPI_getTransferMutexHandle(uint8_t ucUnitNumber)
+{
+	return pxSPITransferMutexArr[ucUnitNumber];
 }
 
 /*******************************************************************************

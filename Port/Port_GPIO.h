@@ -25,10 +25,10 @@
  * 		and reset otherwise.
  */
 void vPort_GPIO_initSpiPins(	uint8_t ucUnitNumber,
-										uint8_t ucMapNumber,
-										uint8_t ucInitNSS,
-										uint8_t ucInitMISO,
-										uint8_t ucInitMOSI	);
+								uint8_t ucMapNumber,
+								uint8_t ucInitNSS,
+								uint8_t ucInitMISO,
+								uint8_t ucInitMOSI	);
 
 
 

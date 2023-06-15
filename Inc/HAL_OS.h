@@ -12,6 +12,7 @@
 #include "Inc/Button/Button.h"
 #include "Inc/SevenSegmentMux/SevenSegmentMux.h"
 #include "Inc/SPI/SPI.h"
+#include "Inc/TFT/TFT.h"
 
 BaseType_t xHOS_init(void);
 

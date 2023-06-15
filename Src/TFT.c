@@ -116,7 +116,10 @@ void vHOS_TFT_init(xHOS_TFT_t* pxTFT, uint16_t usSpiBaudratePrescaler, uint8_t u
 	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
 	vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);
 
-	/*	TODO: initialize TFT mutex	*/
+	/*	initialize TFT mutex	*/
+	pxTFT->xMutexHandle = xSemaphoreCreateBinaryStatic(&pxTFT->xMutexMemory);
+	configASSERT(pxTFT->xMutexHandle != NULL);
+	xSemaphoreGive(pxTFT->xMutexHandle);
 
 	/*	execute reset sequence	*/
 	vHOS_TFT_reset(pxTFT);
@@ -153,14 +156,33 @@ void vHOS_TFT_setPix(	xHOS_TFT_t* pxTFT,
  */
 void vHOS_TFT_fillRectangle(	xHOS_TFT_t* pxTFT,
 								xHOS_TFT_Boundaries_t* pxBounds,
-								uint16_t usColor	);
+								uint16_t usColor	)
+{
+	/*	set boundaries to this rectangle	*/
+	vHOS_TFT_setBoundaries(pxTFT, pxBounds);
+
+	/*	send color data	*/
+	uint32_t uiN = (pxBounds->usX1 - pxBounds->usX0 + 1) * (pxBounds->usY1 - pxBounds->usY0 + 1);
+	for (uint32_t i = 0; i < uiN; i++)
+	{
+		vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&usColor, 2);
+	}
+}
 
 /*
  * See header file for info.
  */
 void vHOS_TFT_drawRectangle(	xHOS_TFT_t* pxTFT,
 								xHOS_TFT_Boundaries_t* pxBounds,
-								uint16_t* pusColorArr	);
+								uint16_t* pusColorArr	)
+{
+	/*	set boundaries to this rectangle	*/
+	vHOS_TFT_setBoundaries(pxTFT, pxBounds);
+
+	/*	send color data	*/
+	uint32_t uiN = (pxBounds->usX1 - pxBounds->usX0 + 1) * (pxBounds->usY1 - pxBounds->usY0 + 1);
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)pusColorArr, 2*uiN);
+}
 
 /*
  * See header file for info.
@@ -195,9 +217,19 @@ void vHOS_TFT_drawNextPix(xHOS_TFT_t* pxTFT, uint16_t usColor)
 /*
  * See header file for info.
  */
-void vHOS_TFT_drawNextNPixFromArr(xHOS_TFT_t* pxTFT, uint16_t* pusColorArr, uint32_t uiN);
+void vHOS_TFT_drawNextNPixFromArr(xHOS_TFT_t* pxTFT, uint16_t* pusColorArr, uint32_t uiN)
+{
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)pusColorArr, 2*uiN);
+}
 
 /*
  * See header file for info.
  */
-void vHOS_TFT_drawNextNPixFromSingleColor(xHOS_TFT_t* pxTFT, uint16_t usColor, uint32_t uiN);
+void vHOS_TFT_drawNextNPixFromSingleColor(xHOS_TFT_t* pxTFT, uint16_t usColor, uint32_t uiN)
+{
+	for (uint32_t i = 0; i < uiN; i++)
+	{
+		vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&usColor, 2);
+	}
+}
+

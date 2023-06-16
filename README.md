@@ -18,6 +18,12 @@ FreeRTOS based HAL library.
     * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_example_1.c
        
        https://github.com/AliEmad2002/HAL_OS/assets/99054912/809e45ac-fcf3-4692-9f22-9152126abfa4
+  * Seven-segment multiplexer
+    * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_And_SevenSegmentMux_example.c
+    
+
+      https://github.com/AliEmad2002/HAL_OS/assets/99054912/e4ce0098-8968-4b07-a7b3-8f55cbbe2e6d
+
 
 
     

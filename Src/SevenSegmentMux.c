@@ -247,6 +247,9 @@ xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	uint8_t* pxSegmentPortNumber
 		pxHandle->pucDisplayBuffer[i] = 0;
 	}
 
+	/*	increment created handles counter	*/
+	usNumberOfUsedHandles++;
+
 	return pxHandle;
 }
 
@@ -305,6 +308,14 @@ void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandl
 	configASSERT(
 		(pxSevenSegmentMuxArr <= pxSevenSegmentMuxHandle) &&
 		(pxSevenSegmentMuxHandle < pxTOP_PTR));
+
+	/*	disable all segments	*/
+	for (uint8_t i = 0; i < pxSevenSegmentMuxHandle->ucNumberOfDigits; i++)
+	{
+		vPort_DIO_writePin(	pxSevenSegmentMuxHandle->pxDigitEnablePortNumberArr[i],
+							pxSevenSegmentMuxHandle->pxDigitEnablePinNumberArr[i],
+							!(pxSevenSegmentMuxHandle->ucEnableActiveLevel));
+	}
 
 	pxSevenSegmentMuxHandle->ucIsEnabled = 0;
 }

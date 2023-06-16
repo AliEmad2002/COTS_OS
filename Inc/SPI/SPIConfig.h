@@ -14,6 +14,14 @@
 #define configHOS_SPI_NUMBER_OF_UNITS		1
 
 /*
+ * Differences between SPI driver versions are described here:
+ *
+ * User may un-comment only one version definition of the following.
+ */
+#define configHOS_SPI_V1_1
+//#define configHOS_SPI_V1_2
+
+/*
  * Define SPI transfer complete handlers.
  *
  * Notes:
@@ -25,12 +33,6 @@
  */
 #define configHOS_SPI_HANDLER_0		SPI1_IRQHandler
 
-/*
- * 	If target has one SPI handler for multiple events, user must define macros
- * 	for event checking.
- */
-#define configHOS_SPI_IS_TC(ucUnitNumber)	\
-	(!ucPort_SPI_IS_BUSY((ucUnitNumber)))
 
 /***************
  * As the single SPI unit may be used by multiple other drivers (for example connecting

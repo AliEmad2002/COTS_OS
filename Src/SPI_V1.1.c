@@ -1,7 +1,7 @@
 /*
- * SPI.c
+ * SPI_V1.1.c
  *
- *  Created on: Jun 12, 2023
+ *  Created on: Jun 16, 2023
  *      Author: Ali Emad
  */
 
@@ -25,12 +25,7 @@
 #include "Inc/SPI/SPI.h"
 
 #if configHOS_SPI_EN
-
-typedef struct{
-	int8_t* pcArr;
-	uint32_t uiCount;
-	uint32_t uiSize;
-}xSPI_Buffer_t;
+#ifdef configHOS_SPI_V1_1
 
 /*******************************************************************************
  * Private configurations:
@@ -40,6 +35,12 @@ typedef struct{
 /*******************************************************************************
  * Helping structures:
  ******************************************************************************/
+typedef struct{
+	int8_t* pcArr;
+	uint32_t uiCount;
+	uint32_t uiSize;
+}xSPI_Buffer_t;
+
 typedef struct{
 	uint8_t ucFullDuplexEn     : 1;
 	uint8_t ucFrameFormat8     : 1;
@@ -116,6 +117,21 @@ static TaskHandle_t pxSPITaskHandleArr[configHOS_SPI_NUMBER_OF_UNITS];
 static uint8_t pucParamArr[configHOS_SPI_NUMBER_OF_UNITS];
 
 /*******************************************************************************
+ * Helping functions/macros:
+ ******************************************************************************/
+#define VHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber)                                                           \
+{                                                                                                       \
+	uint32_t uiIndex;                                                                                   \
+	if(pucSPIByteDirectionArr[(ucUnitNumber)] == ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST)                 \
+		uiIndex = pxSPIBufferArr[(ucUnitNumber)].uiCount;                                               \
+	else                                                                                                \
+		uiIndex = pxSPIBufferArr[(ucUnitNumber)].uiSize - pxSPIBufferArr[(ucUnitNumber)].uiCount - 1;   \
+                                                                                                        \
+	pxSPIBufferArr[(ucUnitNumber)].uiCount++;                                                           \
+	vPort_SPI_WRT_DR_NO_WAIT((ucUnitNumber), pxSPIBufferArr[(ucUnitNumber)].pcArr[uiIndex]);	        \
+}
+
+/*******************************************************************************
  * Task function:
  ******************************************************************************/
 void vSPIn_Task(void* pvParams)
@@ -124,42 +140,43 @@ void vSPIn_Task(void* pvParams)
 	volatile xSPI_Buffer_t* pxBuffer = &pxSPIBufferArr[ucUnitNumber];
 	SemaphoreHandle_t* pxHWMutexHandle = &pxSPIHWMutexArr[ucUnitNumber];
 	SemaphoreHandle_t* pxTransferMutexHandle = &pxSPITransferMutexArr[ucUnitNumber];
+	SemaphoreHandle_t* pxBufferMutexHandle = &pxSPIBufferMutexArr[ucUnitNumber];
 	TaskHandle_t* pxTaskHandle = &pxSPITaskHandleArr[ucUnitNumber];
-	uint32_t uiIndex;
 
 	while(1)
 	{
 		if (pxBuffer->uiCount == pxBuffer->uiSize)
 		{
+			/*	Give mutexes and suspend	*/
 			xSemaphoreGive(*pxTransferMutexHandle);
-			xSemaphoreGive(pxSPIBufferMutexArr[ucUnitNumber]);
+			xSemaphoreGive(*pxBufferMutexHandle);
 			vTaskSuspend(*pxTaskHandle);
 		}
 
 		else
 		{
+			/*	Whether "HWMutex" is available or not, force it to be unavailable.	*/
+			xSemaphoreTake(*pxHWMutexHandle, 0);
+
+			/*	send	*/
+			VHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber);
+
+			/*	Block until send operation is completed	*/
 			xSemaphoreTake(*pxHWMutexHandle, portMAX_DELAY);
-
-			if(pucSPIByteDirectionArr[ucUnitNumber] == ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST)
-				uiIndex = pxBuffer->uiCount;
-			else
-				uiIndex = pxBuffer->uiSize - pxBuffer->uiCount - 1;
-
-			vPort_SPI_WRT_DR_NO_WAIT(ucUnitNumber, pxBuffer->pcArr[uiIndex]);
-			pxBuffer->uiCount++;
-			vPORT_SPI_ENABLE_TXE_INTERRUPT(ucUnitNumber);
 		}
 	}
 }
 
+/*******************************************************************************
+ * Driver initialization:
+ ******************************************************************************/
 /*
- * Initializes the task/s responsible for this  driver.
  * Notes:
  * 		-	This function is externed and called in "HAL_OS.c".
  *		-	HW settings like frame format and clock mode must be initially set
  * 		by user.
  */
-BaseType_t xHOS_SPI_initTasks(void)
+BaseType_t xHOS_SPI_init(void)
 {
 	for (uint8_t i = 0; i < configHOS_SPI_NUMBER_OF_UNITS; i++)
 	{
@@ -171,7 +188,6 @@ BaseType_t xHOS_SPI_initTasks(void)
 		pxSPIHWMutexArr[i] = xSemaphoreCreateBinaryStatic(&pxSPIHWStaticMutexArr[i]);
 		configASSERT(pxSPIHWMutexArr[i] != NULL);
 		xSemaphoreGive(pxSPIHWMutexArr[i]);
-
 
 		/*	create unit mutex	*/
 		pxSPIUnitMutexArr[i] = xSemaphoreCreateBinaryStatic(&pxSPIUnitStaticMutexArr[i]);
@@ -208,6 +224,11 @@ BaseType_t xHOS_SPI_initTasks(void)
 		 */
 		vPort_Interrupt_setPriority(pxPortInterruptSpiIrqNumberArr[i], configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 		vPort_Interrupt_enableIRQ(pxPortInterruptSpiIrqNumberArr[i]);
+
+		/*
+		 * Initially enable TC interrupt from SPI HW itself
+		 */
+		vPORT_SPI_ENABLE_TXC_INTERRUPT(i);
 	}
 
 	return pdPASS;
@@ -223,8 +244,15 @@ void vHOS_SPI_setByteDirection(uint8_t ucUnitNumber, uint8_t ucByteDirection)
 
 void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 {
-	xSemaphoreTake(pxSPIBufferMutexArr[ucUnitNumber], portMAX_DELAY);
+	/*	if size is zero, transfer is already done	*/
+	if (uiSize == 0)
+	{
+		xSemaphoreGive(pxSPITransferMutexArr[ucUnitNumber]);
+		return;
+	}
 
+	/*	Take buffer mutex to assure it does not get modified while sending	*/
+	xSemaphoreTake(pxSPIBufferMutexArr[ucUnitNumber], portMAX_DELAY);
 	pxSPIBufferArr[ucUnitNumber].pcArr = pcArr;
 	pxSPIBufferArr[ucUnitNumber].uiCount = 0;
 	pxSPIBufferArr[ucUnitNumber].uiSize = uiSize;
@@ -250,14 +278,12 @@ SemaphoreHandle_t xHOS_SPI_getTransferMutexHandle(uint8_t ucUnitNumber)
 #define HANDLER(n)                                                      \
 void configHOS_SPI_HANDLER_##n (void)                                   \
 {                                                                       \
-	if (!configHOS_SPI_IS_TC(n))                                        \
-		return;                                                         \
+	vPORT_SPI_CLEAR_TXC_FLAG(n);                                        \
                                                                         \
-	vPORT_SPI_DISABLE_TXE_INTERRUPT(n);									\
 	BaseType_t xHighPriorityTaskWoken = pdFALSE;                        \
 	xSemaphoreGiveFromISR(pxSPIHWMutexArr[n], &xHighPriorityTaskWoken); \
 	portYIELD_FROM_ISR(xHighPriorityTaskWoken);                         \
-}                                                                       \
+}
 
 #if (configHOS_SPI_NUMBER_OF_UNITS > 0)
 HANDLER(0)
@@ -382,5 +408,5 @@ void vHOS_SPI_initAllUnitsHardware(void)
 }
 
 
-
+#endif	/*	configHOS_SPI_V1_1	*/
 #endif	/*	configHOS_SPI_EN	*/

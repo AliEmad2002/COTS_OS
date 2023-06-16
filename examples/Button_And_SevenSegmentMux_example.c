@@ -18,7 +18,7 @@
  * Un-comment the following definition to use this example.
  * Make sure there's no other main in your program.
  */
-#define BUTTON_SS_EXAMPLE
+//#define BUTTON_SS_EXAMPLE
 
 #ifdef BUTTON_SS_EXAMPLE
 

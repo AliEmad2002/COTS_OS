@@ -80,7 +80,6 @@ static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
 	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
 	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
 
-
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucCmd, 1);
 }
@@ -119,7 +118,7 @@ static inline void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint3
 /*
  * See header file for info.
  */
-void vHOS_TFT_init(xHOS_TFT_t* pxTFT, uint16_t usSpiBaudratePrescaler, uint8_t ucSpiAfioMapNumber)
+void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 {
 	/*	Initializes A0, reset and CS pins HW	*/
 	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);

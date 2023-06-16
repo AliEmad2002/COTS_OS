@@ -77,17 +77,13 @@ typedef struct{
  *	 		TFT driver task may interfere with other tasks which use the same SPI but.
  ******************************************************************************/
 /*
- * Initializes SPI HW.
  * Initializes A0, reset and CS pins HW.
  * Executes TFT Initialization commands.
  *
  * Notes:
- * 		-	If the used target does not have AFIO mapping, last argument is
- * 		ignored. (user may pass "NULL")
- *
  * 		-	This functions can only be called in a task after scheduler has started.
  */
-void vHOS_TFT_init(xHOS_TFT_t* pxTFT, uint16_t usSpiBaudratePrescaler, uint8_t ucSpiAfioMapNumber);
+void vHOS_TFT_init(xHOS_TFT_t* pxTFT);
 
 /*
  * Enables communication with TFT. (selects TFT object to listen to SPI bus Via CS pin)

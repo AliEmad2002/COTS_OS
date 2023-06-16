@@ -36,11 +36,19 @@
 #define ucTFT_CMD_MEM_WRITE								0x2C
 #define ucTFT_CMD_SCROLL								0x37
 
+#define vTFT_CS_ENABLE(pxTFT)	\
+	(vPort_DIO_writePin((pxTFT)->ucCSPort, (pxTFT)->ucCSPin, 0))
+
+#define vTFT_CS_DISABLE(pxTFT)	\
+	(vPort_DIO_writePin((pxTFT)->ucCSPort, (pxTFT)->ucCSPin, 1))
+
 /*
  * resets TFT (executes reset sequence).
  */
 static inline void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
 {
+	vTaskDelay(pdMS_TO_TICKS(1));
+
 	vPort_DIO_writePin(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
 	vTaskDelay(pdMS_TO_TICKS(1));
 
@@ -71,6 +79,7 @@ static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
 {
 	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
 	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
+
 
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucCmd, 1);
@@ -112,9 +121,13 @@ static inline void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint3
  */
 void vHOS_TFT_init(xHOS_TFT_t* pxTFT, uint16_t usSpiBaudratePrescaler, uint8_t ucSpiAfioMapNumber)
 {
-	/*	Initializes A0, reset pins HW	*/
+	/*	Initializes A0, reset and CS pins HW	*/
 	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
 	vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);
+	vPort_DIO_initPinOutput(pxTFT->ucCSPort, pxTFT->ucCSPin);
+
+	/*	CS is initially low (TFT is selected by default)	*/
+	vTFT_CS_ENABLE(pxTFT);
 
 	/*	initialize TFT mutex	*/
 	pxTFT->xMutexHandle = xSemaphoreCreateBinaryStatic(&pxTFT->xMutexMemory);
@@ -134,6 +147,24 @@ void vHOS_TFT_init(xHOS_TFT_t* pxTFT, uint16_t usSpiBaudratePrescaler, uint8_t u
 
 	/*	display on	*/
 	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_DISPLAY_ON);
+}
+
+/*
+ * See header file for info.
+ */
+inline __attribute__((always_inline))
+void vHOS_TFT_enableCommunication(xHOS_TFT_t* pxTFT)
+{
+	vTFT_CS_ENABLE(pxTFT);
+}
+
+/*
+ * See header file for info.
+ */
+inline __attribute__((always_inline))
+void vHOS_TFT_disableCommunication(xHOS_TFT_t* pxTFT)
+{
+	vTFT_CS_DISABLE(pxTFT);
 }
 
 /*

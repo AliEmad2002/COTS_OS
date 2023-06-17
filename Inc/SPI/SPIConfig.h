@@ -18,7 +18,8 @@
  *
  * User may un-comment only one version definition of the following.
  */
-#define configHOS_SPI_V1_1
+#define configHOS_SPI_V1_0
+//#define configHOS_SPI_V1_1
 //#define configHOS_SPI_V1_2
 
 /*

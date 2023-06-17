@@ -71,7 +71,8 @@ typedef struct{
  * 		-	All of the following functions are not ISR safe. (Must not be used
  *	 		in an ISR)
  *
- *	 	-	Application task must first take TFT object's mutex before drawing.
+ *	 	-	Application task must first take TFT object's mutex and SPI uint's mutex
+ *	 		before drawing.
  *
  *	 	-	Application task must first take SPI unit mutex before drawing. Otherwise
  *	 		TFT driver task may interfere with other tasks which use the same SPI but.

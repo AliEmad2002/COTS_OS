@@ -103,13 +103,22 @@ static inline void vHOS_TFT_writeDataByte(xHOS_TFT_t* pxTFT, int8_t ucByte)
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucByte, 1);
 }
 
-static inline void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiN)
+static inline void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize)
 {
 	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
 	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
 
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
-	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, pcArr, uiN);
+	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, pcArr, uiSize);
+}
+
+static inline void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize, uint32_t uiN)
+{
+	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
+	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
+
+	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+	vHOS_SPI_sendMultiple(pxTFT->ucSpiUnitNumber, pcArr, uiSize, uiN);
 }
 
 /*******************************************************************************
@@ -193,10 +202,7 @@ void vHOS_TFT_fillRectangle(	xHOS_TFT_t* pxTFT,
 
 	/*	send color data	*/
 	uint32_t uiN = (pxBounds->usX1 - pxBounds->usX0 + 1) * (pxBounds->usY1 - pxBounds->usY0 + 1);
-	for (uint32_t i = 0; i < uiN; i++)
-	{
-		vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&usColor, 2);
-	}
+	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&usColor, 2, uiN);
 }
 
 /*
@@ -257,9 +263,6 @@ void vHOS_TFT_drawNextNPixFromArr(xHOS_TFT_t* pxTFT, uint16_t* pusColorArr, uint
  */
 void vHOS_TFT_drawNextNPixFromSingleColor(xHOS_TFT_t* pxTFT, uint16_t usColor, uint32_t uiN)
 {
-	for (uint32_t i = 0; i < uiN; i++)
-	{
-		vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&usColor, 2);
-	}
+	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&usColor, 2, uiN);
 }
 

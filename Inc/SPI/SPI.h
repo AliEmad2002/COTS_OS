@@ -29,6 +29,11 @@ void vHOS_SPI_setByteDirection(uint8_t ucUnitNumber, uint8_t ucByteDirection);
 
 void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize);
 
+void vHOS_SPI_transceive(uint8_t ucUnitNumber, int8_t* pcOutArr, int8_t* pcInArr, uint32_t uiSize);
+
+/*	sends same array multiple times	*/
+void vHOS_SPI_sendMultiple(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize, uint32_t uiN);
+
 /***********
  * Difference between "SpiTransferMutex" and "SpiUintMutex":
  * 		-	"SpiUintMutex" is taken by the task to not allow any other task use

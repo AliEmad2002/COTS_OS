@@ -1,7 +1,7 @@
 /*
- * SPI_V1.1.c
+ * SPI_V1.0.c
  *
- *  Created on: Jun 16, 2023
+ *  Created on: Jun 17, 2023
  *      Author: Ali Emad
  *
  *
@@ -29,22 +29,12 @@
 #include "Inc/SPI/SPI.h"
 
 #if configHOS_SPI_EN
-#ifdef configHOS_SPI_V1_1
+#ifdef configHOS_SPI_V1_0
 
-/*******************************************************************************
- * Private configurations:
- ******************************************************************************/
-#define uiSPI_STACK_SIZE		configMINIMAL_STACK_SIZE
 
 /*******************************************************************************
  * Helping structures:
  ******************************************************************************/
-typedef struct{
-	int8_t* pcArr;
-	uint32_t uiCount;
-	uint32_t uiSize;
-}xSPI_Buffer_t;
-
 typedef struct{
 	uint8_t ucFullDuplexEn     : 1;
 	uint8_t ucFrameFormat8     : 1;
@@ -64,11 +54,6 @@ typedef struct{
  * Global and static variables:
  ******************************************************************************/
 /*
- * Array of buffers in which SPI transfer data are temporarily stored.
- */
-static volatile xSPI_Buffer_t pxSPIBufferArr[configHOS_SPI_NUMBER_OF_UNITS];
-
-/*
  * Mutexes:
  *
  * Notes:
@@ -78,20 +63,14 @@ static volatile xSPI_Buffer_t pxSPIBufferArr[configHOS_SPI_NUMBER_OF_UNITS];
  * 		-	"pxSPIHWMutexArr[i]" is taken by SPI driver task before sending a byte,
  * 			and released by ISR. This is done to assure that SPI driver task does
  * 			not transfer another byte while the previous one has not yet ended.
- *
- * 		-	"pxSPIBufferMutexArr[i]" is used privately within driver's  data transferring
- * 			functions, to assure that buffer of the SPI unit is not being accessed
- * 			while used in the driver task.
  */
 static StaticSemaphore_t pxSPIHWStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 static StaticSemaphore_t pxSPIUnitStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 static StaticSemaphore_t pxSPITransferStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
-static StaticSemaphore_t pxSPIBufferStaticMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 
 SemaphoreHandle_t pxSPIHWMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 SemaphoreHandle_t pxSPIUnitMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 SemaphoreHandle_t pxSPITransferMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
-SemaphoreHandle_t pxSPIBufferMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
 
 /*
  * Byte direction setting array.
@@ -103,72 +82,20 @@ SemaphoreHandle_t pxSPIBufferMutexArr[configHOS_SPI_NUMBER_OF_UNITS];
  */
 uint8_t pucSPIByteDirectionArr[configHOS_SPI_NUMBER_OF_UNITS];
 
-/*
- * Stack and task handle of SPI driver task/s.
- */
-static StackType_t puxSPITaskStackArr[configHOS_SPI_NUMBER_OF_UNITS][configMINIMAL_STACK_SIZE];
-static StaticTask_t pxSPITaskStaticHandleArr[configHOS_SPI_NUMBER_OF_UNITS];
-static TaskHandle_t pxSPITaskHandleArr[configHOS_SPI_NUMBER_OF_UNITS];
-
-/*
- * Task parameters array.
- *
- * Notes:
- * 		-	As each SPI unit has its own RTOS task, while all tasks are using the
- *	 		same function code, parameter must be passed to the function at task
- *	 		initialization to let the code know to which SPI unit it is related.
- */
-static uint8_t pucParamArr[configHOS_SPI_NUMBER_OF_UNITS];
-
 /*******************************************************************************
  * Helping functions/macros:
  ******************************************************************************/
-#define VHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber)                                                           \
-{                                                                                                       \
-	uint32_t uiIndex;                                                                                   \
-	if(pucSPIByteDirectionArr[(ucUnitNumber)] == ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST)                 \
-		uiIndex = pxSPIBufferArr[(ucUnitNumber)].uiCount;                                               \
-	else                                                                                                \
-		uiIndex = pxSPIBufferArr[(ucUnitNumber)].uiSize - pxSPIBufferArr[(ucUnitNumber)].uiCount - 1;   \
-                                                                                                        \
-	pxSPIBufferArr[(ucUnitNumber)].uiCount++;                                                           \
-	vPort_SPI_WRT_DR_NO_WAIT((ucUnitNumber), pxSPIBufferArr[(ucUnitNumber)].pcArr[uiIndex]);	        \
-}
+#define uiHOS_SPI_GET_INDEX_OF_NEXT_BYTE(ucUnitNumber, uiCount, uiSize)                  \
+(                                                                                        \
+	(pucSPIByteDirectionArr[(ucUnitNumber)] == ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST) ?  \
+		(uiCount) : ((uiSize) - (uiCount) - 1)                                           \
+)
 
-/*******************************************************************************
- * Task function:
- ******************************************************************************/
-void vSPIn_Task(void* pvParams)
-{
-	uint8_t ucUnitNumber = *((int8_t*)pvParams);
-	volatile xSPI_Buffer_t* pxBuffer = &pxSPIBufferArr[ucUnitNumber];
-	SemaphoreHandle_t* pxHWMutexHandle = &pxSPIHWMutexArr[ucUnitNumber];
-	SemaphoreHandle_t* pxTransferMutexHandle = &pxSPITransferMutexArr[ucUnitNumber];
-	SemaphoreHandle_t* pxBufferMutexHandle = &pxSPIBufferMutexArr[ucUnitNumber];
-	TaskHandle_t* pxTaskHandle = &pxSPITaskHandleArr[ucUnitNumber];
-
-	while(1)
-	{
-		if (pxBuffer->uiCount == pxBuffer->uiSize)
-		{
-			/*	Give mutexes and suspend	*/
-			xSemaphoreGive(*pxBufferMutexHandle);
-			xSemaphoreGive(*pxTransferMutexHandle);
-			vTaskSuspend(*pxTaskHandle);
-		}
-
-		else
-		{
-			/*	Whether "HWMutex" is available or not, force it to be unavailable.	*/
-			xSemaphoreTake(*pxHWMutexHandle, 0);
-
-			/*	send	*/
-			VHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber);
-
-			/*	Block until send operation is completed	*/
-			xSemaphoreTake(*pxHWMutexHandle, portMAX_DELAY);
-		}
-	}
+#define vHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber, pcArr, uiCount, uiSize)                          \
+{                                                                                              \
+	uint32_t uiIndex = uiHOS_SPI_GET_INDEX_OF_NEXT_BYTE((ucUnitNumber), (uiCount), (uiSize));  \
+	(uiCount)++;                                                                               \
+	vPort_SPI_WRT_DR_NO_WAIT((ucUnitNumber), (pcArr)[uiIndex]);	                               \
 }
 
 /*******************************************************************************
@@ -184,10 +111,6 @@ BaseType_t xHOS_SPI_init(void)
 {
 	for (uint8_t i = 0; i < configHOS_SPI_NUMBER_OF_UNITS; i++)
 	{
-		/*	reset buffer	*/
-		pxSPIBufferArr[i].uiCount = 0;
-		pxSPIBufferArr[i].uiSize = 0;
-
 		/*	create HW mutex	*/
 		pxSPIHWMutexArr[i] = xSemaphoreCreateBinaryStatic(&pxSPIHWStaticMutexArr[i]);
 		configASSERT(pxSPIHWMutexArr[i] != NULL);
@@ -202,24 +125,6 @@ BaseType_t xHOS_SPI_init(void)
 		pxSPITransferMutexArr[i] = xSemaphoreCreateBinaryStatic(&pxSPITransferStaticMutexArr[i]);
 		configASSERT(pxSPITransferMutexArr[i] != NULL);
 		xSemaphoreGive(pxSPITransferMutexArr[i]);
-
-		/*	create buffer mutex	*/
-		pxSPIBufferMutexArr[i] = xSemaphoreCreateBinaryStatic(&pxSPIBufferStaticMutexArr[i]);
-		configASSERT(pxSPIBufferMutexArr[i] != NULL);
-		xSemaphoreGive(pxSPIBufferMutexArr[i]);
-
-		/*	create task	*/
-		pucParamArr[i] = i;
-		pxSPITaskHandleArr[i] = xTaskCreateStatic(	vSPIn_Task,
-													"",
-													uiSPI_STACK_SIZE,
-													&pucParamArr[i],
-													configNORMAL_TASK_PRIORITY,
-													puxSPITaskStackArr[i],
-													&pxSPITaskStaticHandleArr[i]	);
-
-		if (pxSPITaskHandleArr[i] == NULL)
-			return pdFAIL;
 
 		/*
 		 * Enable TC interrupt in the interrupt controller, and set its priority
@@ -248,32 +153,56 @@ void vHOS_SPI_setByteDirection(uint8_t ucUnitNumber, uint8_t ucByteDirection)
 
 void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 {
-	/*	if size is zero, transfer is already done	*/
-	if (uiSize == 0)
+	uint32_t uiCount = 0;
+
+	/*	send	*/
+	while(uiCount < uiSize)
 	{
-		xSemaphoreGive(pxSPITransferMutexArr[ucUnitNumber]);
-		return;
+		xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], 0);
+		vHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber, pcArr, uiCount, uiSize);
+		xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], portMAX_DELAY);
 	}
 
-	/*	Take buffer mutex to assure it does not get modified while sending	*/
-	xSemaphoreTake(pxSPIBufferMutexArr[ucUnitNumber], portMAX_DELAY);
-	pxSPIBufferArr[ucUnitNumber].pcArr = pcArr;
-	pxSPIBufferArr[ucUnitNumber].uiCount = 0;
-	pxSPIBufferArr[ucUnitNumber].uiSize = uiSize;
+	xSemaphoreGive(pxSPITransferMutexArr[ucUnitNumber]);
+}
 
-//	while(pxSPIBufferArr[ucUnitNumber].uiCount < pxSPIBufferArr[ucUnitNumber].uiSize)
-//	{
-//		xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], 0);
-//		VHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber);
-//		xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], portMAX_DELAY);
-//	}
-//
-//	xSemaphoreGive(pxSPITransferMutexArr[ucUnitNumber]);
-//	xSemaphoreGive(pxSPIBufferMutexArr[ucUnitNumber]);
-//	return;
+void vHOS_SPI_transceive(uint8_t ucUnitNumber, int8_t* pcOutArr, int8_t* pcInArr, uint32_t uiSize)
+{
+	uint32_t uiCount = 0;
+	uint32_t uiIndex;
 
-	vTaskResume(pxSPITaskHandleArr[ucUnitNumber]);
-	portYIELD();
+	/*	transceive	*/
+	while(uiCount < uiSize)
+	{
+		xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], 0);
+		uiIndex = uiHOS_SPI_GET_INDEX_OF_NEXT_BYTE(ucUnitNumber, uiCount, uiSize);
+		vPort_SPI_WRT_DR_NO_WAIT(ucUnitNumber, pcOutArr[uiIndex]);
+		xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], portMAX_DELAY);
+		pcInArr[uiIndex] = vPort_SPI_GET_DR_NO_WAIT(ucUnitNumber);
+		uiCount++;
+	}
+
+	xSemaphoreGive(pxSPITransferMutexArr[ucUnitNumber]);
+}
+
+void vHOS_SPI_sendMultiple(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize, uint32_t uiN)
+{
+	uint32_t uiCount;
+
+	while(uiN--)
+	{
+		uiCount = 0;
+
+		/*	send	*/
+		while(uiCount < uiSize)
+		{
+			xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], 0);
+			vHOS_SPI_SEND_NEXT_BYTE(ucUnitNumber, pcArr, uiCount, uiSize);
+			xSemaphoreTake(pxSPIHWMutexArr[ucUnitNumber], portMAX_DELAY);
+		}
+	}
+
+	xSemaphoreGive(pxSPITransferMutexArr[ucUnitNumber]);
 }
 
 inline __attribute__((always_inline))

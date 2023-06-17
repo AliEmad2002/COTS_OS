@@ -49,7 +49,6 @@ static TaskHandle_t xTask1Handle;
  ******************************************************************************/
 void vTask1(void* pvParams)
 {
-
 	while(1)
 	{
 		for (uint8_t i = 0; i < 100; i++)

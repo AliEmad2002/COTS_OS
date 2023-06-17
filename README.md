@@ -14,7 +14,8 @@ FreeRTOS based HAL library.
   * Colored-LCD.
   * Keypad.
   * SPI
-    * Has multiple versions for multiple application purposes. See SPI driver documentation: 
+    * Has multiple versions for multiple application purposes. See SPI driver documentation: https://github.com/AliEmad2002/HAL_OS/blob/main/Doc/SPI%20Driver%20documentation.pdf
+    * Has a DMA accelerated version for targets which have DMA.
   * Push buttons
     * Uses N-samples filtering method.
     * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_example_1.c

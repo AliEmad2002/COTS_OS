@@ -203,7 +203,7 @@ SemaphoreHandle_t xHOS_SPI_getTransferMutexHandle(uint8_t ucUnitNumber)
  * ISRs:
  ******************************************************************************/
 #define HANDLER(n)                                                      \
-void configHOS_SPI_HANDLER_##n (void)                                   \
+void port_SPI_HANDLER_##n (void)     	                                \
 {                                                                       \
 	vPORT_SPI_CLEAR_TXC_FLAG(n);                                        \
                                                                         \

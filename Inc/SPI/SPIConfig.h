@@ -22,18 +22,6 @@
 //#define configHOS_SPI_V1_1
 //#define configHOS_SPI_V1_2
 
-/*
- * Define SPI transfer complete handlers.
- *
- * Notes:
- * 		-	In order for the driver "SPI.c" to be able to use these handlers,
- * 		they must be defined like the following example:
- * 			#define configHOS_SPI_HANDLER_0		SPI1_IRQHandler
- * 			#define configHOS_SPI_HANDLER_1		SPI2_IRQHandler
- * 			... And so on.
- */
-#define configHOS_SPI_HANDLER_0		SPI1_IRQHandler
-
 
 #endif	/*	configHOS_SPI_EN	*/
 

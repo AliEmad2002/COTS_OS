@@ -280,7 +280,24 @@ static inline void vPort_SPI_initHardware(uint8_t ucUnitNumber, xPort_SPI_HW_Con
 							pxHWConf->ucMOSIEn	);
 }
 
-
+/*******************************************************************************
+ * Handlers (Vectors):
+ ******************************************************************************/
+/*
+ * Define SPI transfer complete handlers.
+ *
+ * Notes:
+ * 		-	If the target MCU does not have a unique SPI_TC vector, user may define
+ * 			SPI_Global vector. As anyways, to avoid this problem, upper layer drivers
+ * 			use flag checking macros in ISR beginning.
+ *
+ * 		-	In order for the driver "SPI.c" to be able to use these handlers,
+ * 		they must be defined like the following example:
+ * 			#define configHOS_SPI_HANDLER_0		SPI1_IRQHandler
+ * 			#define configHOS_SPI_HANDLER_1		SPI2_IRQHandler
+ * 			... And so on.
+ */
+#define port_SPI_HANDLER_0		SPI1_IRQHandler
 
 
 

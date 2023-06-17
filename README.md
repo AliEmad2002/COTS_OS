@@ -13,6 +13,8 @@ FreeRTOS based HAL library.
   * ESP8266 WiFi module.
   * Colored-LCD.
   * Keypad.
+  * SPI
+    * Has multiple versions for multiple application purposes. See SPI driver documentation: 
   * Push buttons
     * Uses N-samples filtering method.
     * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_example_1.c

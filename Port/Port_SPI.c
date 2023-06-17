@@ -9,3 +9,4 @@
 #include "stm32f1xx_hal.h"
 
 SPI_TypeDef* const pxPortSpiArr[] = {SPI1, SPI2};
+

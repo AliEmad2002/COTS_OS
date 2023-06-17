@@ -25,6 +25,9 @@
 /*	LIB	*/
 #include <stdint.h>
 
+/*	MCAL	*/
+#include "Port/Port_HW.h"
+
 /*	OS	*/
 #include "FreeRTOS.h"
 #include "task.h"
@@ -108,21 +111,13 @@ void obj_init(void)
 }
 
 /*******************************************************************************
- * HW initialization (in debugging mode only):
- ******************************************************************************/
-void HW_init(void)
-{
-
-}
-
-/*******************************************************************************
  * main:
  ******************************************************************************/
 int main(void)
 {
 	/*	init	*/
+	vPort_HW_init();
 	configASSERT(xHOS_init());
-	HW_init();
 	obj_init();
 	tasks_init();
 

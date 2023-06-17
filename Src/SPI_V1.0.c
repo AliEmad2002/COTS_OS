@@ -33,24 +33,6 @@
 
 
 /*******************************************************************************
- * Helping structures:
- ******************************************************************************/
-typedef struct{
-	uint8_t ucFullDuplexEn     : 1;
-	uint8_t ucFrameFormat8     : 1;
-	uint8_t ucFrameFormat16    : 1;
-	uint8_t ucLSBitFirst       : 1;
-	uint8_t ucLSByteFirst      : 1;
-	uint8_t ucIsMaster         : 1;
-	uint8_t ucMOSIEn           : 1;
-	uint8_t ucMISOEn           : 1;
-	uint8_t ucNssEn            : 1;
-	uint8_t ucAFIOMapNumber;
-	uint8_t ucComMode;
-	uint16_t usBaudratePrescaler;
-}xHOS_SPI_HW_Conf_t;
-
-/*******************************************************************************
  * Global and static variables:
  ******************************************************************************/
 /*
@@ -285,72 +267,6 @@ int main() {
     return 0;
 }
  */
-
-/*******************************************************************************
- * HW configuration:
- ******************************************************************************/
-/*	TODO: this part is not completed yet, it is barley working!	*/
-#define xHW_CONF(n)                                    \
-static const xHOS_SPI_HW_Conf_t xHWConf##n = {         \
-	configHOS_SPI_##n##_ENABLE_FULL_DUPLEX		,      \
-	configHOS_SPI_##n##_SET_FRAME_FORMAT_8_BIT	,      \
-	configHOS_SPI_##n##_SET_FRAME_FORMAT_16_BIT	,      \
-	configHOS_SPI_##n##_SET_DIRECTION_LSBIT_FIRST	,      \
-	configHOS_SPI_##n##_SET_DIRECTION_LSBYTE_FIRST	,      \
-	configHOS_SPI_##n##_IS_MASTER				,      \
-	configHOS_SPI_##n##_ENABLE_MOSI				,      \
-	configHOS_SPI_##n##_ENABLE_MISO				,      \
-	configHOS_SPI_##n##_ENABLE_NSS				,      \
-	configHOS_SPI_##n##_AFIO_MAP_NUMBER			,      \
-	configHOS_SPI_##n##_COM_MODE				,      \
-	configHOS_SPI_##n##_BAUDRATE_PRESCALER             \
-};
-
-void vHOS_SPI_initHardware(uint8_t ucUnitNumber, xHOS_SPI_HW_Conf_t* pxHWConf)
-{
-	if (pxHWConf->ucFullDuplexEn)
-		vPort_SPI_setFullDuplex(ucUnitNumber);
-
-	if (pxHWConf->ucFrameFormat8)
-		vPort_SPI_setFrameFormat8Bit(ucUnitNumber);
-	else
-		{/*vPort_SPI_setFrameFormat16Bit(ucUnitNumber);*/}
-
-	if (pxHWConf->ucLSBitFirst)
-		vPort_SPI_setLSBFirst(ucUnitNumber);
-	else
-		vPort_SPI_setMSBFirst(ucUnitNumber);
-
-	if (pxHWConf->ucLSByteFirst)
-		vHOS_SPI_setByteDirection(ucUnitNumber, ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST);
-	else
-		vHOS_SPI_setByteDirection(ucUnitNumber, ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST);
-
-	vPort_SPI_setBaudratePrescaler(ucUnitNumber, pxHWConf->usBaudratePrescaler);
-
-	if (pxHWConf->ucIsMaster)
-		vPort_SPI_enableMasterMode(ucUnitNumber);
-
-	vPort_SPI_setComMode(ucUnitNumber, pxHWConf->ucComMode);
-
-	vPort_SPI_enable(ucUnitNumber);
-
-	vPort_AFIO_mapSpi(ucUnitNumber, pxHWConf->ucAFIOMapNumber);
-
-	vPort_GPIO_initSpiPins(	ucUnitNumber,
-							pxHWConf->ucAFIOMapNumber,
-							pxHWConf->ucNssEn,
-							pxHWConf->ucMISOEn,
-							pxHWConf->ucMOSIEn	);
-}
-
-void vHOS_SPI_initAllUnitsHardware(void)
-{
-#if (configHOS_SPI_NUMBER_OF_UNITS > 0)
-	xHW_CONF(0);
-	vHOS_SPI_initHardware(0, (xHOS_SPI_HW_Conf_t*)&xHWConf0);
-#endif
-}
 
 
 #endif	/*	configHOS_SPI_V1_1	*/

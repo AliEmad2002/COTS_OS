@@ -22,6 +22,9 @@
 /*	LIB	*/
 #include <stdint.h>
 
+/*	MCAL	*/
+#include "Port/Port_HW.h"
+
 /*	OS	*/
 #include "FreeRTOS.h"
 #include "task.h"
@@ -133,6 +136,7 @@ void button_init(void)
 int main(void)
 {
 	/*	init	*/
+	vPort_HW_init();
 	HW_init();
 	button_init();
 	tasks_init();

@@ -25,6 +25,10 @@
  ******************************************************************************/
 #define ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST		0
 #define ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST		1
+
+/*
+ * Sets byte sending direction.
+ */
 void vHOS_SPI_setByteDirection(uint8_t ucUnitNumber, uint8_t ucByteDirection);
 
 void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize);

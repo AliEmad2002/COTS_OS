@@ -26,13 +26,10 @@
 extern BaseType_t xButton_initTask(void);
 extern BaseType_t xSevenSegmentMux_initTask(void);
 extern BaseType_t xHOS_SPI_init(void);
-extern void vHOS_SPI_initAllUnitsHardware(void);
 
 BaseType_t xHOS_init(void)
 {
 	BaseType_t xInitState;
-
-	vPort_Clock_init();
 
 #if configHOS_BUTTON_EN
 	xInitState = xButton_initTask();
@@ -47,7 +44,6 @@ BaseType_t xHOS_init(void)
 #endif	/*	configHOS_SEVEN_SEGMENT_EN	*/
 
 #if configHOS_SPI_EN
-	vHOS_SPI_initAllUnitsHardware();
 	xInitState = xHOS_SPI_init();
 	if (xInitState == pdFAIL)
 		return pdFAIL;

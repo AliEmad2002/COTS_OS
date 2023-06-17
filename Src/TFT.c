@@ -129,6 +129,9 @@ static inline void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcAr
  */
 void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 {
+	/*	Set SPI driver byte sending direction	*/
+	vHOS_SPI_setByteDirection(pxTFT->ucSpiUnitNumber, ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST);
+
 	/*	Initializes A0, reset and CS pins HW	*/
 	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
 	vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);

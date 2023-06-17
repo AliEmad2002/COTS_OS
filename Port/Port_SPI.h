@@ -22,9 +22,31 @@
 #include "stm32f1xx.h"
 #include "cmsis_gcc.h"
 #include "Bit_Math.h"
+#include "Port/Port_AFIO.h"
+#include "Port/Port_GPIO.h"
 
 extern SPI_TypeDef* const pxPortSpiArr[];
 
+/*******************************************************************************
+ * Helping structures:
+ ******************************************************************************/
+typedef struct{
+	uint8_t ucFullDuplexEn     : 1;
+	uint8_t ucFrameFormat8     : 1;
+	uint8_t ucFrameFormat16    : 1;
+	uint8_t ucLSBitFirst       : 1;
+	uint8_t ucIsMaster         : 1;
+	uint8_t ucMOSIEn           : 1;
+	uint8_t ucMISOEn           : 1;
+	uint8_t ucNssEn            : 1;
+	uint8_t ucAFIOMapNumber;
+	uint8_t ucComMode;
+	uint16_t usBaudratePrescaler;
+}xPort_SPI_HW_Conf_t;
+
+/*******************************************************************************
+ * Functions:
+ ******************************************************************************/
 /*
  * Enables unidirectional mode.
  * i.e: makes communication via two lines (full-duplex).
@@ -42,6 +64,15 @@ static inline void vPort_SPI_setFrameFormat8Bit(uint8_t ucUnitNumber)
 {
 	//SPI_SET_FRAME_FORMAT_8_BIT_NO_WAIT(ucUnitNumber);
 	CLEAR_BIT(pxPortSpiArr[ucUnitNumber]->CR1, SPI_CR1_DFF);
+}
+
+/*
+ * Sets frame-format to 16-bits.
+ */
+static inline void vPort_SPI_setFrameFormat16Bit(uint8_t ucUnitNumber)
+{
+	//SPI_SET_FRAME_FORMAT_16_BIT_NO_WAIT(ucUnitNumber);
+	SET_BIT(pxPortSpiArr[ucUnitNumber]->CR1, SPI_CR1_DFF);
 }
 
 /*
@@ -209,7 +240,45 @@ static inline void vPort_SPI_disable(uint8_t ucUnitNumber)
 #define vPort_SPI_GET_DR_NO_WAIT(ucUnitNumber)	\
 		(pxPortSpiArr[(ucUnitNumber)]->DR)
 
+/*
+ * Initializes HW of an SPI unit.
+ *
+ * Notes:
+ * 		-	This function must be called on startup (inside "vPort_HW_init()")
+ * 			for all units that are going to be used.
+ */
+static inline void vPort_SPI_initHardware(uint8_t ucUnitNumber, xPort_SPI_HW_Conf_t* pxHWConf)
+{
+	if (pxHWConf->ucFullDuplexEn)
+		vPort_SPI_setFullDuplex(ucUnitNumber);
 
+	if (pxHWConf->ucFrameFormat8)
+		vPort_SPI_setFrameFormat8Bit(ucUnitNumber);
+	else
+		vPort_SPI_setFrameFormat16Bit(ucUnitNumber);
+
+	if (pxHWConf->ucLSBitFirst)
+		vPort_SPI_setLSBFirst(ucUnitNumber);
+	else
+		vPort_SPI_setMSBFirst(ucUnitNumber);
+
+	vPort_SPI_setBaudratePrescaler(ucUnitNumber, pxHWConf->usBaudratePrescaler);
+
+	if (pxHWConf->ucIsMaster)
+		vPort_SPI_enableMasterMode(ucUnitNumber);
+
+	vPort_SPI_setComMode(ucUnitNumber, pxHWConf->ucComMode);
+
+	vPort_SPI_enable(ucUnitNumber);
+
+	vPort_AFIO_mapSpi(ucUnitNumber, pxHWConf->ucAFIOMapNumber);
+
+	vPort_GPIO_initSpiPins(	ucUnitNumber,
+							pxHWConf->ucAFIOMapNumber,
+							pxHWConf->ucNssEn,
+							pxHWConf->ucMISOEn,
+							pxHWConf->ucMOSIEn	);
+}
 
 
 

@@ -135,7 +135,7 @@ xHOS_HardwareDelay_t* pxHOS_HardwareDelay_initNewObject(xHOS_HardwareDelay_InitA
 	configASSERT(ucHardwareDelayNumberOfCreatedObjects < configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS);
 
 	/*	Init HW timer using port driver	*/
-	uint8_t ucTimerUnitNumber = configHOS_HardwareDelayTimerUnits[ucHardwareDelayNumberOfCreatedObjects];
+	uint8_t ucTimerUnitNumber = ucHardwareDelayNumberOfCreatedObjects;
 	vInitHWTimer(ucTimerUnitNumber, xFreqApproximate);
 
 	/*	Init "xHOS_HardwareDelay_t" object parameters	*/
@@ -144,6 +144,8 @@ xHOS_HardwareDelay_t* pxHOS_HardwareDelay_initNewObject(xHOS_HardwareDelay_InitA
 
 	/*	Init overflow interrupt in interrupt controller	*/
 	vInitInterruptController(ucTimerUnitNumber);
+
+	ucHardwareDelayNumberOfCreatedObjects++;
 
 	return pxHandle;
 }

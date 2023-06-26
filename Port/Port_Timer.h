@@ -34,9 +34,9 @@
  *
  * It is a numeric value that actually expresses the prescaler, not an enumeration!
  */
-#define uiPORT_TIM_PRESCALER_FOR_10_KHZ			1
-#define uiPORT_TIM_PRESCALER_FOR_100_KHZ		1
-#define uiPORT_TIM_PRESCALER_FOR_500_KHZ		1
+#define uiPORT_TIM_PRESCALER_FOR_10_KHZ			7200
+#define uiPORT_TIM_PRESCALER_FOR_100_KHZ		720
+#define uiPORT_TIM_PRESCALER_FOR_500_KHZ		144
 
 /*
  * In most cases, the selected prescaler among the previous definitions won't
@@ -44,9 +44,9 @@
  *
  * These near values must be user defined here (in Hz), as they are target dependent.
  */
-#define uiPORT_TIM_FREQ_ACTUAL_FOR_10_KHZ			1
-#define uiPORT_TIM_FREQ_ACTUAL_FOR_100_KHZ			1
-#define uiPORT_TIM_FREQ_ACTUAL_FOR_500_KHZ			1
+#define uiPORT_TIM_FREQ_ACTUAL_FOR_10_KHZ			10000
+#define uiPORT_TIM_FREQ_ACTUAL_FOR_100_KHZ			100000
+#define uiPORT_TIM_FREQ_ACTUAL_FOR_500_KHZ			500000
 
 /*
  * peripheral handles (i.e.: base pointers)

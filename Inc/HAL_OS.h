@@ -13,6 +13,7 @@
 #include "Inc/SevenSegmentMux/SevenSegmentMux.h"
 #include "Inc/SPI/SPI.h"
 #include "Inc/TFT/TFT.h"
+#include "Inc/HardwareDelay/HardwareDelay.h"
 
 BaseType_t xHOS_init(void);
 

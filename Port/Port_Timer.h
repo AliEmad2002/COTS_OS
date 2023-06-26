@@ -87,6 +87,8 @@ static inline void vPort_TIM_useInternalClockSource(uint8_t ucUnitNumber)
 
 /*
  * Sets timer clock prescaler.
+ *
+ * argument "uiPrescaler" is one of "uiPORT_TIM_PRESCALER_FOR_xx_KHZ" defined values.
  */
 static inline void vPort_TIM_setPrescaler(uint8_t ucUnitNumber, uint32_t uiPrescaler)
 {

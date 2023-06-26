@@ -12,6 +12,8 @@
 #include "semphr.h"
 #include "Inc/HardwareDelay/HardwareDelayConfig.h"
 
+#if configHOS_HARDWARE_DELAY_ENABLE
+
 /*******************************************************************************
  * API structures:
  ******************************************************************************/
@@ -77,6 +79,6 @@ void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTi
  */
 void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks);
 
-
+#endif	/*	configHOS_HARDWARE_DELAY_ENABLE	*/
 
 #endif /* HAL_OS_INC_HARDWAREDELAY_HARDWAREDELAY_H_ */

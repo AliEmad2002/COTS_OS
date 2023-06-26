@@ -20,6 +20,8 @@
 /*	SELF	*/
 #include "Inc/HardwareDelay/HardwareDelay.h"
 
+#if configHOS_HARDWARE_DELAY_ENABLE
+
 /*******************************************************************************
  * Static objects:
  ******************************************************************************/
@@ -239,7 +241,7 @@ HANDLER(9)
 #endif
 
 
-
+#endif	/*	configHOS_HARDWARE_DELAY_ENABLE	*/
 
 
 

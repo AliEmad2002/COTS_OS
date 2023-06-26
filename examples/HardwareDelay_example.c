@@ -51,7 +51,10 @@ static TaskHandle_t xTask2Handle;
  ******************************************************************************/
 void vTask1(void* pvParams)
 {
+	xSemaphoreTake(pxHardwareDelayHandle1->xMutex, portMAX_DELAY);
+
 	vPort_DIO_initPinOutput(1, 12);
+
 	while(1)
 	{
 		vHOS_HardwareDelay_delayTicks(pxHardwareDelayHandle1, 10000);
@@ -61,7 +64,10 @@ void vTask1(void* pvParams)
 
 void vTask2(void* pvParams)
 {
+	xSemaphoreTake(pxHardwareDelayHandle2->xMutex, portMAX_DELAY);
+
 	vPort_DIO_initPinOutput(1, 13);
+
 	while(1)
 	{
 		vHOS_HardwareDelay_delayTicks(pxHardwareDelayHandle2, 10000);

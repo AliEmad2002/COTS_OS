@@ -27,15 +27,6 @@
 
 extern SPI_TypeDef* const pxPortSpiArr[];
 
-#define configAssert(exp)
-{
-	if ((exp) == 0)
-	{
-		volatile u8 cont = 0;
-		vPort_Brakpoint();
-		while(1);
-	}
-}
 
 /*******************************************************************************
  * Helping structures:

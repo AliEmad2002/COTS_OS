@@ -40,7 +40,7 @@ void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t* pxInfo)
 	vCLR_BIT(pxChHandle->CCR, 0);
 
 	/*	Temporarily store CCR value in a register	*/
-	register uint32_t uiCCR = pxChHandle->CCR;
+	uint32_t uiCCR = pxChHandle->CCR;
 
 	/*	Set transfer direction	*/
 	if (pxInfo->ucDirection == 0)

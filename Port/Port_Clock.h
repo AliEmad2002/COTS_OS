@@ -52,6 +52,10 @@ static inline void vPort_Clock_init(void)
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
 	__HAL_RCC_SPI1_CLK_ENABLE();
+	__HAL_RCC_TIM1_CLK_ENABLE();
+	__HAL_RCC_TIM2_CLK_ENABLE();
+	__HAL_RCC_TIM3_CLK_ENABLE();
+	__HAL_RCC_TIM4_CLK_ENABLE();
 }
 
 

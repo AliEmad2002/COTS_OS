@@ -96,7 +96,7 @@ void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t*  pxInfo);
  */
 static inline void vPort_DMA_enableTransferCompleteInterrupt(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
 {
-	vSET_BIT(pxPort_DmaChArr[pxInfo->ucUnitNumber][pxInfo->ucChannelNumber]->CCR, 1);
+	//vSET_BIT(pxPort_DmaChArr[pxInfo->ucUnitNumber][pxInfo->ucChannelNumber]->CCR, 1);
 }
 
 /*
@@ -104,7 +104,7 @@ static inline void vPort_DMA_enableTransferCompleteInterrupt(uint8_t ucUnitNumbe
  */
 static inline void vPort_DMA_disableTransferCompleteInterrupt(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
 {
-	vCLR_BIT(pxPort_DmaChArr[pxInfo->ucUnitNumber][pxInfo->ucChannelNumber]->CCR, 1);
+	//vCLR_BIT(pxPort_DmaChArr[pxInfo->ucUnitNumber][pxInfo->ucChannelNumber]->CCR, 1);
 }
 
 

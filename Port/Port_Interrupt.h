@@ -61,4 +61,6 @@ static inline void vPort_Interrupt_setPriority(uint8_t ucIRQNumber, uint8_t ucPr
  ******************************************************************************/
 extern const IRQn_Type pxPortInterruptSpiIrqNumberArr[];
 
+extern const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[];
+
 #endif /* HAL_OS_PORT_PORT_INTERRUPT_H_ */

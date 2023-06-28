@@ -15,7 +15,7 @@
  ******************************************************************************/
 typedef struct{
 	/*			PRIVATE			*/
-
+	int8_t cPosIncrementer;
 
 	/*			PUBLIC			*/
 	uint8_t ucStepPort;
@@ -31,6 +31,12 @@ typedef struct{
 }xHOS_Stepper_t;
 
 /*******************************************************************************
+ * API macros:
+ ******************************************************************************/
+#define ucHOS_STEPPER_DIR_FORWARD		0
+#define ucHOS_STEPPER_DIR_BACKWARD		1
+
+/*******************************************************************************
  * API functions:
  ******************************************************************************/
 
@@ -40,16 +46,20 @@ typedef struct{
 void vHOS_Stepper_init(xHOS_Stepper_t* pxHandle);
 
 /*
- * Moves the stepper one step forward, immediately.
- * Note: This is an inline function.
+ * Set moving direction.
+ *
+ * Notes:
+ * 		-	'ucDir' is one of: 'ucHOS_STEPPER_DIR_FORWARD' and 'ucHOS_STEPPER_DIR_BACKWARD'.
+ *
+ * 		-	This is an inline function.
  */
-void vHOS_Stepper_stepForward(xHOS_Stepper_t* pxHandle);
+void vHOS_Stepper_setDir(xHOS_Stepper_t* pxHandle, uint8_t ucDir);
 
 /*
- * Moves the stepper one step backward, immediately.
+ * Moves the stepper one step forward immediately, in the currently set direction.
  * Note: This is an inline function.
  */
-void vHOS_Stepper_stepBackward(xHOS_Stepper_t* pxHandle);
+void vHOS_Stepper_stepSingle(xHOS_Stepper_t* pxHandle);
 
 /*
  * Moves the stepper a number of steps.
@@ -61,8 +71,10 @@ void vHOS_Stepper_stepBackward(xHOS_Stepper_t* pxHandle);
  *
  * 		-	'pxHandle->pxHardwareDelayHandle' must be a valid and initialized handle,
  * 			its mutex would be taken on start of function and released on return.
+ *
+ * 		-	This function is not ISR safe.
  */
-void vHOS_Stepper_step(xHOS_Stepper_t* pxHandle, int32_t iN, int32_t iUsStepInterval);
+void vHOS_Stepper_stepN(xHOS_Stepper_t* pxHandle, int32_t iN, int32_t iUsStepInterval);
 
 
 

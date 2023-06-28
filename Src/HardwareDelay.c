@@ -155,7 +155,7 @@ xHOS_HardwareDelay_t* pxHOS_HardwareDelay_initNewObject(xHOS_HardwareDelay_InitA
 /*
  * See header file for info.
  */
-void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks)
+void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint64_t uiTicks)
 {
 	/*	get number of full counter overflows needed	*/
 	uint32_t uiNumberOfRemainingFullOVFs = uiTicks / pxHandle->uiMaxCounterValue;
@@ -175,9 +175,11 @@ void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTi
 /*
  * See header file for info.
  */
-void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks)
+__attribute__((always_inline))
+void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiUs)
 {
-
+	uint64_t uiTicks = ((uint64_t)uiUs * (uint64_t)pxHandle->uiTicksPerSecond) / 1000000ul;
+	vHOS_HardwareDelay_delayTicks(pxHandle, uiTicks);
 }
 
 /*******************************************************************************

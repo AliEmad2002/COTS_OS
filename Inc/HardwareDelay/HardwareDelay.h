@@ -72,12 +72,12 @@ xHOS_HardwareDelay_t* pxHOS_HardwareDelay_initNewObject(xHOS_HardwareDelay_InitA
  * 		-	To guarantee correct timing, the calling task must be of a very high
  * 			priority. otherwise delay time may be larger than requested.
  */
-void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks);
+void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint64_t uiTicks);
 
 /*
  * Starts an RTOS blocking delay for a number of microseconds. (i.e.: calling task would be blocked by FreeRTOS)
  */
-void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks);
+void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiUs);
 
 #endif	/*	configHOS_HARDWARE_DELAY_ENABLE	*/
 

@@ -121,7 +121,7 @@ BaseType_t xButton_initTask(void)
 											"Button",
 											uiBUTTON_STACK_SIZE,
 											NULL,
-											configNORMAL_TASK_PRIORITY,
+											configHOS_SOFT_REAL_TIME_TASK_PRI,
 											pxButtonStack,
 											&xButtonStaticTask	);
 	if (xButtonTaskHandle == NULL)

@@ -52,6 +52,9 @@ void vHOS_Stepper_init(xHOS_Stepper_t* pxHandle);
  * 		-	'ucDir' is one of: 'ucHOS_STEPPER_DIR_FORWARD' and 'ucHOS_STEPPER_DIR_BACKWARD'.
  *
  * 		-	This is an inline function.
+ *
+ * 		-	Before using an 'xHOS_Stepper_t' object, it is user's responsibility to
+ * 			assure the object is not being used by any other task.
  */
 void vHOS_Stepper_setDir(xHOS_Stepper_t* pxHandle, uint8_t ucDir);
 

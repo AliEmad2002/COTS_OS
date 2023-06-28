@@ -9,6 +9,7 @@
 #define HAL_OS_INC_HAL_OS_H_
 
 #include "FreeRTOS.h"
+#include "Inc/RTOS_PRI_Config.h"
 #include "Inc/Button/Button.h"
 #include "Inc/SevenSegmentMux/SevenSegmentMux.h"
 #include "Inc/SPI/SPI.h"

@@ -87,7 +87,7 @@ void vButtonCallback(void)
  ******************************************************************************/
 void tasks_init(void)
 {
-	xTask1Handle = xTaskCreateStatic(vTask1, "T1", configMINIMAL_STACK_SIZE, NULL, configNORMAL_TASK_PRIORITY, puxTask1Stack, &xTask1StaticHandle);
+	xTask1Handle = xTaskCreateStatic(vTask1, "T1", configMINIMAL_STACK_SIZE, NULL, configHOS_SOFT_REAL_TIME_TASK_PRI, puxTask1Stack, &xTask1StaticHandle);
 }
 
 /*******************************************************************************

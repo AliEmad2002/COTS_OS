@@ -214,7 +214,7 @@ BaseType_t xHOS_SPI_init(void)
 													"",
 													uiSPI_STACK_SIZE,
 													&pucParamArr[i],
-													configNORMAL_TASK_PRIORITY,
+													configHOS_SOFT_REAL_TIME_TASK_PRI,
 													puxSPITaskStackArr[i],
 													&pxSPITaskStaticHandleArr[i]	);
 

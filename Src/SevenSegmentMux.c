@@ -18,6 +18,9 @@
 #include "Port/Port_Print.h"
 #include "Port/Port_Breakpoint.h"
 
+/*	HAL-OS	*/
+#include "Inc/RTOS_PRI_Config.h"
+
 /*	SELF	*/
 #include "Inc/SevenSegmentMux/SevenSegmentMux.h"
 
@@ -179,7 +182,7 @@ BaseType_t xSevenSegmentMux_initTask(void)
 													"SSMux",
 													uiSEVEN_SEGMENT_MUX_STACK_SIZE,
 													NULL,
-													configNORMAL_TASK_PRIORITY,
+													configHOS_SOFT_REAL_TIME_TASK_PRI,
 													pxSevenSegmentMuxStack,
 													&xSevenSegmentMuxStaticTask	);
 	if (xSevenSegmentMuxTaskHandle == NULL)

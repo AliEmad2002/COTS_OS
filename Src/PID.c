@@ -7,6 +7,7 @@
 
 /*	LIB	*/
 #include <stdint.h>
+#include <stdio.h>
 
 /*	FreeRTOS	*/
 #include "FreeRTOS.h"
@@ -19,6 +20,17 @@
 #include "Inc/PID/PID.h"
 
 /*******************************************************************************
+ * Helping functions/macros:
+ ******************************************************************************/
+#define vCLAMP(fVal, fMin, fMax)     \
+{                                    \
+	if ((fVal) < (fMin))             \
+		(fVal) = (fMin);             \
+	else if ((fVal) > (fMax))        \
+		(fVal) = (fMax);             \
+}
+
+/*******************************************************************************
  * Task function
  ******************************************************************************/
 static void vTask(void* pvParams)
@@ -27,24 +39,39 @@ static void vTask(void* pvParams)
 	vTaskSuspend(pxHandle->xTask);
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
-	float fX, fY;
+	float fENew;
+	float fP;
+	float fSum;
+	float fC0, fC1;
 	while(1)
 	{
-		fX = pxHandle->fSetPoint - pxHandle->pfGetSample();
+		/*	Get new error value	*/
+		fENew = pxHandle->fSetPoint - pxHandle->pfGetSample();
 
-		fY =	fX						*	pxHandle->pfCArr[0] +
-				pxHandle->pfXPrev[0]	*	pxHandle->pfCArr[1] +
-				pxHandle->pfXPrev[1]	*	pxHandle->pfCArr[2] +
-				pxHandle->pfYPrev[1];
+		/*	calculate and clamp integral term	*/
+		fC0 = (pxHandle->fKi * pxHandle->uiTimeIntervalMs) / 2000.0f;
+		pxHandle->fI = pxHandle->fI + fC0 * (pxHandle->fE + fENew);
+		vCLAMP(pxHandle->fI, pxHandle->fIMin, pxHandle->fIMax);
 
-		pxHandle->pfUpdate(fY);
+		/*	calculate and clamp derivative term	*/
+		fC1 = (2000.0f * pxHandle->fKd) / pxHandle->uiTimeIntervalMs;
+		pxHandle->fD = fC1 * (fENew - pxHandle->fE);
+		vCLAMP(pxHandle->fD, pxHandle->fDMin, pxHandle->fDMax);
 
-		pxHandle->pfXPrev[1] = pxHandle->pfXPrev[0];
-		pxHandle->pfXPrev[0] = fX;
+		/*	calculate proportional term	*/
+		fP = pxHandle->fKp * fENew;
 
-		pxHandle->pfYPrev[1] = pxHandle->pfYPrev[0];
-		pxHandle->pfYPrev[0] = fY;
+		/*	Sum  and clamp summation	*/
+		fSum = pxHandle->fI + pxHandle->fD + fP;
+		vCLAMP(fSum, pxHandle->fOutMin, pxHandle->fOutMax);
 
+		/*	update plant with the new sum value	*/
+		pxHandle->pfUpdate(fSum);
+
+		/*	update controller variables	*/
+		pxHandle->fE = fENew;
+
+		/*	Task is blocked until next sample time	*/
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(pxHandle->uiTimeIntervalMs));
 	}
 }
@@ -55,33 +82,12 @@ static void vTask(void* pvParams)
 /*
  * See header file for info.
  */
-void vHOS_PID_init(	xHOS_PID_t* pxHandle,
-					float fKd, float fKp, float fKi,
-					uint32_t uiTimeIntervalMs,
-					float fSetPointInitial,
-					float (*pfGetSample) (void),
-					void (*pfUpdate) (float)	)
+void vHOS_PID_init(xHOS_PID_t* pxHandle)
 {
-	/*	Initialize constants array	*/
-	float fT = (float)uiTimeIntervalMs / 1000.0f;
-
-	pxHandle->pfCArr[0] = 2.0f * fT * fKp + fT * fT * fKi + 4.0f * fKd;
-	pxHandle->pfCArr[1] = 2.0f * fT * fT * fKi - 8.0f * fKd;
-	pxHandle->pfCArr[2] = 2.0f * fT * fKp + fT * fT * fKi + 4.0f * fKd;
-
-	pxHandle->pfCArr[0] /= 2.0f * fT;
-	pxHandle->pfCArr[1] /= 2.0f * fT;
-	pxHandle->pfCArr[2] /= 2.0f * fT;
-
-	/*	copy handle params	*/
-	pxHandle->uiTimeIntervalMs = uiTimeIntervalMs;
-	pxHandle->pfGetSample = pfGetSample;
-	pxHandle->pfUpdate = pfUpdate;
-	pxHandle->pfXPrev[0] = 0.0f;
-	pxHandle->pfXPrev[1] = 0.0f;
-	pxHandle->pfYPrev[0] = 0.0f;
-	pxHandle->pfYPrev[1] = 0.0f;
-	pxHandle->fSetPoint = fSetPointInitial;
+	/*	Initialize handle variables	*/
+	pxHandle->fD = 0.0f;
+	pxHandle->fI = 0.0f;
+	pxHandle->fE = 0.0f;
 
 	/*	Create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
@@ -100,16 +106,7 @@ void vHOS_PID_init(	xHOS_PID_t* pxHandle,
 /*
  * See header file for info.
  */
-__attribute__((always_inline))
-void vHOS_PID_writeSetPoint(xHOS_PID_t* pxHandle, float fSetPoint)
-{
-	pxHandle->fSetPoint = fSetPoint;
-}
-
-/*
- * See header file for info.
- */
-__attribute__((always_inline))
+__attribute__((always_inline)) inline
 void vHOS_PID_enable(xHOS_PID_t* pxHandle)
 {
 	vTaskResume(pxHandle->xTask);
@@ -118,7 +115,7 @@ void vHOS_PID_enable(xHOS_PID_t* pxHandle)
 /*
  * See header file for info.
  */
-__attribute__((always_inline))
+__attribute__((always_inline)) inline
 void vHOS_PID_disable(xHOS_PID_t* pxHandle)
 {
 	vTaskSuspend(pxHandle->xTask);

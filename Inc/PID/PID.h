@@ -12,22 +12,39 @@
 
 typedef struct{
 	/*		PRIVATE		*/
-	float pfCArr[3];
-
-	uint32_t uiTimeIntervalMs;
-
-	float (*pfGetSample) (void);
-	void (*pfUpdate) (float);
-
-	float pfXPrev[2];
-	float pfYPrev[2];
-
-	float fSetPoint;
+	float fE;
+	float fI;
+	float fD;
 
 	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
 	StaticTask_t xTaskStatic;
 	TaskHandle_t xTask;
-	void* pvParam;
+
+	/*		PUBLIC 		*/
+	/*
+	 * Any of the following variables can be changed while handle is enabled and
+	 * running, and effects will take place next update. They must be initialized
+	 * with valid values before enabling the controller.
+	 */
+	uint32_t uiTimeIntervalMs;
+
+	float fSetPoint;
+
+	float fKi;
+	float fKp;
+	float fKd;
+
+	float fIMax;
+	float fIMin;
+
+	float fDMax;
+	float fDMin;
+
+	float fOutMax;
+	float fOutMin;
+
+	float (*pfGetSample) (void);
+	void (*pfUpdate) (float);
 }xHOS_PID_t;
 
 /*
@@ -35,18 +52,7 @@ typedef struct{
  *
  * Must be called before scheduler start.
  */
-void vHOS_PID_init(	xHOS_PID_t* pxHandle,
-					float fKd, float fKp, float fKi,
-					uint32_t uiTimeIntervalMs,
-					float fSetPointInitial,
-					float (*pfGetSample) (void),
-					void (*pfUpdate) (float)	);
-
-/*
- * Sets set-point of the controller.
- * This function is inline.
- */
-void vHOS_PID_writeSetPoint(xHOS_PID_t* pxHandle, float fSetPoint);
+void vHOS_PID_init(xHOS_PID_t* pxHandle);
 
 /*
  * Enables PID controller.

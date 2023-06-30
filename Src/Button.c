@@ -7,6 +7,7 @@
 
 /*	LIB	*/
 #include <stdint.h>
+#include <stdio.h>
 
 /*	FreeRTOS	*/
 #include "FreeRTOS.h"
@@ -14,29 +15,12 @@
 
 /*	MCAL (Ported)	*/
 #include "Port/Port_DIO.h"
-#include "Port/Port_Print.h"
-#include "Port/Port_Breakpoint.h"
+
+/*	HAL-OS	*/
+#include "Inc/RTOS_PRI_Config.h"
 
 /*	SELF	*/
 #include "Inc/Button/Button.h"
-
-#if configHOS_BUTTON_EN
-
-/*******************************************************************************
- * Private configurations:
- ******************************************************************************/
-#define uiBUTTON_STACK_SIZE		configMINIMAL_STACK_SIZE
-
-/*******************************************************************************
- * Static objects:
- ******************************************************************************/
-static xHOS_Button_t xButtonArr[configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS];
-static uint16_t usNumberOfUsedButtons = 0;
-
-/*	Driver's stacks and task handle	*/
-static StackType_t pxButtonStack[uiBUTTON_STACK_SIZE];
-static StaticTask_t xButtonStaticTask;
-static TaskHandle_t xButtonTaskHandle;
 
 /*******************************************************************************
  * Helping functions/macros.
@@ -45,90 +29,53 @@ static TaskHandle_t xButtonTaskHandle;
 #define PRE_PRESSED		1
 #define PRESSED			2
 
-#define pxTOP_PTR	(xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t))
-
 /*******************************************************************************
  * RTOS Task code:
  ******************************************************************************/
-/*
- * If "configHOS_BUTTON_EN" was enabled, a task that uses this function will be
- * created in the "xHOS_init()".
- *
- * For further information about how HAL_OS drivers are managed, refer to the
- * repository's "README.md"
- */
-void vButton_manager(void* pvParams)
+static void vTask(void* pvParams)
 {
-	uint8_t i;
-	uint8_t pinLevel;
+	xHOS_Button_t* pxHandle = (xHOS_Button_t*)pvParams;
 
+	uint8_t pinLevel;
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
-		/*	loop on created buttons	*/
-		for (i = 0; i < usNumberOfUsedButtons; i++)
+		/*	read digital level of button's DIO pin	*/
+		pinLevel = ucPort_DIO_readPin(pxHandle->ucPortNumber, pxHandle->ucPinNumber);
+
+		/*	if it is the pressed level	*/
+		if (pinLevel == pxHandle->ucPressedLevel)
 		{
-			/*	if button is disabled, skip it	*/
-			if (xButtonArr[i].ucIsEnabled == 0)
-				continue;
-
-			/*	read digital level of button's DIO pin	*/
-			pinLevel = ucPort_DIO_readPin(xButtonArr[i].ucPortNumber, xButtonArr[i].ucPinNumber);
-
-			/*	if it is the pressed level	*/
-			if (pinLevel == xButtonArr[i].ucPressedLevel)
-			{
-				/*	if button was previously in "PRESSED" state	*/
-				if (xButtonArr[i].ucCurrentState == PRESSED)
-				{	/*	Do nothing	*/	}
-				/*	otherwise, if "PRE_PRESSED" or "RELEASED"	*/
-				else
-				{
-					/*	increment number of pressed samples	*/
-					xButtonArr[i].ucNumberOfPressedSamples++;
-					/*	if equal to filtering number of samples	*/
-					if (xButtonArr[i].ucNumberOfPressedSamples == xButtonArr[i].ucFilterN)
-					{
-						/*	transit to "PRESSED" state and execute callback	*/
-						xButtonArr[i].ucCurrentState = PRESSED;
-						xButtonArr[i].pfCallback();
-					}
-					/*	otherwise, button is in "PRE_PRESSED" state	*/
-					xButtonArr[i].ucCurrentState = PRE_PRESSED;
-				}
-			}
-
-			/*	otherwise, if it is the released level	*/
+			/*	if button was previously in "PRESSED" state	*/
+			if (pxHandle->ucCurrentState == PRESSED)
+			{	/*	Do nothing	*/	}
+			/*	otherwise, if "PRE_PRESSED" or "RELEASED"	*/
 			else
 			{
-				xButtonArr[i].ucCurrentState = RELEASED;
-				xButtonArr[i].ucNumberOfPressedSamples = 0;
+				/*	increment number of pressed samples	*/
+				pxHandle->ucNumberOfPressedSamples++;
+				/*	if equal to filtering number of samples	*/
+				if (pxHandle->ucNumberOfPressedSamples == pxHandle->ucFilterN)
+				{
+					/*	transit to "PRESSED" state and execute callback	*/
+					pxHandle->ucCurrentState = PRESSED;
+					pxHandle->pfCallback();
+				}
+				/*	otherwise, button is in "PRE_PRESSED" state	*/
+				pxHandle->ucCurrentState = PRE_PRESSED;
 			}
 		}
 
-		/*	Delay until next sample time	*/
-		vTaskDelay(pdMS_TO_TICKS(configHOS_BUTTON_SAMPLING_INTERVAL_MS));
+		/*	otherwise, if it is the released level	*/
+		else
+		{
+			pxHandle->ucCurrentState = RELEASED;
+			pxHandle->ucNumberOfPressedSamples = 0;
+		}
+
+		/*	Task is blocked until next sample time	*/
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(pxHandle->uiSamplePeriodMs));
 	}
-}
-
-/*
- * Initializes the task responsible for this  driver.
- * Notes:
- * 		-	This function is externed and called in "HAL_OS.c".
- */
-BaseType_t xButton_initTask(void)
-{
-	xButtonTaskHandle = xTaskCreateStatic(	vButton_manager,
-											"Button",
-											uiBUTTON_STACK_SIZE,
-											NULL,
-											configHOS_SOFT_REAL_TIME_TASK_PRI,
-											pxButtonStack,
-											&xButtonStaticTask	);
-	if (xButtonTaskHandle == NULL)
-		return pdFAIL;
-
-	else
-		return pdPASS;
 }
 
 /*******************************************************************************
@@ -137,59 +84,59 @@ BaseType_t xButton_initTask(void)
 /*
  * See header file for info.
  */
-xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
-									uint8_t ucPinNumber,
-									void (*pfCallback)(void),
-									uint8_t ucPressedLevel,
-									uint8_t ucFilterN	)
+void vHOS_Button_init(xHOS_Button_t* pxHandle)
 {
-	/*	check (assert) if there's enough memory to add new button	*/
-	configASSERT(usNumberOfUsedButtons < configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS);
-
 	/*	initialize DIO pin as an input, pulled with invert of "ucPressedLevel"	*/
-	uint8_t ucPull = ucPressedLevel ? 2 : 1;
-	vPort_DIO_initPinInput(ucPortNumber, ucPinNumber, ucPull);
+	uint8_t ucPull = pxHandle->ucPressedLevel ? 2 : 1;
+	vPort_DIO_initPinInput(pxHandle->ucPortNumber, pxHandle->ucPinNumber, ucPull);
 
-	/*	store button data in "xButtonArr"	*/
-	xHOS_Button_t* pxHandle = &xButtonArr[usNumberOfUsedButtons];
-	pxHandle->ucPortNumber = ucPortNumber;
-	pxHandle->ucPinNumber = ucPinNumber;
-	pxHandle->pfCallback = pfCallback;
-	pxHandle->ucPressedLevel = ucPressedLevel;
-	pxHandle->ucFilterN = ucFilterN;
+	/*	initialize private parameters	*/
 	pxHandle->ucCurrentState = RELEASED;
 	pxHandle->ucNumberOfPressedSamples = 0;
-	pxHandle->ucIsEnabled = 1;
 
-	/*	Increment buttons counter	*/
-	usNumberOfUsedButtons++;
+	/*	create task	*/
+	static uint8_t ucCreatedObjectsCount = 0;
+	char pcTaskName[configMAX_TASK_NAME_LEN];
+	sprintf(pcTaskName, "Button%d", ucCreatedObjectsCount++);
 
-	/*	return pointer to the new handle	*/
-	return pxHandle;
+	pxHandle->xTask = xTaskCreateStatic(	vTask,
+											pcTaskName,
+											configMINIMAL_STACK_SIZE,
+											(void*)pxHandle,
+											configHOS_SOFT_REAL_TIME_TASK_PRI,
+											pxHandle->puxTaskStack,
+											&pxHandle->xTaskStatic	);
 }
 
 /*
  * See header file for info.
  */
-void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle)
+__attribute__((always_inline)) inline
+void vHOS_Button_Enable(xHOS_Button_t* pxHandle)
 {
-	/*	check pointer first	*/
-	configASSERT(xButtonArr <= pxButtonHandle && pxButtonHandle < pxTOP_PTR);
-
-	/*	Enable	*/
-	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 1;
+	vTaskResume(pxHandle->xTask);
 }
 
 /*
  * See header file for info.
  */
-void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle)
+__attribute__((always_inline)) inline
+void vHOS_Button_Disable(xHOS_Button_t* pxHandle)
 {
-	/*	check pointer first	*/
-	configASSERT(xButtonArr <= pxButtonHandle && pxButtonHandle < xButtonArr + configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS * sizeof(xHOS_Button_t));
-
-	/*	Disable	*/
-	xButtonArr[usNumberOfUsedButtons].ucIsEnabled = 0;
+	vTaskSuspend(pxHandle->xTask);
 }
 
-#endif	/*	configHOS_BUTTON_EN	*/
+/*
+ * See header file for info.
+ */
+__attribute__((always_inline)) inline
+uint8_t ucHOS_Button_Read(xHOS_Button_t* pxHandle)
+{
+	return (pxHandle->ucCurrentState == PRESSED) ? 1 : 0;
+}
+
+
+
+
+
+

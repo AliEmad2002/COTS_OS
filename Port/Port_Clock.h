@@ -33,7 +33,7 @@ static inline void vPort_Clock_init(void)
 	  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
 	  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-	  configASSERT(HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK)
+	  configASSERT(HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK);
 
 	  /** Initializes the CPU, AHB and APB buses clocks
 	  */
@@ -44,7 +44,7 @@ static inline void vPort_Clock_init(void)
 	  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
 	  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	  configASSERT(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK)
+	  configASSERT(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK);
 
 	SystemCoreClockUpdate();
 	__HAL_RCC_GPIOA_CLK_ENABLE();

@@ -91,7 +91,7 @@ void vHOS_PID_init(xHOS_PID_t* pxHandle)
 
 	/*	Create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
-	char pcTaskName[7];
+	char pcTaskName[configMAX_TASK_NAME_LEN];
 	sprintf(pcTaskName, "PID%d", ucCreatedObjectsCount++);
 
 	pxHandle->xTask = xTaskCreateStatic(	vTask,

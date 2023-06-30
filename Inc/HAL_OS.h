@@ -16,6 +16,7 @@
 #include "Inc/TFT/TFT.h"
 #include "Inc/HardwareDelay/HardwareDelay.h"
 #include "Inc/PID/PID.h"
+#include "Inc/RotaryEncoder/RotaryEncoder.h"
 
 BaseType_t xHOS_init(void);
 

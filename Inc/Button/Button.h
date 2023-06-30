@@ -8,15 +8,16 @@
 #ifndef HAL_OS_INC_BUTTON_BUTTON_H_
 #define HAL_OS_INC_BUTTON_BUTTON_H_
 
-#include "Inc/Button/ButtonConfig.h"
+#include "FreeRTOS.h"
 
 /*
  * "Button" structure.
  *
  * Notes:
- * 		-	"pfCallback" function must be very short in terms of execution time.
- * 			if needed to be longer, it may be implemented as a FreeRTOS task
- * 			and just get controlled by buttons callback.
+ * 		-	"pfCallback" function must be very short in terms of execution time
+ * 			and small in terms of stack size. if needed to be longer/larger, it
+ * 			may be implemented as a FreeRTOS task and just get controlled by
+ * 			buttons callback.
  *
  * 		-	"ucPressedLevel": 0==> low level, 1==> high level.
  *
@@ -31,9 +32,16 @@
  * 					in row. (i.e.: "ucCurrentState" = "PRESSED")
  */
 typedef struct{
-	/*	configuration parameters	*/
-	uint8_t ucPortNumber;
+	/*		PRIVATE		*/
+	uint8_t ucCurrentState;
+	uint8_t ucNumberOfPressedSamples;
 
+	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
+	StaticTask_t xTaskStatic;
+	TaskHandle_t xTask;
+
+	/*		PUBLIC		*/
+	uint8_t ucPortNumber;
 	uint8_t ucPinNumber;
 
 	void (*pfCallback)(void);
@@ -42,52 +50,47 @@ typedef struct{
 
 	uint8_t ucFilterN;
 
-	/*	runtime changing parameters	*/
-	uint8_t ucCurrentState;
-
-	uint8_t ucNumberOfPressedSamples;
-
-	uint8_t ucIsEnabled;
+	uint32_t uiSamplePeriodMs;
 }xHOS_Button_t;
 
 /*
  * Initializes button object.
- *
  * Notes:
- * 		-	"configHOS_BUTTON_EN" must be initially set in order for the driver to work.
+ * 		-	All public variables of the passed handle must be initialized to valid
+ * 			values first.
  *
- *		-	user can't create buttons more than "configHOS_BUTTON_MAX_NUMBER_OF_BUTTONS".
- *
- *		-	returns pointer to the created handle.
+ * 		-	Must be called before scheduler start.
  */
-xHOS_Button_t* pxHOS_Button_init(	uint8_t ucPortNumber,
-									uint8_t ucPinNumber,
-									void (*pfCallback)(void),
-									uint8_t ucPressedLevel,
-									uint8_t ucFilterN	);
+void vHOS_Button_init(xHOS_Button_t* pxHandle);
 
 /*
  * Enables button.
  *
  * Notes:
  * 		-	Buttons are initially enabled on creation.
+ *
+ * 		-	This function is inline.
  */
-void vHOS_Button_Enable(xHOS_Button_t* pxButtonHandle);
+void vHOS_Button_Enable(xHOS_Button_t* pxHandle);
 
 /*
  * Disables button. (Presses are ignored)
  *
  * Notes:
  * 		-	Buttons are initially enabled on creation.
+ *
+ * 		-	This function is inline.
  */
-void vHOS_Button_Disable(xHOS_Button_t* pxButtonHandle);
+void vHOS_Button_Disable(xHOS_Button_t* pxHandle);
 
 /*
  * Reads button.
  *
  * Notes:
  * 		-	Returns 1 if button state is "PRESSED", 0 otherwise.
+ *
+ * 		-	This function is inline.
  */
-uint8_t ucHOS_Button_Read(xHOS_Button_t* pxButtonHandle);
+uint8_t ucHOS_Button_Read(xHOS_Button_t* pxHandle);
 
 #endif /* HAL_OS_INC_BUTTON_BUTTON_H_ */

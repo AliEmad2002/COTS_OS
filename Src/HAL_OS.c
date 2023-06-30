@@ -23,19 +23,12 @@
 #include "Inc/HAL_OS.h"
 
 /*	Drivers' task initialization functions	*/
-extern BaseType_t xButton_initTask(void);
 extern BaseType_t xSevenSegmentMux_initTask(void);
 extern BaseType_t xHOS_SPI_init(void);
 
 BaseType_t xHOS_init(void)
 {
 	BaseType_t xInitState;
-
-#if configHOS_BUTTON_EN
-	xInitState = xButton_initTask();
-	if (xInitState == pdFAIL)
-		return pdFAIL;
-#endif	/*	configHOS_BUTTON_EN	*/
 
 #if configHOS_SEVEN_SEGMENT_EN
 	xInitState = xSevenSegmentMux_initTask();

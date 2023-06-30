@@ -22,44 +22,19 @@
 /*	LIB	*/
 #include <stdint.h>
 
-/*	MCAL	*/
-#include "Port/Port_HW.h"
-
-/*	OS	*/
+/*	RTOS	*/
 #include "FreeRTOS.h"
 #include "task.h"
 
-/*	MCAL	*/
-#include "stm32f103xb.h"
-#include "stm32f1xx_hal.h"
+/*	MCAL (Ported)	*/
+#include "Port/Port_HW.h"
 
 /*	HAL_OS	*/
 #include "Inc/HAL_OS.h"
 
-/*
- * Task functions:
- */
-void vTask1(void* pvParams)
-{
-	while(1)
-	{
-		HAL_GPIO_TogglePin(GPIOB, 1 << 12);
-		vTaskDelay(pdMS_TO_TICKS(500));
-	}
-}
-
-void vTask2(void* pvParams)
-{
-	while(1)
-	{
-		HAL_GPIO_TogglePin(GPIOB, 1 << 13);
-		vTaskDelay(pdMS_TO_TICKS(800));
-	}
-}
-
-/*
+/*******************************************************************************
  * Tasks stacks and handles:
- */
+ ******************************************************************************/
 static StackType_t puxTask1Stack[configMINIMAL_STACK_SIZE];
 static StaticTask_t xTask1StaticHandle;
 static TaskHandle_t xTask1Handle;
@@ -67,9 +42,47 @@ static StackType_t puxTask2Stack[configMINIMAL_STACK_SIZE];
 static StaticTask_t xTask2StaticHandle;
 static TaskHandle_t xTask2Handle;
 
-/*
- * Button callback:
- */
+/*******************************************************************************
+ * Task functions:
+ ******************************************************************************/
+void vTask1(void* pvParams)
+{
+	vPort_DIO_initPinOutput(1, 12);
+
+	while(1)
+	{
+		vPort_DIO_togglePin(1, 12);
+		vTaskDelay(pdMS_TO_TICKS(500));
+	}
+}
+
+void vTask2(void* pvParams)
+{
+	vPort_DIO_initPinOutput(1, 13);
+
+	while(1)
+	{
+		vPort_DIO_togglePin(1, 13);
+		vTaskDelay(pdMS_TO_TICKS(800));
+	}
+}
+
+void vApplicationIdleHook( void )
+{
+   for( ;; )
+   {
+       //vCoRoutineSchedule();
+   }
+}
+
+/*******************************************************************************
+ * Global variables:
+ ******************************************************************************/
+static xHOS_Button_t xButton;
+
+/*******************************************************************************
+ * Callbacks:
+ ******************************************************************************/
 void callback(void)
 {
 	static uint8_t areTasksSuspended = 0;
@@ -88,59 +101,36 @@ void callback(void)
 	}
 }
 
-/*
- * HW initialization:
- */
-void HW_init(void)
-{
-	/*	RCC	*/
-	SystemCoreClockUpdate();
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-
-	/*	Output1	*/
-	GPIO_InitTypeDef conf1 = {
-		.Pin = 1 << 12,
-		.Mode = GPIO_MODE_OUTPUT_PP,
-		.Pull = GPIO_NOPULL,
-		.Speed = GPIO_SPEED_FREQ_HIGH
-	};
-	HAL_GPIO_Init(GPIOB, &conf1);
-
-	/*	Output2	*/
-	GPIO_InitTypeDef conf2 = {
-		.Pin = 1 << 13,
-		.Mode = GPIO_MODE_OUTPUT_PP,
-		.Pull = GPIO_NOPULL,
-		.Speed = GPIO_SPEED_FREQ_HIGH
-	};
-	HAL_GPIO_Init(GPIOB, &conf2);
-}
-
-/*
+/*******************************************************************************
  * Tasks initialization:
- */
+ ******************************************************************************/
 void tasks_init(void)
 {
 	xTask1Handle = xTaskCreateStatic(vTask1, "T1", configMINIMAL_STACK_SIZE, NULL, configHOS_SOFT_REAL_TIME_TASK_PRI, puxTask1Stack, &xTask1StaticHandle);
 	xTask2Handle = xTaskCreateStatic(vTask2, "T2", configMINIMAL_STACK_SIZE, NULL, configHOS_SOFT_REAL_TIME_TASK_PRI, puxTask2Stack, &xTask2StaticHandle);
 }
 
-/*
- * Button initialization:
- */
-void button_init(void)
+/*******************************************************************************
+ * HAL_OS objects initialization:
+ ******************************************************************************/
+void obj_init(void)
 {
-	(void)pxHOS_Button_init(1, 1, callback, 1, 3);
+	xButton.ucPortNumber = 0;
+	xButton.ucPinNumber = 8;
+	xButton.pfCallback = callback;
+	xButton.ucPressedLevel = 1;
+	xButton.ucFilterN = 3;
+	xButton.uiSamplePeriodMs = 10;
+	vHOS_Button_init(&xButton);
 }
 
 int main(void)
 {
 	/*	init	*/
 	vPort_HW_init();
-	HW_init();
-	button_init();
+	configASSERT(xHOS_init());
+	obj_init();
 	tasks_init();
-	xHOS_init();
 
 	/*	Run	*/
 	vTaskStartScheduler();

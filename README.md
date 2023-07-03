@@ -1,5 +1,5 @@
-# HAL_OS
-FreeRTOS based HAL library.
+# COTS_OS
+FreeRTOS based HAL, LIB layers library.
 
 # Features:
   * Easly ported:

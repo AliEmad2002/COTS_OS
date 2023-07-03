@@ -23,18 +23,11 @@
 #include "HAL/HAL_OS.h"
 
 /*	Drivers' task initialization functions	*/
-extern BaseType_t xSevenSegmentMux_initTask(void);
 extern BaseType_t xHOS_SPI_init(void);
 
 BaseType_t xHOS_init(void)
 {
 	BaseType_t xInitState;
-
-#if configHOS_SEVEN_SEGMENT_EN
-	xInitState = xSevenSegmentMux_initTask();
-	if (xInitState == pdFAIL)
-		return pdFAIL;
-#endif	/*	configHOS_SEVEN_SEGMENT_EN	*/
 
 #if configHOS_SPI_EN
 	xInitState = xHOS_SPI_init();

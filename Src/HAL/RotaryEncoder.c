@@ -26,6 +26,7 @@
  * Helping functions/macros:
  ******************************************************************************/
 
+
 /*******************************************************************************
  * Task function
  ******************************************************************************/
@@ -33,20 +34,60 @@ static void vTask(void* pvParams)
 {
 	xHOS_RotaryEncoder_t* pxHandle = (xHOS_RotaryEncoder_t*)pvParams;
 
+	uint8_t ucANewLevel;
+	uint8_t ucBNewLevel;
+
+	uint8_t ucAPrevLevel = 0;
+	uint8_t ucBPrevLevel = 0;
+
 	uint8_t ucALevel;
 	uint8_t ucBLevel;
+
+	uint8_t ucNA = 0;
+	uint8_t ucNB = 0;
+
+	vTaskSuspend(pxHandle->xTask);
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
-		/*	Read both channels	*/
-		ucALevel = ucPort_DIO_readPin(pxHandle->ucAPort, pxHandle->ucAPin);
-		ucBLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
+		/*	Read both channels, with applying the N-consicutive samples filtering method 	*/
+		ucANewLevel = ucPort_DIO_readPin(pxHandle->ucAPort, pxHandle->ucAPin);
+		if (ucANewLevel == ucAPrevLevel)
+		{
+			ucNA++;
+			if (ucNA == pxHandle->ucNFilter)
+			{
+				ucALevel = ucANewLevel;
+				ucNA = 0;
+			}
+		}
+		else
+		{
+			ucNA = 0;
+		}
+		ucAPrevLevel = ucANewLevel;
+
+		ucBNewLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
+		if (ucBNewLevel == ucBPrevLevel)
+		{
+			ucNB++;
+			if (ucNB == pxHandle->ucNFilter)
+			{
+				ucBLevel = ucBNewLevel;
+				ucNB = 0;
+			}
+		}
+		else
+		{
+			ucNB = 0;
+		}
+		ucBPrevLevel = ucBNewLevel;
 
 		/*	if rotary is idle	*/
 		if (xLastWakeTime - pxHandle->xLastActiveTimeStamp > pdMS_TO_TICKS(pxHandle->uiIdleTimeoutMs))
 		{
-			/*	else if an edge occurred on B first	*/
+			/*	if an edge occurred on B first	*/
 			if (	(ucBLevel == 1 && pxHandle->ucBPrevLevel == 0) ||
 					(ucBLevel == 0 && pxHandle->ucBPrevLevel == 1)	)
 			{
@@ -71,7 +112,10 @@ static void vTask(void* pvParams)
 				(pxHandle->ucFirstEdgeChannel == 1 && ucBLevel == 1 && pxHandle->ucBPrevLevel == 0)	)
 		{
 			pxHandle->xLastActiveTimeStamp = xLastWakeTime;
-			pxHandle->iCount += pxHandle->cCurrentDirection;
+			if (pxHandle->cCurrentDirection == 1)
+				pxHandle->pfCWCallback(pxHandle->pvCWParams);
+			else
+				pxHandle->pfCCWCallback(pxHandle->pvCCWParams);
 		}
 
 		/*	Update levels	*/
@@ -101,7 +145,6 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle)
 
 	pxHandle->xLastActiveTimeStamp = 0;
 	pxHandle->cCurrentDirection = 1;
-	pxHandle->iCount = 0;
 	pxHandle->ucFirstEdgeChannel = 0;
 
 	/*	create task	*/
@@ -118,16 +161,23 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle)
 											&pxHandle->xTaskStatic	);
 }
 
+/*
+ * See header file for info.
+ */
 __attribute__((always_inline)) inline
-int32_t iHOS_RotaryEncoder_getCount(xHOS_RotaryEncoder_t* pxHandle)
+void vHOS_RotaryEncoder_enable(xHOS_RotaryEncoder_t* pxHandle)
 {
-	return pxHandle->iCount;
+	vTaskResume(pxHandle->xTask);
 }
 
-
-
-
-
+/*
+ * See header file for info.
+ */
+__attribute__((always_inline)) inline
+void vHOS_RotaryEncoder_disable(xHOS_RotaryEncoder_t* pxHandle)
+{
+	vTaskSuspend(pxHandle->xTask);
+}
 
 
 

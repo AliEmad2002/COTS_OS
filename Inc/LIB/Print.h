@@ -11,12 +11,14 @@
 //#include <diag/trace.h>
 #include <stdio.h>
 
-//#define vLIB_PRINT(...)                                 \
-//{                                                       \
-//    char strBuffer[128];                                \
-//    sprintf(strBuffer, __VA_ARGS__);                    \
-//    TFT_PrintStr(strBuffer);                            \
-//}
+/*
+#define vLIB_PRINT(...)                                 \
+{                                                       \
+    char strBuffer[128];                                \
+    sprintf(strBuffer, __VA_ARGS__);                    \
+    TFT_PrintStr(strBuffer);                            \
+}
+*/
 
 #define vLIB_PRINT(...)		(printf(__VA_ARGS__))
 

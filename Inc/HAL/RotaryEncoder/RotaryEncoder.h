@@ -13,6 +13,9 @@
 
 #include "FreeRTOS.h"
 
+/*******************************************************************************
+ * Structures:
+ ******************************************************************************/
 typedef struct{
 	/*		PRIVATE		*/
 	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
@@ -22,8 +25,6 @@ typedef struct{
 	TickType_t xLastActiveTimeStamp;
 
 	int8_t cCurrentDirection;
-
-	int32_t iCount;
 
 	uint8_t ucAPrevLevel;
 	uint8_t ucBPrevLevel;
@@ -41,13 +42,47 @@ typedef struct{
 	 * Any of the following can be changed while object is active and running,
 	 * change effects would take place next sample.
 	 */
-	uint32_t uiSamplePeriodMs;
+	uint32_t uiSamplePeriodMs; // recommended: 5ms
 
-	uint32_t uiIdleTimeoutMs;
+	uint32_t uiIdleTimeoutMs; // recommended: 100ms
+
+	uint8_t ucNFilter; // recommended: 10 / uiSamplePeriodMs
+
+	void (*pfCWCallback)(void*);
+	void* pvCWParams;
+
+	void (*pfCCWCallback)(void*);
+	void* pvCCWParams;
 }xHOS_RotaryEncoder_t;
 
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
+/*
+ * Initializes object and its task.
+ *
+ * Notes:
+ * 		-	Must be called before scheduler start.
+ * 		-	All public parameters of the passed handle must be initialized first.
+ */
 void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle);
 
-int32_t iHOS_RotaryEncoder_getCount(xHOS_RotaryEncoder_t* pxHandle);
+/*
+ * Enables object.
+ *
+ * Notes:
+ * 		-	A "xHOS_RotaryEncoder_t" is initially disabled.
+ * 		-	This is an inline function.
+ */
+void vHOS_RotaryEncoder_enable(xHOS_RotaryEncoder_t* pxHandle);
+
+/*
+ * Disables object.
+ *
+ * Notes:
+ * 		-	A "xHOS_RotaryEncoder_t" is initially disabled.
+ * 		-	This is an inline function.
+ */
+void vHOS_RotaryEncoder_disable(xHOS_RotaryEncoder_t* pxHandle);
 
 #endif /* HAL_OS_INC_ROTARYENCODER_ROTARYENCODER_H_ */

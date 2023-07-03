@@ -13,33 +13,16 @@
 
 /*
  * "xHOS_SevenSegmentMux_t" structure.
- *
- * Notes:
- *
- *	 	-	The first 4 arrays are user allocated, defined and then passed
- * 			to "pxHOS_SevenSegmentMux_init()" when creating object.
- *
- * 		-	"pucDisplayBuffer[]" in its i-th nibble holds the number to be displayed
- * 			on the i-th digit.
- *
- * 		-	"ucSegmentActiveLevel" is the level that when applied on a single segment
- * 			it beams on (as long as the containing digit is enabled).
- *
- *		-	"ucEnableActiveLevel" is the level that when applied on an enable pin of
- *			a digit it beams on (as long as its segment pins are active).
- *
- *		-	"ucIsEnabled":
- *				0==> Digits are turned off totally and updates to them are ignored.
- *				1==> Digits are turned active and  periodically updated.
- *
- *		-	"ucNumberOfDigits" is number of digits the object has.
- *
- *		-	"ucCurrentActiveDigit" is number of currently active digit.
- *
- *		-	"cPointIndex" is number of the digit that has the point active. it is
- *			set to -1 when point is not currently active at any digit.
  */
 typedef struct{
+	/*		PRIVATE		*/
+	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
+	StaticTask_t xTaskStatic;
+	TaskHandle_t xTask;
+
+	uint8_t ucCurrentActiveDigit;
+
+	/*		PUBLIC		*/
 	/*	Configuration parameters	*/
 	uint8_t* pxSegmentPortNumberArr;
 	uint8_t* pxSegmentPinNumberArr;
@@ -51,38 +34,36 @@ typedef struct{
 
 	uint8_t ucEnableActiveLevel : 1;
 
-	uint8_t ucIsEnabled : 1;
-
 	uint8_t ucNumberOfDigits;
 
 	/*	Runtime changing parameters	*/
-	uint8_t pucDisplayBuffer[(configHOS_SEVEN_SEGMENT_MUX_MAX_NUMBER_OF_DIGITS+1)/2];
+	uint8_t* pucDisplayBuffer;
 
-	uint8_t ucCurrentActiveDigit;
+	int8_t cPointIndex;	// Number of the digit that has the point active. it is
+	 	 	 	 	 	//set to -1 when point is not currently active at any digit.
 
-	int8_t cPointIndex;
+	uint32_t uiUpdatePeriodMs; // recommended: 10ms
 }xHOS_SevenSegmentMux_t;
 
 /*
  * Initializes "xHOS_SevenSegmentMux_t" object.
  *
  * Notes:
- * 		-	All arguments are described previously in "struct xHOS_SevenSegmentMux_t".
+ * 		-	Must be called before scheduler start.
  *
- * 		-	Returns pointer to the created handle. Used in the following functions.
+ * 		-	All configuration parameters, and "uiUpdatePeriodMs" must be
+ * 			initialized first.
+ *
+ * 		-	Runtime parameters are initialized by this function as follows:
+ * 				-	"pucDisplayBuffer" elements are all set to zero.
+ * 				-	"cPointIndex" is set to -1.
  */
-xHOS_SevenSegmentMux_t* pxHOS_SevenSegmentMux_init(	uint8_t* pxSegmentPortNumberArr,
-													uint8_t* pxSegmentPinNumberArr,
-													uint8_t* pxDigitEnablePortNumberArr,
-													uint8_t* pxDigitEnablePinNumberArr,
-													uint8_t ucSegmentActiveLevel,
-													uint8_t ucEnableActiveLevel,
-													uint8_t ucNumberOfDigits	);
+void vHOS_SevenSegmentMux_init(xHOS_SevenSegmentMux_t* pxHandle);
 
 /*
  * Changes current display value.
  */
-void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle,
+void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxHandle,
 									uint32_t uiNum,
 									int8_t cPointIndex	);
 
@@ -91,8 +72,9 @@ void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle
  *
  * Notes:
  * 		-	Objects are initially disabled on creation.
+ * 		-	This function is inline.
  */
-void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle);
+void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxHandle);
 
 /*
  * Disables "xHOS_SevenSegmentMux_t" object.
@@ -100,6 +82,6 @@ void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle
  * Notes:
  * 		-	Objects are initially disabled on creation.
  */
-void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxSevenSegmentMuxHandle);
+void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxHandle);
 
 #endif /* HAL_OS_INC_SEVENSEGMENTMUX_SEVENSEGMENTMUX_H_ */

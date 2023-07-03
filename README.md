@@ -26,6 +26,12 @@ FreeRTOS based HAL, LIB layers library.
     
 
       https://github.com/AliEmad2002/HAL_OS/assets/99054912/e4ce0098-8968-4b07-a7b3-8f55cbbe2e6d
+  * Rotary encoder
+    * Example available at: https://github.com/AliEmad2002/COTS_OS/blob/main/examples/RotaryEncoder_And_SevenSegmentMux_example.c
+      
+
+      https://github.com/AliEmad2002/COTS_OS/assets/99054912/9719c2fc-1fef-4b5e-89d4-3d95f3119ea5
+
 
 
 

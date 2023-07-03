@@ -23,8 +23,8 @@
 /*	MCAL	*/
 #include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
-#include "Port/Port_HW.h"
-#include "Port/Port_DIO.h"
+#include "MCAL_Port/Port_HW.h"
+#include "MCAL_Port/Port_DIO.h"
 
 /*	HAL_OS	*/
 #include "Inc/HAL_OS.h"

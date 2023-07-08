@@ -123,9 +123,9 @@ void obj_init(void)
 	xRotary.ucAPin = 4;
 	xRotary.ucBPort = 0;
 	xRotary.ucBPin = 5;
-	xRotary.uiSamplePeriodMs = 1;
-	xRotary.uiIdleTimeoutMs = 50;
-	xRotary.ucNFilter = 10;
+	xRotary.uiSamplePeriodMs = 5;
+	xRotary.uiIdleTimeoutMs = 250;
+	xRotary.ucNFilter = 2;
 	xRotary.pfCWCallback = vCWCallback;
 	xRotary.pfCCWCallback = vCCWCallback;
 	vHOS_RotaryEncoder_init(&xRotary);

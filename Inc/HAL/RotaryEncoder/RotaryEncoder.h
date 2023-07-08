@@ -24,12 +24,8 @@ typedef struct{
 
 	TickType_t xLastActiveTimeStamp;
 
-	int8_t cCurrentDirection;
-
 	uint8_t ucAPrevLevel;
 	uint8_t ucBPrevLevel;
-
-	uint8_t ucFirstEdgeChannel;
 
 	/*		PUBLIC		*/
 	uint8_t ucAPort;
@@ -43,8 +39,6 @@ typedef struct{
 	 * change effects would take place next sample.
 	 */
 	uint32_t uiSamplePeriodMs; // recommended: 5ms
-
-	uint32_t uiIdleTimeoutMs; // recommended: 100ms
 
 	uint8_t ucNFilter; // recommended: 10 / uiSamplePeriodMs
 

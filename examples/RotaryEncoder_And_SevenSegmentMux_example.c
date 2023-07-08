@@ -120,11 +120,10 @@ void obj_init(void)
 
 	/*	Rotary encoder	*/
 	xRotary.ucAPort = 0;
-	xRotary.ucAPin = 4;
+	xRotary.ucAPin = 5;
 	xRotary.ucBPort = 0;
-	xRotary.ucBPin = 5;
+	xRotary.ucBPin = 4;
 	xRotary.uiSamplePeriodMs = 5;
-	xRotary.uiIdleTimeoutMs = 250;
 	xRotary.ucNFilter = 2;
 	xRotary.pfCWCallback = vCWCallback;
 	xRotary.pfCCWCallback = vCCWCallback;

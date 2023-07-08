@@ -84,36 +84,14 @@ static void vTask(void* pvParams)
 		}
 		ucBPrevLevel = ucBNewLevel;
 
-		/*	if rotary is idle	*/
-		if (xLastWakeTime - pxHandle->xLastActiveTimeStamp > pdMS_TO_TICKS(pxHandle->uiIdleTimeoutMs))
+		/*	if a rising edge occurred on channel A	*/
+		if (ucALevel == 1 && pxHandle->ucAPrevLevel == 0)
 		{
-			/*	if an edge occurred on B first	*/
-			if (	(ucBLevel == 1 && pxHandle->ucBPrevLevel == 0) ||
-					(ucBLevel == 0 && pxHandle->ucBPrevLevel == 1)	)
-			{
-				pxHandle->xLastActiveTimeStamp = xLastWakeTime;
-				pxHandle->cCurrentDirection = -1;
-				pxHandle->ucFirstEdgeChannel = 1;
-			}
-
-			/*	else if an edge occurred on A first	*/
-			else if (	(ucALevel == 1 && pxHandle->ucAPrevLevel == 0) ||
-						(ucALevel == 0 && pxHandle->ucAPrevLevel == 1)	)
-			{
-				pxHandle->xLastActiveTimeStamp = xLastWakeTime;
-				pxHandle->cCurrentDirection = 1;
-				pxHandle->ucFirstEdgeChannel = 0;
-			}
-		}
-
-		/*	else if it is not idle	*/
-		/*	if a rising edge occurred on the "ucFirstEdgeChannel"	*/
-		if (	(pxHandle->ucFirstEdgeChannel == 0 && ucALevel == 1 && pxHandle->ucAPrevLevel == 0)	||
-				(pxHandle->ucFirstEdgeChannel == 1 && ucBLevel == 1 && pxHandle->ucBPrevLevel == 0)	)
-		{
-			pxHandle->xLastActiveTimeStamp = xLastWakeTime;
-			if (pxHandle->cCurrentDirection == 1)
+			/*	if channel B is on high level	*/
+			if (ucBLevel == 1)
 				pxHandle->pfCWCallback(pxHandle->pvCWParams);
+
+			/*	if channel B is on low level	*/
 			else
 				pxHandle->pfCCWCallback(pxHandle->pvCCWParams);
 		}
@@ -144,8 +122,6 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle)
 	pxHandle->ucBPrevLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
 
 	pxHandle->xLastActiveTimeStamp = 0;
-	pxHandle->cCurrentDirection = 1;
-	pxHandle->ucFirstEdgeChannel = 0;
 
 	/*	create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;

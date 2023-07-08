@@ -27,6 +27,18 @@ typedef struct{
 	uint8_t ucAPrevLevel;
 	uint8_t ucBPrevLevel;
 
+	uint8_t ucANewLevel;
+	uint8_t ucBNewLevel;
+
+	uint8_t ucALevelFiltered;
+	uint8_t ucBLevelFiltered;
+
+	uint8_t ucAPrevLevelFiltered;
+	uint8_t ucBPrevLevelFiltered;
+
+	uint8_t ucNA;
+	uint8_t ucNB;
+
 	/*		PUBLIC		*/
 	uint8_t ucAPort;
 	uint8_t ucAPin;

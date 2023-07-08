@@ -25,7 +25,60 @@
 /*******************************************************************************
  * Helping functions/macros:
  ******************************************************************************/
+#define vREAD_CHANNEL_A_FILTERED(pxHandle)                                                       \
+{                                                                                                \
+	/*	Update "prevFiltered" value	*/															 \
+	(pxHandle)->ucAPrevLevelFiltered = (pxHandle)->ucALevelFiltered;					 		 \
+	/*	Read real physical state	*/															 \
+	(pxHandle)->ucANewLevel = ucPort_DIO_readPin((pxHandle)->ucAPort, (pxHandle)->ucAPin);       \
+	/*	If new level is same as previous level (no noise occurred)	*/							 \
+	if ((pxHandle)->ucANewLevel == (pxHandle)->ucAPrevLevel)                                     \
+	{                                                                                            \
+		(pxHandle)->ucNA++;                                                                      \
+		/*	If N samples on the same level were measured	*/									 \
+		if ((pxHandle)->ucNA == (pxHandle)->ucNFilter)                                           \
+		{                                                                                        \
+			/*	Channel's level is now stable and could be used	*/								 \
+			(pxHandle)->ucALevelFiltered = (pxHandle)->ucANewLevel;                              \
+			(pxHandle)->ucNA = 0;                                                                \
+		}                                                                                        \
+	}                                                                                            \
+	/*	Otherwise, (noise occurred)	*/															 \
+	else                                                                                         \
+	{                                                                                            \
+		(pxHandle)->ucNA = 0;                                                                    \
+		(pxHandle)->ucAPrevLevel = (pxHandle)->ucANewLevel;                                      \
+	}                                                                                            \
+}
 
+#define vREAD_CHANNEL_B_FILTERED(pxHandle)                                                       \
+{                                                                                                \
+	/*	Update "prevFiltered" value	*/															 \
+	(pxHandle)->ucBPrevLevelFiltered = (pxHandle)->ucBLevelFiltered;					 		 \
+	/*	Read real physical state	*/															 \
+	(pxHandle)->ucBNewLevel = ucPort_DIO_readPin((pxHandle)->ucBPort, (pxHandle)->ucBPin);       \
+	/*	If new level is same as previous level (no noise occurred)	*/							 \
+	if ((pxHandle)->ucBNewLevel == (pxHandle)->ucBPrevLevel)                                     \
+	{                                                                                            \
+		(pxHandle)->ucNB++;                                                                      \
+		/*	If N samples on the same level were measured	*/									 \
+		if ((pxHandle)->ucNB == (pxHandle)->ucNFilter)                                           \
+		{                                                                                        \
+			/*	Channel's level is now stable and could be used	*/								 \
+			(pxHandle)->ucBLevelFiltered = (pxHandle)->ucBNewLevel;                              \
+			(pxHandle)->ucNB = 0;                                                                \
+		}                                                                                        \
+	}                                                                                            \
+	/*	Otherwise, (noise occurred)	*/															 \
+	else                                                                                         \
+	{                                                                                            \
+		(pxHandle)->ucNB = 0;                                                                    \
+		(pxHandle)->ucBPrevLevel = (pxHandle)->ucBNewLevel;                                      \
+	}                                                                                            \
+}
+
+#define ucIS_RISING_EDGE_ON_CHANNEL_A(pxHandle)	\
+		((pxHandle)->ucALevelFiltered == 1 && (pxHandle)->ucAPrevLevelFiltered == 0)
 
 /*******************************************************************************
  * Task function
@@ -34,71 +87,26 @@ static void vTask(void* pvParams)
 {
 	xHOS_RotaryEncoder_t* pxHandle = (xHOS_RotaryEncoder_t*)pvParams;
 
-	uint8_t ucANewLevel;
-	uint8_t ucBNewLevel;
-
-	uint8_t ucAPrevLevel = 0;
-	uint8_t ucBPrevLevel = 0;
-
-	uint8_t ucALevel;
-	uint8_t ucBLevel;
-
-	uint8_t ucNA = 0;
-	uint8_t ucNB = 0;
-
 	vTaskSuspend(pxHandle->xTask);
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
 		/*	Read both channels, with applying the N-consicutive samples filtering method 	*/
-		ucANewLevel = ucPort_DIO_readPin(pxHandle->ucAPort, pxHandle->ucAPin);
-		if (ucANewLevel == ucAPrevLevel)
-		{
-			ucNA++;
-			if (ucNA == pxHandle->ucNFilter)
-			{
-				ucALevel = ucANewLevel;
-				ucNA = 0;
-			}
-		}
-		else
-		{
-			ucNA = 0;
-		}
-		ucAPrevLevel = ucANewLevel;
-
-		ucBNewLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
-		if (ucBNewLevel == ucBPrevLevel)
-		{
-			ucNB++;
-			if (ucNB == pxHandle->ucNFilter)
-			{
-				ucBLevel = ucBNewLevel;
-				ucNB = 0;
-			}
-		}
-		else
-		{
-			ucNB = 0;
-		}
-		ucBPrevLevel = ucBNewLevel;
+		vREAD_CHANNEL_A_FILTERED(pxHandle);
+		vREAD_CHANNEL_B_FILTERED(pxHandle);
 
 		/*	if a rising edge occurred on channel A	*/
-		if (ucALevel == 1 && pxHandle->ucAPrevLevel == 0)
+		if (ucIS_RISING_EDGE_ON_CHANNEL_A(pxHandle))
 		{
 			/*	if channel B is on high level	*/
-			if (ucBLevel == 1)
+			if (pxHandle->ucBLevelFiltered == 1)
 				pxHandle->pfCWCallback(pxHandle->pvCWParams);
 
 			/*	if channel B is on low level	*/
 			else
 				pxHandle->pfCCWCallback(pxHandle->pvCCWParams);
 		}
-
-		/*	Update levels	*/
-		pxHandle->ucAPrevLevel = ucALevel;
-		pxHandle->ucBPrevLevel = ucBLevel;
 
 		/*	Task is blocked until next sample time	*/
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(pxHandle->uiSamplePeriodMs));
@@ -121,7 +129,13 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle)
 	pxHandle->ucAPrevLevel = ucPort_DIO_readPin(pxHandle->ucAPort, pxHandle->ucAPin);
 	pxHandle->ucBPrevLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
 
+	pxHandle->ucAPrevLevelFiltered = pxHandle->ucAPrevLevel;
+	pxHandle->ucBPrevLevelFiltered = pxHandle->ucBPrevLevel;
+
 	pxHandle->xLastActiveTimeStamp = 0;
+
+	pxHandle->ucNA = 0;
+	pxHandle->ucNB = 0;
 
 	/*	create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;

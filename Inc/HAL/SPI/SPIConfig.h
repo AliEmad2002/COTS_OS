@@ -8,7 +8,7 @@
 #ifndef HAL_OS_INC_SPI_SPICONFIG_H_
 #define HAL_OS_INC_SPI_SPICONFIG_H_
 
-#define configHOS_SPI_EN					1
+#define configHOS_SPI_EN					0
 
 #if configHOS_SPI_EN
 #define configHOS_SPI_NUMBER_OF_UNITS		1

@@ -8,8 +8,10 @@
 #ifndef HAL_OS_PORT_PORT_HW_H_
 #define HAL_OS_PORT_PORT_HW_H_
 
-#include "MCAL_Port/Port_SPI.h"
 #include "MCAL_Port/Port_Clock.h"
+#include "MCAL_Port/Port_SPI.h"
+#include "MCAL_Port/Port_I2C.h"
+
 
 /*
  * This function is called on system startup. It initializes low level HW (MCAL).
@@ -20,19 +22,36 @@ void vPort_HW_init(void)
 	vPort_Clock_init();
 
 	/*	SPI	*/
-	xPort_SPI_HW_Conf_t xSpi0Conf = {
-		.ucAFIOMapNumber = 0,
-		.ucComMode = 3,
-		.ucFullDuplexEn = 1,
-		.ucIsMaster = 1,
-		.ucLSBitFirst = 0,
-		.ucMISOEn = 0,
-		.ucMOSIEn = 1,
-		.ucNssEn = 0,
-		.usBaudratePrescaler = 2
+//	xPort_SPI_HW_Conf_t xSpi0Conf = {
+//		.ucAFIOMapNumber = 0,
+//		.ucComMode = 3,
+//		.ucFullDuplexEn = 1,
+//		.ucIsMaster = 1,
+//		.ucLSBitFirst = 0,
+//		.ucMISOEn = 0,
+//		.ucMOSIEn = 1,
+//		.ucNssEn = 0,
+//		.usBaudratePrescaler = 2
+//	};
+//	vPort_SPI_initHardware(0, &xSpi0Conf);
+
+	/*	I2C	*/
+	xPort_I2C_HW_Conf_t xI2c0Conf = {
+		.ucAFIOMapNumber = 0
 	};
-	vPort_SPI_initHardware(0, &xSpi0Conf);
+
+	vPort_I2C_initHardware(0, &xI2c0Conf);
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -28,6 +28,14 @@ typedef struct{
 	uint8_t ucMOSIPin;
 }xPort_GPIO_SpiMap_t;
 
+typedef struct{
+	uint8_t ucSclPort;
+	uint8_t ucSclPin;
+
+	uint8_t ucSdaPort;
+	uint8_t ucSdaPin;
+}xPort_GPIO_I2CMap_t;
+
 /*******************************************************************************
  * Helping functions:
  ******************************************************************************/
@@ -41,14 +49,24 @@ static void vPort_GPIO_initPinAFPP(uint8_t ucPort, uint8_t ucPin)
 	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
 }
 
+static void vPort_GPIO_initPinAFOD(uint8_t ucPort, uint8_t ucPin)
+{
+	GPIO_InitTypeDef xConf;
+	xConf.Pin = 1 << ucPin;
+	xConf.Mode = GPIO_MODE_AF_OD;
+	xConf.Pull = GPIO_NOPULL;
+	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
+}
+
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
 void vPort_GPIO_initSpiPins(	uint8_t ucUnitNumber,
-										uint8_t ucMapNumber,
-										uint8_t ucInitNSS,
-										uint8_t ucInitMISO,
-										uint8_t ucInitMOSI	)
+								uint8_t ucMapNumber,
+								uint8_t ucInitNSS,
+								uint8_t ucInitMISO,
+								uint8_t ucInitMOSI	)
 {
 	const xPort_GPIO_SpiMap_t pxSpi1MapArr[] = {
 		{0, 4,  0, 5, 0, 6, 0, 7},
@@ -85,4 +103,23 @@ void vPort_GPIO_initSpiPins(	uint8_t ucUnitNumber,
 	/*	init MOSI pin	*/
 	if (ucInitMOSI)
 		vPort_GPIO_initPinAFPP(pxToUseMap->ucMOSIPort, pxToUseMap->ucMOSIPin);
+}
+
+void vPort_GPIO_initI2CPins(uint8_t ucUnitNumber, uint8_t ucMapNumber)
+{
+	const xPort_GPIO_I2CMap_t pxI2C1Map = {1, 6, 1, 7};
+	const xPort_GPIO_I2CMap_t pxI2C2Map = {1, 10, 1, 11};
+
+	/*	extract data to be used	*/
+	const xPort_GPIO_I2CMap_t* pxToUseMap;
+	if (ucMapNumber == 0)
+		pxToUseMap = &pxI2C1Map;
+	else
+		pxToUseMap = &pxI2C2Map;
+
+	/*	init SCL pin	*/
+	vPort_GPIO_initPinAFOD(pxToUseMap->ucSclPort, pxToUseMap->ucSclPin);
+
+	/*	init SDA pin	*/
+	vPort_GPIO_initPinAFOD(pxToUseMap->ucSdaPort, pxToUseMap->ucSdaPin);
 }

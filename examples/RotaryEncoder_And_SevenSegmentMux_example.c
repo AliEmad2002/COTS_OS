@@ -11,7 +11,7 @@
  * Un-comment the following definition to use this example.
  * Make sure there's no other main in your program.
  */
-#define ROTARY_SS_EXAMPLE
+//#define ROTARY_SS_EXAMPLE
 
 #ifdef ROTARY_SS_EXAMPLE
 

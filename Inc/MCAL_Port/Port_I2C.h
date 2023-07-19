@@ -12,10 +12,15 @@
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_ll_i2c.h"
 #include "MCAL_Port/Port_Clock.h"
-
+#include "MCAL_Port/Port_AFIO.h"
+#include "MCAL_Port/Port_GPIO.h"
+#include "LIB/Assert.h"
 
 extern I2C_TypeDef* const pxPortI2cArr[];
 
+/*******************************************************************************
+ * Configurations:
+ ******************************************************************************/
 /*
  * Configures whether enabling or disabling ACK bit would take effect on the
  * currently being received byte (value = 0), or the one next to it (value = 1).
@@ -23,6 +28,24 @@ extern I2C_TypeDef* const pxPortI2cArr[];
  * Some devices may force to one option. just configure this macro to it.
  */
 #define ucPORT_I2C_ACK_POS			0
+
+/*******************************************************************************
+ * Structures:
+ ******************************************************************************/
+typedef struct{
+	uint8_t ucAFIOMapNumber;
+}xPort_I2C_HW_Conf_t;
+
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
+/*	Configures HW on startup	*/
+static inline void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf)
+{
+	vPort_AFIO_mapI2C(ucUnitNumber, pxConf->ucAFIOMapNumber);
+
+	vPort_GPIO_initI2CPins(ucUnitNumber, ucUnitNumber);
+}
 
 /*	Enable I2C unit	*/
 static inline void vPort_I2C_enable(uint8_t ucUnitNumber)
@@ -112,7 +135,8 @@ static inline void vPort_I2C_init(uint8_t ucUnitNumber)
 	/*	Set peripheral frequency to that of APB bus	*/
 	LL_I2C_SetPeriphClock(
 		pxPortI2cArr[ucUnitNumber],
-		uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV	);
+		uiPORT_CLOCK_MAIN_HZ / 1 / 2);
+		//uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV	);
 }
 
 /*
@@ -210,6 +234,12 @@ static inline uint8_t ucPort_I2C_readTxEmptyFlag(uint8_t ucUnitNumber)
 	return LL_I2C_IsActiveFlag_TXE(pxPortI2cArr[ucUnitNumber]);
 }
 
+/*	Clear DR empty (in transmitter mode) flag	*/
+static inline void vPort_I2C_clearTxEmptyFlag(uint8_t ucUnitNumber)
+{
+	/*	Not available in STM32F1x	*/
+}
+
 /*	Read DR not empty (in receiver mode) flag	*/
 static inline uint8_t ucPort_I2C_readRxNotEmptyFlag(uint8_t ucUnitNumber)
 {
@@ -234,10 +264,22 @@ static inline uint8_t ucPort_I2C_read10BitHeaderTxComplete(uint8_t ucUnitNumber)
 	return LL_I2C_IsActiveFlag_ADD10(pxPortI2cArr[ucUnitNumber]);
 }
 
+/*	Clear 10-bit header transfer completion (master mode) flag	*/
+static inline void vPort_I2C_clear10BitHeaderTxComplete(uint8_t ucUnitNumber)
+{
+	/*	Not available in STM32F1x	*/
+}
+
 /*	Read byte transfer finished flag	*/
 static inline uint8_t ucPort_I2C_readByteTransferFinishedFlag(uint8_t ucUnitNumber)
 {
 	return LL_I2C_IsActiveFlag_BTF(pxPortI2cArr[ucUnitNumber]);
+}
+
+/*	Clear byte transfer finished flag	*/
+static inline void vPort_I2C_clearByteTransferFinishedFlag(uint8_t ucUnitNumber)
+{
+	/*	Not available in STM32F1x	*/
 }
 
 /*	Read address transmission completed (master mode) flag	*/
@@ -253,13 +295,13 @@ static inline void vPort_I2C_clearAddressTxCompleteFlag(uint8_t ucUnitNumber)
 }
 
 /*	Read self address received (slave mode) flag	*/
-static inline uint8_t ucPort_I2C_readAddressTxCompleteFlag(uint8_t ucUnitNumber)
+static inline uint8_t ucPort_I2C_readSelfAddressReceivedFlag(uint8_t ucUnitNumber)
 {
 	return LL_I2C_IsActiveFlag_ADDR(pxPortI2cArr[ucUnitNumber]);
 }
 
 /*	Clear self address received (slave mode) flag	*/
-static inline void vPort_I2C_clearAddressTxCompleteFlag(uint8_t ucUnitNumber)
+static inline void vPort_I2C_clearSelfAddressReceivedFlag(uint8_t ucUnitNumber)
 {
 	LL_I2C_ClearFlag_ADDR(pxPortI2cArr[ucUnitNumber]);
 }
@@ -273,7 +315,7 @@ static inline uint8_t ucPort_I2C_readStartConditionTxCompleteFlag(uint8_t ucUnit
 /*	Clear start condition transmission completed (master mode) flag	*/
 static inline void vPort_I2C_clearStartConditionTxCompleteFlag(uint8_t ucUnitNumber)
 {
-	LL_I2C_ClearFlag_SB(pxPortI2cArr[ucUnitNumber]);
+	/*	Not available in STM32F1x	*/
 }
 
 /*	Read general call detection flag	*/
@@ -294,7 +336,7 @@ static inline void vPort_I2C_clearGeneralCallFlag(uint8_t ucUnitNumber)
  */
 static inline uint8_t ucPort_I2C_readRWBitFlag(uint8_t ucUnitNumber)
 {
-	return LL_I2C_IsActiveFlag_TRA(pxPortI2cArr[ucUnitNumber]);
+	return LL_I2C_GetTransferDirection(pxPortI2cArr[ucUnitNumber]) ? 1 : 0;
 }
 
 /*
@@ -330,21 +372,17 @@ static inline void vPort_I2C_setClockModeAndFreq(	uint8_t ucUnitNumber,
 		pxPortI2cArr[ucUnitNumber],
 		ucMode ? LL_I2C_CLOCK_SPEED_FAST_MODE : LL_I2C_CLOCK_SPEED_STANDARD_MODE);
 
+	uint16_t usCCR;
+
 	if (ucMode == 0) //SM
-	{
-		LL_I2C_SetClockPeriod(
-			pxPortI2cArr[ucUnitNumber],
-			(uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV) / (2 * uiFreq)
-			);
-	}
+		usCCR = (uiPORT_CLOCK_MAIN_HZ / 1 / 2) / (2 * uiFreq);
 
 	else
-	{
-		LL_I2C_SetClockPeriod(
-			pxPortI2cArr[ucUnitNumber],
-			(uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV) / (3 * uiFreq)
-			);
-	}
+		usCCR = (uiPORT_CLOCK_MAIN_HZ / 1 / 2) / (3 * uiFreq);
+
+	vLib_ASSERT (usCCR < 4096, 0);	// check if frequency is achievable.
+
+	LL_I2C_SetClockPeriod(pxPortI2cArr[ucUnitNumber], usCCR);
 }
 
 /*
@@ -355,11 +393,14 @@ static inline void vPort_I2C_setMaxRisingTime(uint8_t ucUnitNumber, uint32_t uiT
 {
 	LL_I2C_SetRiseTime(
 		pxPortI2cArr[ucUnitNumber],
-		((uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV) * (uint64_t)uiTRise) / 1000000000
-		);
+		((uiPORT_CLOCK_MAIN_HZ / 1 / 2) * (uint64_t)uiTRise) / 1000000000);
 }
 
-
+/*******************************************************************************
+ * Interrupt handlers
+ ******************************************************************************/
+#define port_I2C_HANDLER_0		I2C1_EV_IRQHandler
+#define port_I2C_HANDLER_1		I2C2_EV_IRQHandler
 
 
 

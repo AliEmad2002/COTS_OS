@@ -13,6 +13,7 @@
 #include "HAL/Button/Button.h"
 #include "HAL/SevenSegmentMux/SevenSegmentMux.h"
 #include "HAL/SPI/SPI.h"
+#include "HAL/I2C/I2C.h"
 #include "HAL/TFT/TFT.h"
 #include "HAL/HardwareDelay/HardwareDelay.h"
 #include "HAL/RotaryEncoder/RotaryEncoder.h"

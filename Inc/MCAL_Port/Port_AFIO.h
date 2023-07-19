@@ -29,7 +29,10 @@ static inline void vPort_AFIO_mapSpi(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 		__HAL_AFIO_REMAP_SPI1_ENABLE();
 }
 
-
+static inline void vPort_AFIO_mapI2C(uint8_t ucUnitNumber, uint8_t ucMapNumber)
+{
+	/*	I2C in STM32F103 has one map only	*/
+}
 
 
 

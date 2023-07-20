@@ -9,16 +9,14 @@
 #define COTS_OS_INC_HAL_I2C_I2C_H_
 
 typedef struct{
-	uint8_t ucEnableGeneralCall : 1;
-	uint8_t ucEnableClockStretching : 1;
-	uint8_t ucClockMode: 1; // 0==>SM, 1==>FM
-	uint8_t ucIsAddress7Bit: 1;
-	uint16_t usSelfAddress : 10;
-	uint32_t uiSclFrequencyHz;
-	uint32_t uiMaxRisingTimeNs;
-}xHOS_I2C_init_t;
-
-void vHOS_I2C_init(uint8_t ucUnitNumber, xHOS_I2C_init_t* pxInitHandle);
+	uint8_t ucUnitNumber;
+	uint16_t usAddress;
+	uint8_t ucIs7BitAddress;
+	uint8_t* pucTxArr;
+	uint32_t uiTxSize;
+	uint8_t* pucRxArr;
+	uint32_t uiRxSize;
+}xHOS_I2C_transreceiveParams_t;
 
 void vHOS_I2C_enable(uint8_t ucUnitNumber);
 
@@ -34,6 +32,8 @@ uint8_t ucHOS_I2C_masterTransmit(	uint8_t ucUnitNumber,
 									uint32_t uiSize,
 									uint16_t usAddress,
 									uint8_t ucIs7BitAddress	);
+
+uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams);
 
 /*
  * To avoid missing a byte, this function must be a critical section.

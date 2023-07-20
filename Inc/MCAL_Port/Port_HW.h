@@ -37,7 +37,14 @@ void vPort_HW_init(void)
 
 	/*	I2C	*/
 	xPort_I2C_HW_Conf_t xI2c0Conf = {
-		.ucAFIOMapNumber = 0
+		.ucAFIOMapNumber = 0,
+		.ucEnableGeneralCall = 0,
+		.ucEnableClockStretching = 0,
+		.ucClockMode = 0,
+		.ucIsAddress7Bit = 1,
+		.usSelfAddress = 0x55, // foo value.
+		.uiSclFrequencyHz = 500,
+		.uiMaxRisingTimeNs = 1000
 	};
 
 	vPort_I2C_initHardware(0, &xI2c0Conf);

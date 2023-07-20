@@ -33,7 +33,7 @@
  ******************************************************************************/
 #define ADDRESS_HEADER_10_BIT		0b11110000
 
-static inline uint8_t ucBlockUntilTxeOrNACK(uint8_t ucUnitNumber)
+static uint8_t ucBlockUntilTxeOrNACK(uint8_t ucUnitNumber)
 {
 	uint8_t ucFlag;
 
@@ -54,42 +54,91 @@ static inline uint8_t ucBlockUntilTxeOrNACK(uint8_t ucUnitNumber)
 	}
 }
 
+static uint8_t ucBlockUntilAddressAckedOrNACK(uint8_t ucUnitNumber)
+{
+	uint8_t ucFlag;
+
+	while(1)
+	{
+		if (ucPort_I2C_readAddressTxCompleteFlag(ucUnitNumber))
+		{
+			vPort_I2C_clearAddressTxCompleteFlag(ucUnitNumber);
+			return 1;
+		}
+
+		ucFlag = ucPort_I2C_readAckErrFlag(ucUnitNumber);
+		vPort_I2C_clearAckErrFlag(ucUnitNumber);
+		if (ucFlag)
+		{
+			return 0;
+		}
+	}
+}
+
+/*
+ * This function performs the following sequence:
+ * 	-	Sends start (or repeated start) condition.
+ * 	-	Sends address.
+ *	-	Waits for address ACK.
+ *
+ * If function fails or address was not ACKed, it returns 0. Otherwise returns 1.
+ */
+static uint8_t ucStartConnection(xHOS_I2C_transreceiveParams_t* pxParams, uint8_t ucRW)
+{
+	uint8_t ucFlag;
+
+	/*	Generate start condition	*/
+	vPort_I2C_generateStart(pxParams->ucUnitNumber);
+
+	/*	Block task until start bit is successfully sent	*/
+	while(!ucPort_I2C_readStartConditionTxCompleteFlag(pxParams->ucUnitNumber));
+	vPort_I2C_clearStartConditionTxCompleteFlag(pxParams->ucUnitNumber);
+
+	/*	Send address	*/
+	if (pxParams->ucIs7BitAddress)
+		vPort_I2C_writeDrImm(pxParams->ucUnitNumber, (((uint8_t)pxParams->usAddress) << 1) | ucRW);
+
+	else
+	{
+		/*	send header	*/
+		vPort_I2C_writeDrImm(
+			pxParams->ucUnitNumber,
+			ADDRESS_HEADER_10_BIT | ((pxParams->usAddress >> 7) & 0b110));
+
+		/*
+		 * Block until TxBuffer/Register is empty, with reading ACK-failure flag,
+		 * if ACK fails (received NACK) send stop condition and return.
+		 */
+		ucFlag = ucBlockUntilTxeOrNACK(pxParams->ucUnitNumber);
+		if (ucFlag == 0)
+		{
+			vPort_I2C_generateStop(pxParams->ucUnitNumber);
+			return 0;
+		}
+
+		/*	send 2nd address byte	*/
+		vPort_I2C_writeDrImm(
+			pxParams->ucUnitNumber,
+			(pxParams->usAddress & 0xFF) | ucRW);
+	}
+
+	/*
+	 * Block until address is ACKed, with reading ACK-failure flag,
+	 * if ACK fails (received NACK) send stop condition and return.
+	 */
+	ucFlag = ucBlockUntilAddressAckedOrNACK(pxParams->ucUnitNumber);
+	if (ucFlag == 0)
+	{
+		vPort_I2C_generateStop(pxParams->ucUnitNumber);
+		return 0;
+	}
+
+	return 1;
+}
+
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
-/*
- * See header for info.
- */
-void vHOS_I2C_init(uint8_t ucUnitNumber, xHOS_I2C_init_t* pxInitHandle)
-{
-	/*	Disable unit before initialization	*/
-	vPort_I2C_disable(ucUnitNumber);
-
-	/*	HW dependent initialization sequence	*/
-	vPort_I2C_init(ucUnitNumber);
-
-	/*	General call setting	*/
-	if (pxInitHandle->ucEnableGeneralCall)
-		vPort_I2C_enableGeneralCall(ucUnitNumber);
-	else
-		vPort_I2C_disableGeneralCall(ucUnitNumber);
-
-	/*	Clock stretching setting	*/
-	if (pxInitHandle->ucEnableClockStretching)
-		vPort_I2C_enableClockStretching(ucUnitNumber);
-	else
-		vPort_I2C_disableClockStretching(ucUnitNumber);
-
-	/*	Self address setting	*/
-	vPort_I2C_writeOwnSlaveAddress(ucUnitNumber, pxInitHandle->usSelfAddress, pxInitHandle->ucIsAddress7Bit);
-
-	/*	Clock mode and frequency setting	*/
-	vPort_I2C_setClockModeAndFreq(ucUnitNumber, pxInitHandle->ucClockMode, pxInitHandle->uiSclFrequencyHz);
-
-	/*	Max rising time setting	*/
-	vPort_I2C_setMaxRisingTime(ucUnitNumber, pxInitHandle->uiMaxRisingTimeNs);
-}
-
 /*
  * See header file for info.
  */
@@ -108,90 +157,91 @@ void vHOS_I2C_disable(uint8_t ucUnitNumber)
 	vPort_I2C_disable(ucUnitNumber);
 }
 
-/*
- * See header for info.
- */
-uint8_t ucHOS_I2C_masterTransmit(	uint8_t ucUnitNumber,
-									uint8_t* pucArr,
-									uint32_t uiSize,
-									uint16_t usAddress,
-									uint8_t ucIs7BitAddress	)
+uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 {
 	uint8_t ucFlag;
 
 	taskENTER_CRITICAL();
 
 	/*	Wait for bus if it was busy	*/
-	while(ucPort_I2C_readBusBusyFlag(ucUnitNumber));
-	vPort_I2C_clearBusBusyFlag(ucUnitNumber);
+	while(ucPort_I2C_readBusBusyFlag(pxParams->ucUnitNumber));
+	vPort_I2C_clearBusBusyFlag(pxParams->ucUnitNumber);
 
-	/*	Generate start condition	*/
-	vPort_I2C_generateStart(ucUnitNumber);
-
-	/*	Block task until start bit is successfully sent	*/
-	while(!ucPort_I2C_readStartConditionTxCompleteFlag(ucUnitNumber));
-	vPort_I2C_clearStartConditionTxCompleteFlag(ucUnitNumber);
-
-	/*	Send address	*/
-	if (ucIs7BitAddress)
-		while(1)
-		vPort_I2C_writeDrImm(ucUnitNumber, ((uint8_t)usAddress) << 1);
-
-	else
+	/*	Send start condition and address, with R/W bit reset (write)	*/
+	ucFlag = ucStartConnection(pxParams, 0);
+	if (ucFlag == 0)
 	{
-		/*	send header	*/
-		vPort_I2C_writeDrImm(
-			ucUnitNumber,
-			ADDRESS_HEADER_10_BIT | ((usAddress >> 7) & 0b110));
-
-		/*
-		 * Block until TxBuffer/Register is empty, with reading ACK-failure flag,
-		 * if ACK fails (received NACK) send stop condition and return.
-		 */
-		if (ucBlockUntilTxeOrNACK(ucUnitNumber) == 0)
-		{
-			vPort_I2C_generateStop(ucUnitNumber);
-			taskEXIT_CRITICAL();
-			return 0;
-		}
-
-		/*	send 2nd address byte	*/
-		vPort_I2C_writeDrImm(
-			ucUnitNumber,
-			usAddress & 0xFF);
-	}
-
-	/*
-	 * Block until TxBuffer/Register is empty, with reading ACK-failure flag,
-	 * if ACK fails (received NACK) send stop condition and return.
-	 */
-	if (ucBlockUntilTxeOrNACK(ucUnitNumber) == 0)
-	{
-		vPort_I2C_generateStop(ucUnitNumber);
+		vPort_I2C_generateStop(pxParams->ucUnitNumber);
 		taskEXIT_CRITICAL();
+		__BKPT(0);
 		return 0;
 	}
 
-	/*	transmit byte array	*/
-	for (uint32_t i = 0; i < uiSize; i++)
+	/*	transmit Tx array	*/
+	for (uint32_t i = 0; i < pxParams->uiTxSize; i++)
 	{
 		/*	write data	*/
-		vPort_I2C_writeDrImm(ucUnitNumber, pucArr[i]);
+		vPort_I2C_writeDrImm(pxParams->ucUnitNumber, pxParams->pucTxArr[i]);
 
 		/*
 		 * Block until TxBuffer/Register is empty, with reading ACK-failure flag,
 		 * if ACK fails (received NACK) send stop condition and return.
 		 */
-		if (ucBlockUntilTxeOrNACK(ucUnitNumber) == 0)
+		ucFlag = ucBlockUntilTxeOrNACK(pxParams->ucUnitNumber);
+		if (ucFlag == 0)
 		{
-			vPort_I2C_generateStop(ucUnitNumber);
+			vPort_I2C_generateStop(pxParams->ucUnitNumber);
 			taskEXIT_CRITICAL();
+			__BKPT(0);
 			return 0;
 		}
 	}
 
+	/*	if there's no data to be received, return	*/
+	if (pxParams->uiRxSize == 0)
+	{
+		vPort_I2C_generateStop(pxParams->ucUnitNumber);
+		taskEXIT_CRITICAL();
+		return 1;
+	}
+
+	/*	Send repeated start condition and address, with R/W bit set (read)	*/
+	ucFlag = ucStartConnection(pxParams, 1);
+	if (ucFlag == 0)
+	{
+		vPort_I2C_generateStop(pxParams->ucUnitNumber);
+		taskEXIT_CRITICAL();
+		__BKPT(0);
+		return 0;
+	}
+
+	/*	Enable master-ACK on byte reception	*/
+	//TODO vPort_I2C_enableAck(pxParams->ucUnitNumber);
+
+	/*	Receive data until the before-last byte	*/
+	for (uint32_t i = 0; i < pxParams->uiRxSize - 1; i++)
+	{
+		/*	Block until Rx Buffer/register is not empty	*/
+		while(!ucPort_I2C_readRxNotEmptyFlag(pxParams->ucUnitNumber));
+		vPort_I2C_clearRxNotEmptyFlag(pxParams->ucUnitNumber);
+
+		/*	Read new received data to RxArr	*/
+		pxParams->pucRxArr[i] = ucPort_I2C_readDrImm(pxParams->ucUnitNumber);
+	}
+
+	/*	Disable master-ack on byte reception	*/
+	vPort_I2C_disableAck(pxParams->ucUnitNumber);
+
+	/*	Receive the last data byte	*/
+	/*	Block until Rx Buffer/register is not empty	*/
+	while(!ucPort_I2C_readRxNotEmptyFlag(pxParams->ucUnitNumber));
+	vPort_I2C_clearRxNotEmptyFlag(pxParams->ucUnitNumber);
+
+	/*	Read new received data to RxArr	*/
+	pxParams->pucRxArr[pxParams->uiRxSize-1] = ucPort_I2C_readDrImm(pxParams->ucUnitNumber);
+
 	/*	Send stop condition	*/
-	vPort_I2C_generateStop(ucUnitNumber);
+	vPort_I2C_generateStop(pxParams->ucUnitNumber);
 
 	/*	return successful	*/
 	taskEXIT_CRITICAL();

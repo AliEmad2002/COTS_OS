@@ -34,18 +34,20 @@ extern I2C_TypeDef* const pxPortI2cArr[];
  ******************************************************************************/
 typedef struct{
 	uint8_t ucAFIOMapNumber;
+	uint8_t ucEnableGeneralCall : 1;
+	uint8_t ucEnableClockStretching : 1;
+	uint8_t ucClockMode: 1; // 0==>SM, 1==>FM
+	uint8_t ucIsAddress7Bit: 1;
+	uint16_t usSelfAddress : 10;
+	uint32_t uiSclFrequencyHz;
+	uint32_t uiMaxRisingTimeNs;
 }xPort_I2C_HW_Conf_t;
 
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
 /*	Configures HW on startup	*/
-static inline void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf)
-{
-	vPort_AFIO_mapI2C(ucUnitNumber, pxConf->ucAFIOMapNumber);
-
-	vPort_GPIO_initI2CPins(ucUnitNumber, ucUnitNumber);
-}
+void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf);
 
 /*	Enable I2C unit	*/
 static inline void vPort_I2C_enable(uint8_t ucUnitNumber)
@@ -244,6 +246,12 @@ static inline void vPort_I2C_clearTxEmptyFlag(uint8_t ucUnitNumber)
 static inline uint8_t ucPort_I2C_readRxNotEmptyFlag(uint8_t ucUnitNumber)
 {
 	return LL_I2C_IsActiveFlag_RXNE(pxPortI2cArr[ucUnitNumber]);
+}
+
+/*	Clear DR not empty (in receiver mode) flag	*/
+static inline void vPort_I2C_clearRxNotEmptyFlag(uint8_t ucUnitNumber)
+{
+	/*	Not available in STM32F1x	*/
 }
 
 /*	Read stop condition detection flag	*/

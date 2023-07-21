@@ -40,10 +40,10 @@ void vPort_HW_init(void)
 		.ucAFIOMapNumber = 0,
 		.ucEnableGeneralCall = 0,
 		.ucEnableClockStretching = 0,
-		.ucClockMode = 0,
+		.ucClockMode = 1,
 		.ucIsAddress7Bit = 1,
 		.usSelfAddress = 0x55, // foo value.
-		.uiSclFrequencyHz = 500,
+		.uiSclFrequencyHz = 400000,
 		.uiMaxRisingTimeNs = 1000
 	};
 

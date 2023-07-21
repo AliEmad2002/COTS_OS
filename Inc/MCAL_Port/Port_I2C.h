@@ -95,7 +95,11 @@ static inline void vPort_I2C_generateStart(uint8_t ucUnitNumber)
 	LL_I2C_GenerateStartCondition(pxPortI2cArr[ucUnitNumber]);
 }
 
-/*	Generate a stop condition and exit master mode	*/
+/*
+ * Generate a stop condition and exit master mode.
+ * (Notice: In master receiver mode, this function is called right after receiving
+ * the before-last byte)
+ */
 static inline void vPort_I2C_generateStop(uint8_t ucUnitNumber)
 {
 	LL_I2C_GenerateStopCondition(pxPortI2cArr[ucUnitNumber]);

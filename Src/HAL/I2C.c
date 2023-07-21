@@ -157,6 +157,9 @@ void vHOS_I2C_disable(uint8_t ucUnitNumber)
 	vPort_I2C_disable(ucUnitNumber);
 }
 
+/*
+ * See header file for info.
+ */
 uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 {
 	uint8_t ucFlag;
@@ -216,7 +219,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	}
 
 	/*	Enable master-ACK on byte reception	*/
-	//TODO vPort_I2C_enableAck(pxParams->ucUnitNumber);
+	vPort_I2C_enableAck(pxParams->ucUnitNumber);
 
 	/*	Receive data until the before-last byte	*/
 	for (uint32_t i = 0; i < pxParams->uiRxSize - 1; i++)
@@ -232,6 +235,9 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	/*	Disable master-ack on byte reception	*/
 	vPort_I2C_disableAck(pxParams->ucUnitNumber);
 
+	/*	Generate stop condition.	*/
+	vPort_I2C_generateStop(pxParams->ucUnitNumber);
+
 	/*	Receive the last data byte	*/
 	/*	Block until Rx Buffer/register is not empty	*/
 	while(!ucPort_I2C_readRxNotEmptyFlag(pxParams->ucUnitNumber));
@@ -239,9 +245,6 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 
 	/*	Read new received data to RxArr	*/
 	pxParams->pucRxArr[pxParams->uiRxSize-1] = ucPort_I2C_readDrImm(pxParams->ucUnitNumber);
-
-	/*	Send stop condition	*/
-	vPort_I2C_generateStop(pxParams->ucUnitNumber);
 
 	/*	return successful	*/
 	taskEXIT_CRITICAL();

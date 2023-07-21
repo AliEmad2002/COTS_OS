@@ -45,7 +45,7 @@ static inline void vPort_Clock_init(void)
 	*/
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
 								  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = uiPORT_CLOCK_AHB_DIV;
 	RCC_ClkInitStruct.APB1CLKDivider = uiPORT_CLOCK_APB1_DIV;
 	RCC_ClkInitStruct.APB2CLKDivider = uiPORT_CLOCK_APB2_DIV;

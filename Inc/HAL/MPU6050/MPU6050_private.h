@@ -107,16 +107,31 @@
 /*******************************************************************************
  * Helping structures:
  ******************************************************************************/
-/*	Raw gyro or accelerometer data	*/
+/*	Raw measurement	*/
 typedef struct{
-	uint16_t sX;
-	uint16_t sY;
-	uint16_t sZ;
-}xHOS_MPU6050_rawMeasurements_t;
+	int16_t sX;
+	int16_t sY;
+	int16_t sZ;
+}xHOS_MPU6050_rawMeasurement_t;
 
+/*	Self test registers	*/
+typedef struct{
+	uint8_t ucX : 5;
+	uint8_t ucReserved0 : 3;
 
+	uint8_t ucY : 5;
+	uint8_t ucReserved1 : 3;
 
+	uint8_t ucZ : 5;
+	uint8_t ucReserved2 : 3;
+}xHOS_MPU6050_selfTestRegs_t;
 
+/*	Factory trim value (must be float)	*/
+typedef struct{
+	float fX;
+	float fY;
+	float fZ;
+}xHOS_MPU6050_factoryTrim_t;
 
 
 

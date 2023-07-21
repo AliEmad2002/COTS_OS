@@ -27,12 +27,6 @@ void vHOS_I2C_disable(uint8_t ucUnitNumber);
  * must be a critical section.
  * ("taskENTER_CRITICAL()" and "taskEXIT_CRITICAL()" are called inside)
  */
-uint8_t ucHOS_I2C_masterTransmit(	uint8_t ucUnitNumber,
-									uint8_t* pucArr,
-									uint32_t uiSize,
-									uint16_t usAddress,
-									uint8_t ucIs7BitAddress	);
-
 uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams);
 
 /*

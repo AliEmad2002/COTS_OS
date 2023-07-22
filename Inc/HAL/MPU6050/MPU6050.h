@@ -51,7 +51,8 @@ typedef struct{
 	xHOS_MPU6050_drift_t xAccelDrift;
 
 	/*
-	 * Tilt angles in milli-degrees.
+	 * Tilt angles in micro-degrees.
+	 * ("micro" to not miss small changes and also not use floating point)
 	 * (Read only, and valid only when tilt calculation is enabled)
 	 */
 	xHOS_MPU6050_measurement_t xTilt;

@@ -211,6 +211,7 @@ static void vTask(void* pvParams)
 {
 	uint8_t ucSuccessful;
 	xHOS_MPU6050_measurement_t xGyroMeasurement;
+	xHOS_MPU6050_measurement_t xIntegration;
 
 	xHOS_MPU6050_t* pxHandle = (xHOS_MPU6050_t*)pvParams;
 
@@ -245,9 +246,28 @@ static void vTask(void* pvParams)
 		configASSERT(ucSuccessful);
 
 		/*	Integrate	*/
-		pxHandle->xTilt.iX += (pxHandle->xPrevGyroMeasurement.iX + xGyroMeasurement.iX) / 2;
-		pxHandle->xTilt.iY += (pxHandle->xPrevGyroMeasurement.iY + xGyroMeasurement.iY) / 2;
-		pxHandle->xTilt.iZ += (pxHandle->xPrevGyroMeasurement.iZ + xGyroMeasurement.iZ) / 2;
+		xIntegration.iX = (pxHandle->xPrevGyroMeasurement.iX + xGyroMeasurement.iX) / 2;
+		xIntegration.iY = (pxHandle->xPrevGyroMeasurement.iY + xGyroMeasurement.iY) / 2;
+		xIntegration.iZ = (pxHandle->xPrevGyroMeasurement.iZ + xGyroMeasurement.iZ) / 2;
+
+		/*	Ignore changes smaller than 0.01 degree, to avoid truncating error	*/
+		if (xIntegration.iX > 100 || xIntegration.iX < -100)
+			pxHandle->xTilt.iX += xIntegration.iX;
+
+		if (xIntegration.iY > 100 || xIntegration.iY < -100)
+			pxHandle->xTilt.iY += xIntegration.iY;
+
+		if (xIntegration.iZ > 100 || xIntegration.iZ < -100)
+			pxHandle->xTilt.iZ += xIntegration.iZ;
+
+		/*	Check that angle is in the range: +-[0:180]	*/
+		if(pxHandle->xTilt.iX > 180000000)		pxHandle->xTilt.iX -= 360000000;
+		if(pxHandle->xTilt.iY > 180000000)		pxHandle->xTilt.iY -= 360000000;
+		if(pxHandle->xTilt.iZ > 180000000)		pxHandle->xTilt.iZ -= 360000000;
+
+		if(pxHandle->xTilt.iX < -180000000)		pxHandle->xTilt.iX += 360000000;
+		if(pxHandle->xTilt.iY < -180000000)		pxHandle->xTilt.iY += 360000000;
+		if(pxHandle->xTilt.iZ < -180000000)		pxHandle->xTilt.iZ += 360000000;
 
 		/*	Update previous gyro measurement	*/
 		pxHandle->xPrevGyroMeasurement.iX = xGyroMeasurement.iX;

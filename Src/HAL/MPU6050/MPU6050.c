@@ -210,8 +210,12 @@ static uint8_t ucReadAccelRawMeasurement(	xHOS_MPU6050_t* pxHandle,
 static void vTask(void* pvParams)
 {
 	uint8_t ucSuccessful;
-	xHOS_MPU6050_measurement_t xGyroMeasurement;
+	xHOS_MPU6050_measurement_t xMeasurement;
 	xHOS_MPU6050_measurement_t xIntegration;
+	int32_t iThetaXAccel;
+	int32_t iThetaYAccel;
+	int32_t iAccel;
+	uint32_t uiStableCount = 0;
 
 	xHOS_MPU6050_t* pxHandle = (xHOS_MPU6050_t*)pvParams;
 
@@ -234,21 +238,42 @@ static void vTask(void* pvParams)
 	/*	Enable INT on data ready	*/
 	ucEditReg(pxHandle, MPU6050_REG_INT_ENABLE, 1, 1);
 
-
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
 		/*	Wait for INT pin. (To synchronize task with samples taken by the MPU6050)	*/
 		while(!ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin));
 
+		/*	Read accel measurement	*/
+		ucSuccessful = ucHOS_MPU6050_readAccelMeasurement(pxHandle, &xMeasurement);
+		configASSERT(ucSuccessful);
+
+		iAccel = xMeasurement.iX*xMeasurement.iX + xMeasurement.iY*xMeasurement.iY + xMeasurement.iZ*xMeasurement.iZ;
+
+		/*	If MPU6050 is not accelerating, calculate accel angles	*/
+		if (950*950 < iAccel && iAccel < 1050*1050)
+		{
+			uiStableCount++;
+			if (uiStableCount == 10)
+			{
+				iThetaXAccel = 90000000 - (float)acos((float)xMeasurement.iY / 1000.0f) * 180000000.0f / (float)M_PI;
+				iThetaYAccel = -90000000 + (float)acos((float)xMeasurement.iX / 1000.0f) * 180000000.0f / (float)M_PI;
+			}
+		}
+
+		else
+		{
+			uiStableCount = 0;
+		}
+
 		/*	Read gyro measurement	*/
-		ucSuccessful = ucHOS_MPU6050_readGyroMeasurement(pxHandle, &xGyroMeasurement);
+		ucSuccessful = ucHOS_MPU6050_readGyroMeasurement(pxHandle, &xMeasurement);
 		configASSERT(ucSuccessful);
 
 		/*	Integrate	*/
-		xIntegration.iX = (pxHandle->xPrevGyroMeasurement.iX + xGyroMeasurement.iX) / 2;
-		xIntegration.iY = (pxHandle->xPrevGyroMeasurement.iY + xGyroMeasurement.iY) / 2;
-		xIntegration.iZ = (pxHandle->xPrevGyroMeasurement.iZ + xGyroMeasurement.iZ) / 2;
+		xIntegration.iX = (pxHandle->xPrevGyroMeasurement.iX + xMeasurement.iX) * 2;// / 2;
+		xIntegration.iY = (pxHandle->xPrevGyroMeasurement.iY + xMeasurement.iY) * 2;// / 2;
+		xIntegration.iZ = (pxHandle->xPrevGyroMeasurement.iZ + xMeasurement.iZ) * 2;// / 2;
 
 		/*	Ignore changes smaller than 0.01 degree, to avoid truncating error	*/
 		if (xIntegration.iX > 100 || xIntegration.iX < -100)
@@ -260,6 +285,18 @@ static void vTask(void* pvParams)
 		if (xIntegration.iZ > 100 || xIntegration.iZ < -100)
 			pxHandle->xTilt.iZ += xIntegration.iZ;
 
+		if (uiStableCount == 10)
+		{
+			/*
+			 * Increment / decrement tilt angles in the direction of accel angle to
+			 * compensate drift and mis-sampling.
+			 */
+			pxHandle->xTilt.iX += 0.8f * (float)(iThetaXAccel - pxHandle->xTilt.iX) / (float)abs(pxHandle->xTilt.iX) * (float)abs(iThetaXAccel);
+			pxHandle->xTilt.iY += 0.8f * (float)(iThetaYAccel - pxHandle->xTilt.iY) / (float)abs(pxHandle->xTilt.iY) * (float)abs(iThetaYAccel);
+
+			uiStableCount = 0;
+		}
+
 		/*	Check that angle is in the range: +-[0:180]	*/
 		if(pxHandle->xTilt.iX > 180000000)		pxHandle->xTilt.iX -= 360000000;
 		if(pxHandle->xTilt.iY > 180000000)		pxHandle->xTilt.iY -= 360000000;
@@ -270,12 +307,12 @@ static void vTask(void* pvParams)
 		if(pxHandle->xTilt.iZ < -180000000)		pxHandle->xTilt.iZ += 360000000;
 
 		/*	Update previous gyro measurement	*/
-		pxHandle->xPrevGyroMeasurement.iX = xGyroMeasurement.iX;
-		pxHandle->xPrevGyroMeasurement.iY = xGyroMeasurement.iY;
-		pxHandle->xPrevGyroMeasurement.iZ = xGyroMeasurement.iZ;
+		pxHandle->xPrevGyroMeasurement.iX = xMeasurement.iX;
+		pxHandle->xPrevGyroMeasurement.iY = xMeasurement.iY;
+		pxHandle->xPrevGyroMeasurement.iZ = xMeasurement.iZ;
 
 		/*	Task is blocked until next sample time	*/
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4));
 	}
 }
 
@@ -367,6 +404,21 @@ void vHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle)
 {
 	/*	Enter sleep mode	*/
 	ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 1 << 6);
+}
+
+/*	See header for info	*/
+uint8_t ucHOS_MPU6050_setClockSource(xHOS_MPU6050_t* pxHandle, uint8_t ucSource)
+{
+	uint8_t ucSuccessful;
+
+	if (ucSource > 7)
+		return 0;
+
+	ucSuccessful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 0b111, ucSource);
+	if (!ucSuccessful)
+		return 0;
+
+	return 1;
 }
 
 /*	See header for info	*/

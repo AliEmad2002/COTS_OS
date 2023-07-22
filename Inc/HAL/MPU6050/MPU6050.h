@@ -113,6 +113,15 @@ void vHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle);
 void vHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle);
 
 /*
+ * Sets clock source.
+ *
+ * Notes:
+ * 		-	Initial clock source is the internal 8MHz one.
+ * 		-	It is recommended to use gyroscope or external clock to improve stability.
+ */
+uint8_t ucHOS_MPU6050_setClockSource(xHOS_MPU6050_t* pxHandle, uint8_t ucSource);
+
+/*
  * Enables tilt calculation.
  * Notes:
  * 		-	This function must be called after scheduler start.

@@ -30,6 +30,7 @@
 
 /*******************************************************************************
  * Helping functions / macros:
+ * TODO: Waiting functions must have a timeout parameter.
  ******************************************************************************/
 #define ADDRESS_HEADER_10_BIT		0b11110000
 

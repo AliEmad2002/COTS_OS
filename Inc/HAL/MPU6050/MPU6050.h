@@ -44,10 +44,16 @@ typedef struct{
 	uint8_t ucIntPort : 4;
 	uint8_t ucIntPin  : 4;
 
-	/*	Gyro manufacturing error. in milli-dps	*/
+	/*
+	 * Gyro manufacturing error. in milli-dps, could be set manually, or by
+	 * running the calibrate function.
+	 */
 	xHOS_MPU6050_drift_t xGyroDrift;
 
-	/*	Accel manufacturing error. in mg	*/
+	/*
+	 * Accel manufacturing error. in mg, could be set manually, or by running
+	 * the calibrate function.
+	 */
 	xHOS_MPU6050_drift_t xAccelDrift;
 
 	/*
@@ -99,18 +105,18 @@ void vHOS_MPU6050_init(xHOS_MPU6050_t* pxHandle);
  *
  * Notes:
  * 		-	This function must be called after scheduler start.
- * 		-	MPU6050 object is initially in sleep mode.
+ * 		-	MPU6050 object is initially enabled.
  */
-void vHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle);
+uint8_t ucHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle);
 
 /*
  * Disables (sleep mode) MPU6050 object.
  *
  * Notes:
  * 		-	This function must be called after scheduler start.
- * 		-	MPU6050 object is initially in sleep mode.
+ * 		-	MPU6050 object is initially enabled.
  */
-void vHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle);
+uint8_t ucHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle);
 
 /*
  * Sets clock source.
@@ -120,6 +126,20 @@ void vHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle);
  * 		-	It is recommended to use gyroscope or external clock to improve stability.
  */
 uint8_t ucHOS_MPU6050_setClockSource(xHOS_MPU6050_t* pxHandle, uint8_t ucSource);
+
+/*
+ * Calibrates sensor by calculating the drift values in gyro and accel readings.
+ *
+ * Notes:
+ * 		-	This function is used if user won't set the drift values manually.
+ *
+ * 		-	MPU6050 object must be oriented parallel the the ground / floor. It
+ * 			also must not accelerate, nor rotate during the execution of this
+ * 			function. otherwise, calibration won't be done properly.
+ *
+ * 		-	INT pin must be connected and initialized.
+ */
+uint8_t ucHOS_MPU6050_calibrate(xHOS_MPU6050_t* pxHandle);
 
 /*
  * Enables tilt calculation.
@@ -216,6 +236,11 @@ uint8_t ucHOS_MPU6050_confLpdfAndSampleRate(	xHOS_MPU6050_t* pxHandle,
 												uint8_t ucDiv);
 
 /*
+ * Busy waits until INT pin is high (data is ready).
+ */
+void vHOS_MPU6050_waitDataReadyInt(xHOS_MPU6050_t* pxHandle);
+
+/*
  * TODO: add power management and low power mode
  */
 
@@ -226,14 +251,6 @@ uint8_t ucHOS_MPU6050_confLpdfAndSampleRate(	xHOS_MPU6050_t* pxHandle,
  * Results are in milli-degree per second
  */
 uint8_t ucHOS_MPU6050_readGyroMeasurement(	xHOS_MPU6050_t* pxHandle,
-											xHOS_MPU6050_measurement_t* pxData	);
-
-/*
- * Reads tilt measurement. (only when tilt calculation is enabled).
- *
- * Results are in milli-degree.
- */
-uint8_t ucHOS_MPU6050_readTiltMeasurement(	xHOS_MPU6050_t* pxHandle,
 											xHOS_MPU6050_measurement_t* pxData	);
 
 /*

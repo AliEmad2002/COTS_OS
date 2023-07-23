@@ -219,7 +219,7 @@ static void vTask(void* pvParams)
 
 	xHOS_MPU6050_t* pxHandle = (xHOS_MPU6050_t*)pvParams;
 
-	/*	Tilt calculation is initially disabled	*/
+	/*	Task is initially suspended	*/
 	vTaskSuspend(pxHandle->xTask);
 
 	/*	Reset tilt values	*/
@@ -232,11 +232,21 @@ static void vTask(void* pvParams)
 	pxHandle->xPrevGyroMeasurement.iY = 0;
 	pxHandle->xPrevGyroMeasurement.iZ = 0;
 
-	/*	Enable INT pin latch and INT flags clear on read	*/
-	ucEditReg(pxHandle, MPU6050_REG_INT_PIN_CFG, 0b110000, 0b110000);
+	if (pxHandle->ucIsIntConnected)
+	{
+		/*	Enable INT pin latch and INT flags clear on read	*/
+		ucEditReg(pxHandle, MPU6050_REG_INT_PIN_CFG, 0b110000, 0b110000);
 
-	/*	Enable INT on data ready	*/
-	ucEditReg(pxHandle, MPU6050_REG_INT_ENABLE, 1, 1);
+		/*	Enable INT on data ready	*/
+		ucEditReg(pxHandle, MPU6050_REG_INT_ENABLE, 1, 1);
+	}
+
+	/*	Tilt calculation is initially disabled	*/
+	vTaskSuspend(pxHandle->xTask);
+
+	/*	Tilt calculation can't be done without having the INT pin connected	*/
+	while(!pxHandle->ucIsIntConnected)
+		vTaskSuspend(pxHandle->xTask);
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
@@ -256,6 +266,7 @@ static void vTask(void* pvParams)
 			uiStableCount++;
 			if (uiStableCount == 10)
 			{
+				/*	TODO: use look-up table	*/
 				iThetaXAccel = 90000000 - (float)acos((float)xMeasurement.iY / 1000.0f) * 180000000.0f / (float)M_PI;
 				iThetaYAccel = -90000000 + (float)acos((float)xMeasurement.iX / 1000.0f) * 180000000.0f / (float)M_PI;
 			}
@@ -287,12 +298,15 @@ static void vTask(void* pvParams)
 
 		if (uiStableCount == 10)
 		{
-			/*
-			 * Increment / decrement tilt angles in the direction of accel angle to
-			 * compensate drift and mis-sampling.
-			 */
-			pxHandle->xTilt.iX += 0.8f * (float)(iThetaXAccel - pxHandle->xTilt.iX) / (float)abs(pxHandle->xTilt.iX) * (float)abs(iThetaXAccel);
-			pxHandle->xTilt.iY += 0.8f * (float)(iThetaYAccel - pxHandle->xTilt.iY) / (float)abs(pxHandle->xTilt.iY) * (float)abs(iThetaYAccel);
+//			/*
+//			 * Increment / decrement tilt angles in the direction of accel angle to
+//			 * compensate drift and mis-sampling.
+//			 */
+//			pxHandle->xTilt.iX += 0.8f * (float)(iThetaXAccel - pxHandle->xTilt.iX) / (float)abs(pxHandle->xTilt.iX) * (float)abs(iThetaXAccel);
+//			pxHandle->xTilt.iY += 0.8f * (float)(iThetaYAccel - pxHandle->xTilt.iY) / (float)abs(pxHandle->xTilt.iY) * (float)abs(iThetaYAccel);
+
+			pxHandle->xTilt.iX = iThetaXAccel;
+			pxHandle->xTilt.iY = iThetaYAccel;
 
 			uiStableCount = 0;
 		}
@@ -393,17 +407,30 @@ void vHOS_MPU6050_init(xHOS_MPU6050_t* pxHandle)
 }
 
 /*	See header for info	*/
-void vHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle)
+uint8_t ucHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle)
 {
 	/*	Exit sleep mode	*/
-	ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 0);
+	uint8_t ucSuccesssful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 0);
+	if (!ucSuccesssful)
+		return 0;
+
+	vTaskResume(pxHandle->xTask);
+
+	return 1;
 }
 
 /*	See header for info	*/
-void vHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle)
+uint8_t ucHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle)
 {
 	/*	Enter sleep mode	*/
-	ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 1 << 6);
+	uint8_t ucSuccesssful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 1 << 6);
+
+	if (!ucSuccesssful)
+		return 0;
+
+	vTaskSuspend(pxHandle->xTask);
+
+	return 1;
 }
 
 /*	See header for info	*/
@@ -417,6 +444,62 @@ uint8_t ucHOS_MPU6050_setClockSource(xHOS_MPU6050_t* pxHandle, uint8_t ucSource)
 	ucSuccessful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 0b111, ucSource);
 	if (!ucSuccessful)
 		return 0;
+
+	return 1;
+}
+
+/*	See header for info	*/
+uint8_t ucHOS_MPU6050_calibrate(xHOS_MPU6050_t* pxHandle)
+{
+	uint8_t ucSuccessful;
+	xHOS_MPU6050_measurement_t xMeasurement;
+	xHOS_MPU6050_measurement_t xAccelDriftSum = {0, 0, 0};
+	xHOS_MPU6050_measurement_t xGyroDriftSum = {0, 0, 0};
+
+	if (!pxHandle->ucIsIntConnected)
+		return 0;
+
+	/*	Rest drift values	*/
+	pxHandle->xGyroDrift.iX = 0;
+	pxHandle->xGyroDrift.iY = 0;
+	pxHandle->xGyroDrift.iZ = 0;
+
+	pxHandle->xAccelDrift.iX = 0;
+	pxHandle->xAccelDrift.iY = 0;
+	pxHandle->xAccelDrift.iZ = 0;
+
+	for(uint16_t i = 0; i < 1000; i++)
+	{
+		/*	wait for new  sample to be ready	*/
+		while(!ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin));
+
+		/*	Read accel measurement, and add it to the drift value	*/
+		ucSuccessful = ucHOS_MPU6050_readAccelMeasurement(pxHandle, &xMeasurement);
+		if (!ucSuccessful)
+			return 0;
+
+		xAccelDriftSum.iX += xMeasurement.iX;
+        xAccelDriftSum.iY += xMeasurement.iY;
+        xAccelDriftSum.iZ += xMeasurement.iZ;
+
+		/*	Read gyro measurement, and add it to the drift value	*/
+		ucSuccessful = ucHOS_MPU6050_readGyroMeasurement(pxHandle, &xMeasurement);
+		if (!ucSuccessful)
+			return 0;
+
+		xGyroDriftSum.iX += xMeasurement.iX;
+        xGyroDriftSum.iY += xMeasurement.iY;
+        xGyroDriftSum.iZ += xMeasurement.iZ;
+	}
+
+	/*	Take average	*/
+	pxHandle->xAccelDrift.iX = xAccelDriftSum.iX / 1000;
+	pxHandle->xAccelDrift.iY = xAccelDriftSum.iY / 1000;
+	pxHandle->xAccelDrift.iZ = xAccelDriftSum.iZ / 1000 - 1000;
+
+	pxHandle->xGyroDrift.iX = xGyroDriftSum.iX / 1000;
+	pxHandle->xGyroDrift.iY = xGyroDriftSum.iY / 1000;
+	pxHandle->xGyroDrift.iZ = xGyroDriftSum.iZ / 1000;
 
 	return 1;
 }
@@ -704,6 +787,12 @@ uint8_t ucHOS_MPU6050_confLpdfAndSampleRate(	xHOS_MPU6050_t* pxHandle,
 		return 0;
 
 	return 1;
+}
+
+/*	See header for info	*/
+void vHOS_MPU6050_waitDataReadyInt(xHOS_MPU6050_t* pxHandle)
+{
+	while(!ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin));
 }
 
 /*	See header for info	*/

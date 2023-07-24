@@ -18,20 +18,17 @@ FreeRTOS based HAL, LIB layers library.
     * Has a DMA accelerated version for targets which have DMA.
   * Push buttons
     * Uses N-samples filtering method.
-    * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_example_1.c
-       
-       https://github.com/AliEmad2002/HAL_OS/assets/99054912/809e45ac-fcf3-4692-9f22-9152126abfa4
+    * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_examp
+      
   * Seven-segment multiplexer
-    * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_And_SevenSegmentMux_example.c
+    * Example available at: https://github.com/AliEmad2002/HAL_OS/blob/main/examples/Button_And_SevenSegmentMux_example
     
-
-      https://github.com/AliEmad2002/HAL_OS/assets/99054912/e4ce0098-8968-4b07-a7b3-8f55cbbe2e6d
   * Rotary encoder
     * Uses N-samples filtering method.
-    * Example available at: https://github.com/AliEmad2002/COTS_OS/blob/main/examples/RotaryEncoder_And_SevenSegmentMux_example.c
+    * Example available at: https://github.com/AliEmad2002/COTS_OS/blob/main/examples/RotaryEncoder_And_SevenSegmentMux_example
       
 
-      https://github.com/AliEmad2002/COTS_OS/assets/99054912/9719c2fc-1fef-4b5e-89d4-3d95f3119ea5
+
 
 
 

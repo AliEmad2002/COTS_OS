@@ -29,15 +29,6 @@ void vHOS_I2C_disable(uint8_t ucUnitNumber);
  */
 uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams);
 
-/*
- * To avoid missing a byte, this function must be a critical section.
- * ("taskENTER_CRITICAL()" and "taskEXIT_CRITICAL()" are called inside)
- */
-uint8_t ucHOS_I2C_slaveReceive(	uint8_t ucUnitNumber,
-								uint8_t* pucArr,
-								uint32_t uiMaxSize,
-								uint32_t* puiSize	);
-
 
 
 #endif /* COTS_OS_INC_HAL_I2C_I2C_H_ */

@@ -252,42 +252,6 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	return 1;
 }
 
-/*
- * See header for info.
- */
-uint8_t ucHOS_I2C_slaveReceive(	uint8_t ucUnitNumber,
-								uint8_t* pucArr,
-								uint32_t uiMaxSize,
-								uint32_t* puiSize	)
-{
-	/*	Enable ACK transmitting on receiving a new byte	*/
-	vPort_I2C_enableAck(ucUnitNumber);
-
-	for (*puiSize = 0; (*puiSize) < uiMaxSize; (*puiSize)++)
-	{
-		/*	wait for receiving new byte or receiving a stop condition	*/
-		while(1)
-		{
-			if (ucPort_I2C_readStopCondFlag(ucUnitNumber))
-			{
-				taskEXIT_CRITICAL();
-				return 1;
-			}
-
-			if (ucPort_I2C_readRxNotEmptyFlag(ucUnitNumber))
-				break;
-		}
-
-		/*	Read new byte	*/
-		pucArr[*puiSize] = ucPort_I2C_readDrImm(ucUnitNumber);
-	}
-
-	taskEXIT_CRITICAL();
-	return 0;
-}
-
-
-
 
 
 

@@ -1,5 +1,6 @@
 **Test #1: Observe RF-receiver's output when the RF-transmitter is idle (not transmitting).**
   * Low amplitude nose is outputted.
+  * Yet spikes may rise up to logic-1 voltage level. This should be overcome when using a previously agreed-on data frame-format.
   * Image 1: RF-receiver's output on the spectrum when RF-transmitter is idle:
     ![1](https://github.com/AliEmad2002/COTS_OS/assets/99054912/8911cb13-ad09-4251-ac4d-7ab22f279f02)
 

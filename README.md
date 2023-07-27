@@ -8,14 +8,14 @@ FreeRTOS based HAL, LIB layers library.
   * A lot more time-efficient (less CPU busy wait load) than baremetal drivers.
   
 # Available drivers:
-  * SPI
-  * I2C
-  * Colored-LCD
-  * Push buttons
-  * Seven-segment multiplexer
-  * Rotary encoder
-  * MPU6050 (gyroscope and acceleromter)
-  * 
+  * SPI.
+  * I2C.
+  * Colored-LCD.
+  * Push buttons.
+  * Seven-segment multiplexer.
+  * Rotary encoder.
+  * MPU6050 (gyroscope and acceleromter).
+  * RF communication.
   
     
 

@@ -8,6 +8,7 @@
 
 /*	LIB	*/
 #include "stdint.h"
+#include "stdio.h"
 
 /*	MCAL (ported)	*/
 #include "MCAL_Port/Port_Breakpoint.h"
@@ -28,9 +29,66 @@
 /*******************************************************************************
  * Task function:
  ******************************************************************************/
-static void vRxTask(void* pvParams)		/*	TODO	*/
+static void vRxTask(void* pvParams)
 {
 	xHOS_RF_t* pxHandle = (xHOS_RF_t*)pvParams;
+
+	/*	Create pointer to the RxFrame stored in RxShiftRegister	*/
+	xHOS_RF_Frame_t* pxRxFrame = (xHOS_RF_Frame_t*)(pxHandle->pucRxShiftRegister);
+
+	/*	Task is initially suspended	*/
+	vTaskSuspend(pxHandle->xRxTask);
+
+	while(1)
+	{
+		/*	Block until physical layer is done receiving a complete frame	*/
+		xSemaphoreTake(pxHandle->xPhySemaphore, portMAX_DELAY);
+
+		/*
+		 * If a new frame was received before the RxComplete flag was cleared,
+		 * overrun flag is raised.
+		 */
+		if (pxHandle->ucRxCompleteFalg == 1)
+			pxHandle->ucOverrunFlag = 1;
+
+		/*
+		 * Compare destination address of the received frame and handle's self
+		 * address, if they don't match this frame is not meant for this handle.
+		 */
+		if (pxRxFrame->ucDestAddress != pxHandle->ucSelfAddress)
+		{
+			vTaskResume(pxHandle->xRxPhyTask);
+			continue;
+		}
+
+		/*
+		 * If the received frame is an ACK frame, raise the ACK flag and block
+		 * until the next frame is received.
+		 */
+		if (pxRxFrame->ucIsAck == 1)
+		{
+			pxHandle->ucAckFlag = 1;
+			vTaskResume(pxHandle->xRxPhyTask);
+			continue;
+		}
+
+		/*
+		 * Otherwise, update the receiver data buffer and source address with a
+		 * copy of RxShiftRegister's data field and SrcAddress filed. And raise
+		 * the RxComplete flag.
+		 */
+		for (uint32_t i = 0; i < uiRF_DATA_BYTES_PER_FRAME; i++)
+		{
+			pxHandle->pucRxBuffer[i] = pxRxFrame->pucData[i];
+		}
+
+		pxHandle->ucSrcAddress = pxRxFrame->ucSrcAddress;
+
+		pxHandle->ucRxCompleteFalg = 1;
+
+		/*	Resume physical layer's task	*/
+		vTaskResume(pxHandle->xRxPhyTask);
+	}
 }
 
 
@@ -51,8 +109,23 @@ void vHOS_RF_init(xHOS_RF_t* pxHandle)
 	/*	Initialize physical layer	*/
 	xHOS_RFPhysical_init(pxHandle);
 
-	/*	Initialize task	*/
+	/*	Initialize flags	*/
+	pxHandle->ucTxEmptyFalg = 1;	// Initially empty.
+	pxHandle->ucRxCompleteFalg = 0;	// Initially no received frames yet.
+	pxHandle->ucOverrunFlag = 0;
 
+	/*	Initialize link layer's task	*/
+	static uint8_t ucCreatedObjectsCount = 0;
+	char pcRxTaskName[configMAX_TASK_NAME_LEN];
+	sprintf(pcRxTaskName, "RF_Rx%d", ucCreatedObjectsCount);
+
+	pxHandle->xRxTask = xTaskCreateStatic(	vRxTask,
+										pcRxTaskName,
+										configMINIMAL_STACK_SIZE,
+										(void*)pxHandle,
+										configHOS_SOFT_REAL_TIME_TASK_PRI,
+										pxHandle->puxRxTaskStack,
+										&pxHandle->xRxTaskStatic	);
 }
 
 /*	See header for info	*/
@@ -61,7 +134,8 @@ void vHOS_RF_enable(xHOS_RF_t* pxHandle)
 	/*	Enable physical layer	*/
 	xHOS_RFPhysical_enable(pxHandle);
 
-
+	/*	Resume link layer receiver's task	*/
+	vTaskResume(pxHandle->xRxTask);
 }
 
 /*	See header for info	*/
@@ -69,6 +143,9 @@ void vHOS_RF_disable(xHOS_RF_t* pxHandle)
 {
 	/*	Disable physical layer	*/
 	xHOS_RFPhysical_disable(pxHandle);
+
+	/*	Suspend link layer receiver's task	*/
+	vTaskSuspend(pxHandle->xRxTask);
 }
 
 /*	See header for info	*/

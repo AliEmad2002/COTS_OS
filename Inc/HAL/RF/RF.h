@@ -52,7 +52,14 @@ typedef struct{
 
 	uint8_t ucOverrunFlag : 1;		// Set by driver, cleared by user.
 
+	uint8_t ucAckFlag : 1;			// Set by driver on reception of an ACK frame,
+									// cleared by user.
+
 	uint8_t pucRxBuffer[uiRF_DATA_BYTES_PER_FRAME];	// (Read only) Rx buffer. Gets updated
+													// at the end of every frame reception.
+
+	uint8_t ucSrcAddress;							// (Read only) source address of the
+													// just received frame. Gets updated
 													// at the end of every frame reception.
 
 	/*	PRIVATE	*/
@@ -76,6 +83,10 @@ typedef struct{
 	StackType_t puxTxPhyTaskStack[configMINIMAL_STACK_SIZE];
 	StaticTask_t xTxPhyTaskStatic;
 	TaskHandle_t xTxPhyTask;
+
+	StackType_t puxRxTaskStack[configMINIMAL_STACK_SIZE];
+	StaticTask_t xRxTaskStatic;
+	TaskHandle_t xRxTask;
 }xHOS_RF_t;
 
 

@@ -19,11 +19,18 @@
 #define COTS_OS_INC_HAL_RF_RF_H_
 
 #include "semphr.h"
+#include "HAL/RF/RF_config.h"
+
+/*	Size of the additional bytes (SOF, DestAddress, SrcAddress, CRC and EOF)	*/
+#define uiRF_NUMBER_OF_ADDITIONAL_BYTES			(7)
+
+/*	Full frame size	*/
+#define uiRF_FRAME_SIZE_IN_BYTES	\
+	(uiRF_NUMBER_OF_ADDITIONAL_BYTES + uiRF_DATA_BYTES_PER_FRAME)
+
 
 typedef struct{
 	/*	PUBLIC	*/
-	uint32_t uiMsTimePerBit;
-
 	uint8_t ucTxPort;
 	uint8_t ucTxPin;
 
@@ -41,39 +48,26 @@ typedef struct{
 									// the begging of transmitting a new frame.
 									// If driver was ordered to transmit while this
 									// flag is not set, overrun flag will be raised,
-									// current transmission will be canceled and new
-									// frame transmission will start.
+									// and new transmission will be canceled.
 
 	uint8_t ucOverrunFlag : 1;		// Set by driver, cleared by user.
 
-	uint8_t ucRxCompleteCallbackEnable : 1;
-	uint8_t ucTxEmptyCallbackEnable : 1;
-	uint8_t ucOverrunCallbackEnable : 1;
-
-	void (*pfRxCompleteCallback)(void*);
-	void* pvRxCompleteCallbackParams;
-
-	void (*pfTxEmptyCallback)(void*);
-	void* pvTxEmptyCallbackParams;
-
-	void (*pfOverrunCallback)(void*);
-	void* pvOverrunCallbackParams;
-
-	uint8_t pucRxBuffer[15];	// (Read only) Rx buffer. Gets updated
-								// at the end of every frame reception.
+	uint8_t pucRxBuffer[uiRF_DATA_BYTES_PER_FRAME];	// (Read only) Rx buffer. Gets updated
+													// at the end of every frame reception.
 
 	/*	PRIVATE	*/
-//	uint64_t pulRxShiftRegister[3];
-//	uint64_t pulTxShiftRegister[3];
-	uint8_t ucRxShiftRegister;
-	uint8_t ucTxShiftRegister;
+	uint8_t pucRxShiftRegister[uiRF_FRAME_SIZE_IN_BYTES];
+	uint8_t pucTxShiftRegister[uiRF_FRAME_SIZE_IN_BYTES];
 
-	uint8_t ucTxNRemaining;
+	uint32_t uiTxNRemaining;
 
 	uint8_t ucEdgeDetectionFlag;
 
 	StaticSemaphore_t xDummySemaphoreStatic;
 	SemaphoreHandle_t xDummySemaphore;
+
+	StaticSemaphore_t xPhySemaphoreStatic;
+	SemaphoreHandle_t xPhySemaphore;
 
 	StackType_t puxRxPhyTaskStack[configMINIMAL_STACK_SIZE];
 	StaticTask_t xRxPhyTaskStatic;
@@ -84,11 +78,6 @@ typedef struct{
 	TaskHandle_t xTxPhyTask;
 }xHOS_RF_t;
 
-typedef struct{
-	uint8_t ucDestAddress;
-	uint8_t ucDataLen;
-	uint8_t* pucData;
-}xHOS_RF_TransmissionInfo_t;
 
 /*
  * Initializes an RF transreceiver.
@@ -118,7 +107,11 @@ void vHOS_RF_disable(xHOS_RF_t* pxHandle);
 /*
  * Sends new data.
  */
-void vHOS_RF_send(xHOS_RF_t* pxHandle, xHOS_RF_TransmissionInfo_t* pxInfo);
+void vHOS_RF_send(	xHOS_RF_t* pxHandle,
+					uint8_t ucDestAddress,
+					uint8_t* pucData,
+					uint32_t uiDataSizeInBytes,
+					uint16_t usCRC	);
 
 
 

@@ -30,19 +30,25 @@
 /*******************************************************************************
  * Helping functions / macros:
  ******************************************************************************/
-#define vSHIFT_RIGHT(pulShiftReg)											     \
-{                                                                                \
-	(pulShiftReg)[0] = ((pulShiftReg)[0] >> 1) | (((pulShiftReg)[1] & 1) << 63); \
-	(pulShiftReg)[1] = ((pulShiftReg)[1] >> 1) | (((pulShiftReg)[2] & 1) << 63); \
-	(pulShiftReg)[2] = ((pulShiftReg)[2] >> 1);                                  \
+#define uiSHIFT_REG_SIZE_IN_BYTES	uiRF_FRAME_SIZE_IN_BYTES
+
+#define vSHIFT_LEFT(pucSR)											       \
+{                                                                          \
+	for (uint32_t __i = uiSHIFT_REG_SIZE_IN_BYTES - 1; __i > 0; __i--)     \
+	{                                                                      \
+		(pucSR)[__i] = ((pucSR)[__i] << 1) | (((pucSR)[__i-1] >> 7) & 1);  \
+	}                                                                      \
+                                                                           \
+	(pucSR)[0] = ((pucSR)[0] << 1);                                        \
 }
 
-#define vSHIFT_LEFT(pulShiftReg)											     \
-{                                                                                \
-	(pulShiftReg)[2] = ((pulShiftReg)[2] << 1) | (((pulShiftReg)[1] >> 63) & 1); \
-	(pulShiftReg)[1] = ((pulShiftReg)[1] << 1) | (((pulShiftReg)[0] >> 63) & 1); \
-	(pulShiftReg)[0] = ((pulShiftReg)[0] << 1);									 \
-}
+#define ucGET_MSB(pucSR) 	(((pucSR)[uiSHIFT_REG_SIZE_IN_BYTES - 1] >> 7) & 1)
+
+#define ucSET_MSB(pucSR) 	((pucSR)[uiSHIFT_REG_SIZE_IN_BYTES - 1] |= (1 << 7))
+
+#define ucIS_SOF_MATCH(pxHandle)		\
+	(((xHOS_RF_Frame_t*)((pxHandle)->pucRxShiftRegister))->ucSOF == ucRF_SOF)
+
 
 /*******************************************************************************
  * Task functions:
@@ -59,15 +65,31 @@ static void vTxTask(void* pvParams)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
-		/*	If done transmitting all bits, task is suspend	*/
-		if (pxHandle->ucTxNRemaining == 0)
+		/*	If done transmitting all bits, TxEmpty flag is raised and task is suspend	*/
+		if (pxHandle->uiTxNRemaining == 0)
 		{
+			pxHandle->ucTxEmptyFalg = 1;
 			vTaskSuspend(pxHandle->xTxPhyTask);
+			xLastWakeTime = xTaskGetTickCount();
 			continue;
 		}
 
+		/*	If just started a new transmission, send the dummy field	*/
+		else if (pxHandle->uiTxNRemaining == (uiRF_FRAME_SIZE_IN_BYTES * 8 + uiRF_DUMMY_FIELD_SIZE_IN_BITS))
+		{
+			for (uint32_t i = 0; i < uiRF_DUMMY_FIELD_SIZE_IN_BITS; i++)
+			{
+				vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 1);
+				vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
+				vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
+				vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
+			}
+
+			pxHandle->uiTxNRemaining -= uiRF_DUMMY_FIELD_SIZE_IN_BITS;
+		}
+
 		/*	If there's still un-transmitted bits, get value of the MSB	*/
-		ucNewBit = (pxHandle->ucTxShiftRegister >> 7) & 1;
+		ucNewBit = ucGET_MSB(pxHandle->pucTxShiftRegister);
 
 		/*
 		 * If MSB is 1, generate pulse on the transmitter, shift left the register
@@ -81,8 +103,8 @@ static void vTxTask(void* pvParams)
 			vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
 			vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
 
-			pxHandle->ucTxShiftRegister = pxHandle->ucTxShiftRegister << 1;
-			pxHandle->ucTxNRemaining--;
+			vSHIFT_LEFT(pxHandle->pucTxShiftRegister);
+			pxHandle->uiTxNRemaining--;
 		}
 
 		/*
@@ -93,7 +115,7 @@ static void vTxTask(void* pvParams)
 		{
 			vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(2));
 
-			pxHandle->ucTxShiftRegister = pxHandle->ucTxShiftRegister | (1 << 7);
+			ucSET_MSB(pxHandle->pucTxShiftRegister);
 		}
 	}
 }
@@ -103,6 +125,7 @@ static void vRxTask(void* pvParams)
 	xHOS_RF_t* pxHandle = (xHOS_RF_t*)pvParams;
 
 	uint8_t ucNewBit;
+	uint32_t uiNumberOfBitsReceivedSinceLastSofMatch = 0;
 
 	/*	Task is initially suspended	*/
 	vTaskSuspend(pxHandle->xRxPhyTask);
@@ -138,8 +161,27 @@ static void vRxTask(void* pvParams)
 		}
 
 		/*	Shift left the register, and write the new received bit to register's LSB.	*/
-		pxHandle->ucRxShiftRegister = pxHandle->ucRxShiftRegister << 1;
-		pxHandle->ucRxShiftRegister |= ucNewBit;
+		vSHIFT_LEFT(pxHandle->pucRxShiftRegister);
+		pxHandle->pucRxShiftRegister[0] |= ucNewBit;
+
+		/*	Increment bit counter	*/
+		uiNumberOfBitsReceivedSinceLastSofMatch++;
+
+		/*
+		 * Check for SOF (Start Of Frame) field. If it was matching the unique
+		 * defined SOF, then a complete frame has been successfully received,
+		 * physical layer's receiver task notifies data-link layer's receiver task.
+		 * And the first is suspended until the second finishes reading the
+		 * frame and resumes it.
+		 */
+		if (
+			ucIS_SOF_MATCH(pxHandle) &&
+			uiNumberOfBitsReceivedSinceLastSofMatch >= uiRF_FRAME_SIZE_IN_BYTES * 8)
+		{
+			uiNumberOfBitsReceivedSinceLastSofMatch = 0;
+			xSemaphoreGive(pxHandle->xPhySemaphore);
+			vTaskSuspend(pxHandle->xRxPhyTask);
+		}
 
 		/*
 		 * If the new received bit is 1, wait for a maximum of 3ms, so that a false
@@ -157,16 +199,13 @@ static void vRxTask(void* pvParams)
 /*******************************************************************************
  * ISR:
  ******************************************************************************/
-void fPORT_EXTI_HANDLER_1(void* pvParams)	/*	TODO: add callback functionality to EXTI driver	*/
+static void vISR(void* pvParams)
 {
-	extern xHOS_RF_t xRF;
-	xHOS_RF_t* pxHandle = &xRF;//(xHOS_RF_t*)pvParams;
+	xHOS_RF_t* pxHandle = (xHOS_RF_t*)pvParams;
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 	pxHandle->ucEdgeDetectionFlag = 1;
 	xSemaphoreGiveFromISR(pxHandle->xDummySemaphore, &xHigherPriorityTaskWoken);
-
-	vPORT_EXTI_CLEAR_PENDING_FLAG(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -183,7 +222,8 @@ void xHOS_RFPhysical_init(xHOS_RF_t* pxHandle)
 	/*	Initialize receiver's pin as input, with rising edge interrupt, initially disabled	*/
 	vPort_DIO_initPinInput(pxHandle->ucRxPort, pxHandle->ucRxPin, 0);
 	vPort_EXTI_initLine(pxHandle->ucRxPort, pxHandle->ucRxPin, 1);
-	vPort_EXTI_DisableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
+	vPort_EXTI_setCallback(pxHandle->ucRxPort, pxHandle->ucRxPin, vISR, (void*)pxHandle);
+	vPort_EXTI_disableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Initialize receiver's interrupt in the interrupt controller	*/
 	vPort_Interrupt_setPriority(
@@ -193,12 +233,16 @@ void xHOS_RFPhysical_init(xHOS_RF_t* pxHandle)
 	vPort_Interrupt_enableIRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucRxPin]);
 
 	/*	Initialize counters and flags	*/
-	pxHandle->ucTxNRemaining = 0;
+	pxHandle->uiTxNRemaining = 0;
 	pxHandle->ucEdgeDetectionFlag = 0;
 
 	/*	Create dummy semaphore	*/
 	pxHandle->xDummySemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xDummySemaphoreStatic);
 	xSemaphoreTake(pxHandle->xDummySemaphore, 0);
+
+	/*	Create Phy semaphore	*/
+	pxHandle->xPhySemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xPhySemaphoreStatic);
+	xSemaphoreTake(pxHandle->xPhySemaphore, 0);
 
 	/*	Create RxPhysical task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
@@ -229,7 +273,7 @@ void xHOS_RFPhysical_init(xHOS_RF_t* pxHandle)
 void xHOS_RFPhysical_enable(xHOS_RF_t* pxHandle)
 {
 	/*	Enable EXTI line */
-	vPort_EXTI_EnableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
+	vPort_EXTI_enableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Resume Rx, Tx tasks	*/
 	vTaskResume(pxHandle->xRxPhyTask);
@@ -239,14 +283,21 @@ void xHOS_RFPhysical_enable(xHOS_RF_t* pxHandle)
 void xHOS_RFPhysical_disable(xHOS_RF_t* pxHandle)
 {
 	/*	Disable EXTI line */
-	vPort_EXTI_DisableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
+	vPort_EXTI_disableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Suspend Rx, Tx tasks	*/
 	vTaskSuspend(pxHandle->xRxPhyTask);
 	vTaskSuspend(pxHandle->xTxPhyTask);
 }
 
+void xHOS_RFPhysical_startTransmission(xHOS_RF_t* pxHandle)
+{
+	/*	Reload remaining bits counter	*/
+	pxHandle->uiTxNRemaining = uiRF_FRAME_SIZE_IN_BYTES * 8 + uiRF_DUMMY_FIELD_SIZE_IN_BITS;
 
+	/*	Resume Tx task	*/
+	vTaskResume(pxHandle->xTxPhyTask);
+}
 
 
 

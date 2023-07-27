@@ -17,8 +17,10 @@
 
 #include "FreeRTOS.h"
 
-extern uint32_t puiExtiPinToAfioLine[5];
-extern uint32_t puiExtiPinToExtiLine[5];
+extern uint32_t puiPortExtiPinToAfioLineArr[5];
+extern uint32_t puiPortExtiPinToExtiLineArr[5];
+extern void(*ppfPortExtiCallbackArr[5])(void*);
+extern void* ppvPortExtiCallbackParamsArr[5];
 
 /*******************************************************************************
  * API functions:
@@ -51,39 +53,39 @@ static inline void vPort_EXTI_initLine(	uint8_t ucPort,
 	configASSERT(ucPin < 5);
 
 	/*	Map line to the given port	*/
-	LL_GPIO_AF_SetEXTISource(ucPort, puiExtiPinToAfioLine[ucPin]);
+	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
 
 	/*	Set triggering edge	*/
 	configASSERT(ucEdge < 3);
 	switch(ucEdge)
 	{
 	case 0:
-		LL_EXTI_EnableFallingTrig_0_31(puiExtiPinToExtiLine[ucPin]);
+		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 		break;
 	case 1:
-		LL_EXTI_EnableRisingTrig_0_31(puiExtiPinToExtiLine[ucPin]);
+		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 		break;
 	case 2:
-		LL_EXTI_EnableFallingTrig_0_31(puiExtiPinToExtiLine[ucPin]);
-		LL_EXTI_EnableRisingTrig_0_31(puiExtiPinToExtiLine[ucPin]);
+		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 		break;
 	}
 }
 
 /*	Enables line	*/
-static inline void vPort_EXTI_EnableLine(uint8_t ucPort, uint8_t ucPin)
+static inline void vPort_EXTI_enableLine(uint8_t ucPort, uint8_t ucPin)
 {
 	configASSERT(ucPin < 5);
 
-	LL_EXTI_EnableIT_0_31(puiExtiPinToExtiLine[ucPin]);
+	LL_EXTI_EnableIT_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 }
 
 /*	Disables line	*/
-static inline void vPort_EXTI_DisableLine(uint8_t ucPort, uint8_t ucPin)
+static inline void vPort_EXTI_disableLine(uint8_t ucPort, uint8_t ucPin)
 {
 	configASSERT(ucPin < 5);
 
-	LL_EXTI_DisableIT_0_31(puiExtiPinToExtiLine[ucPin]);
+	LL_EXTI_DisableIT_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 }
 
 /*
@@ -94,16 +96,21 @@ static inline void vPort_EXTI_DisableLine(uint8_t ucPort, uint8_t ucPin)
  * 			fast use, hence must be used with care.
  */
 #define vPORT_EXTI_CLEAR_PENDING_FLAG(ucPort, ucPin)	\
-	(LL_EXTI_ClearFlag_0_31(puiExtiPinToExtiLine[(ucPin)]))
+	(LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[(ucPin)]))
 
-/*******************************************************************************
- * ISRs:
- ******************************************************************************/
-#define fPORT_EXTI_HANDLER_0 EXTI0_IRQHandler
-#define fPORT_EXTI_HANDLER_1 EXTI1_IRQHandler
-#define fPORT_EXTI_HANDLER_2 EXTI2_IRQHandler
-#define fPORT_EXTI_HANDLER_3 EXTI3_IRQHandler
-#define fPORT_EXTI_HANDLER_4 EXTI4_IRQHandler
+/*	Sets callback of EXTI handler	*/
+static inline void vPort_EXTI_setCallback(	uint8_t ucPort,
+											uint8_t ucPin,
+											void(*pfCallback)(void*),
+											void* pvParams)
+{
+	configASSERT(ucPin < 5);
+
+	ppfPortExtiCallbackArr[ucPin] = pfCallback;
+	ppvPortExtiCallbackParamsArr[ucPin] = pvParams;
+}
+
+
 
 
 

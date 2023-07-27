@@ -175,7 +175,7 @@ void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint64_t uiTi
 /*
  * See header file for info.
  */
-__attribute__((always_inline))
+__attribute__((always_inline)) inline
 void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiUs)
 {
 	uint64_t uiTicks = ((uint64_t)uiUs * (uint64_t)pxHandle->uiTicksPerSecond) / 1000000ul;

@@ -18,6 +18,7 @@
 #include "HAL/HardwareDelay/HardwareDelay.h"
 #include "HAL/RotaryEncoder/RotaryEncoder.h"
 #include "HAL/MPU6050/MPU6050.h"
+#include "HAL/RF/RF.h"
 
 BaseType_t xHOS_init(void);
 

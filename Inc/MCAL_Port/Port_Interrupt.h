@@ -63,4 +63,6 @@ extern const IRQn_Type pxPortInterruptSpiIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[];
 
+extern const IRQn_Type pxPortInterruptExtiIrqNumberArr[];
+
 #endif /* HAL_OS_PORT_PORT_INTERRUPT_H_ */

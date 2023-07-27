@@ -11,6 +11,7 @@
 #include "MCAL_Port/Port_Clock.h"
 #include "MCAL_Port/Port_SPI.h"
 #include "MCAL_Port/Port_I2C.h"
+#include "MCAL_Port/Port_Interrupt.h"
 
 
 /*
@@ -35,19 +36,19 @@ void vPort_HW_init(void)
 //	};
 //	vPort_SPI_initHardware(0, &xSpi0Conf);
 
-	/*	I2C	*/
-	xPort_I2C_HW_Conf_t xI2c0Conf = {
-		.ucAFIOMapNumber = 0,
-		.ucEnableGeneralCall = 0,
-		.ucEnableClockStretching = 0,
-		.ucClockMode = 1,
-		.ucIsAddress7Bit = 1,
-		.usSelfAddress = 0x55, // foo value.
-		.uiSclFrequencyHz = 400000,
-		.uiMaxRisingTimeNs = 1000
-	};
-
-	vPort_I2C_initHardware(0, &xI2c0Conf);
+//	/*	I2C	*/
+//	xPort_I2C_HW_Conf_t xI2c0Conf = {
+//		.ucAFIOMapNumber = 0,
+//		.ucEnableGeneralCall = 0,
+//		.ucEnableClockStretching = 0,
+//		.ucClockMode = 1,
+//		.ucIsAddress7Bit = 1,
+//		.usSelfAddress = 0x55, // foo value.
+//		.uiSclFrequencyHz = 400000,
+//		.uiMaxRisingTimeNs = 1000
+//	};
+//
+//	vPort_I2C_initHardware(0, &xI2c0Conf);
 }
 
 

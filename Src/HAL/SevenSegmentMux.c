@@ -119,7 +119,6 @@ static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
  ******************************************************************************/
 static void vTask(void* pvParams)
 {
-	uint8_t i;
 	xHOS_SevenSegmentMux_t* pxHandle = (xHOS_SevenSegmentMux_t*)pvParams;
 
 	vTaskSuspend(pxHandle->xTask);

@@ -56,8 +56,9 @@ typedef struct{
 
 	uint8_t ucOverrunFlag : 1;		// Set by driver, cleared by user.
 
-	uint8_t ucAckFlag : 1;			// Set by driver on reception of an ACK frame,
-									// cleared by user.
+	uint8_t ucAckFlag : 1;			// (Read only) Set by driver on reception of
+									// an ACK frame, cleared when user calls:
+									// "clearAckFlag()" function.
 
 	uint8_t pucRxBuffer[uiRF_DATA_BYTES_PER_FRAME];	// (Read only) Rx buffer. Gets updated
 													// at the end of every frame reception.
@@ -83,6 +84,9 @@ typedef struct{
 
 	StaticSemaphore_t xRxCompleteSemaphoreStatic;
 	SemaphoreHandle_t xRxCompleteSemaphore;
+
+	StaticSemaphore_t xAckSemaphoreStatic;
+	SemaphoreHandle_t xAckSemaphore;
 
 	StaticSemaphore_t xDummySemaphoreStatic;
 	SemaphoreHandle_t xDummySemaphore;
@@ -152,10 +156,19 @@ void vHOS_RF_blockUntilTxEmpty(xHOS_RF_t* pxHandle);
  */
 BaseType_t xHOS_RF_blockUntilRxComplete(xHOS_RF_t* pxHandle, TickType_t xTimeoutTicks);
 
+/*
+ * Blocks the calling task until ACK flag is raised (An ACK frame was received),
+ * with a given timeout.
+ *
+ * Returns pdTRUE if flag was raised during the timeout, and pdFALSE otherwise.
+ */
+BaseType_t xHOS_RF_blockUntilAckReceived(xHOS_RF_t* pxHandle, TickType_t xTimeoutTicks);
+
 /*	Clears the RxComplete flag	*/
 void vHOS_RF_clearRxComplete(xHOS_RF_t* pxHandle);
 
-
+/*	Clears the ACK flag	*/
+void vHOS_RF_clearAck(xHOS_RF_t* pxHandle);
 
 
 

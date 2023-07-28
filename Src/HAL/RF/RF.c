@@ -76,6 +76,7 @@ static void vRxTask(void* pvParams)
 		if (pxRxFrame->ucIsAck == 1)
 		{
 			pxHandle->ucAckFlag = 1;
+			xSemaphoreGive(pxHandle->xAckSemaphore);
 			vTaskResume(pxHandle->xRxPhyTask);
 			continue;
 		}
@@ -120,7 +121,8 @@ void vHOS_RF_init(xHOS_RF_t* pxHandle)
 	/*	Initialize data-link layer's flags	*/
 	pxHandle->ucTxEmptyFalg = 1;	// Initially empty.
 	pxHandle->ucRxCompleteFalg = 0;	// Initially no received frames yet.
-	pxHandle->ucOverrunFlag = 0;
+	pxHandle->ucOverrunFlag = 0;	// Initially no overruns occurred.
+	pxHandle->ucAckFlag = 0;		// Initially no ACKs were received.
 
 	/*	Create data-link layer's semaphores	*/
 	pxHandle->xTxEmptySemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xTxEmptySemaphoreStatic);
@@ -128,6 +130,9 @@ void vHOS_RF_init(xHOS_RF_t* pxHandle)
 
 	pxHandle->xRxCompleteSemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xRxCompleteSemaphoreStatic);
 	xSemaphoreTake(pxHandle->xRxCompleteSemaphore, 0);	// Initially no received frames yet.
+
+	pxHandle->xAckSemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xAckSemaphoreStatic);
+	xSemaphoreTake(pxHandle->xAckSemaphore, 0);	// Initially no ACKs were received.
 
 	/*	Initialize link layer's task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
@@ -226,7 +231,34 @@ void vHOS_RF_blockUntilTxEmpty(xHOS_RF_t* pxHandle)
 __attribute__((always_inline)) inline
 BaseType_t xHOS_RF_blockUntilRxComplete(xHOS_RF_t* pxHandle, TickType_t xTimeoutTicks)
 {
-	return xSemaphoreTake(pxHandle->xRxCompleteSemaphore, xTimeoutTicks);
+	/*	Try to take semaphore	*/
+	BaseType_t xFlag = xSemaphoreTake(pxHandle->xRxCompleteSemaphore, xTimeoutTicks);
+
+	/*
+	 * If it was successfully taken, give it again, as it must not be cleared
+	 * within this function.
+	 */
+	if (xFlag)
+		xSemaphoreGive(pxHandle->xRxCompleteSemaphore);
+
+	return xFlag;
+}
+
+/*	See header for info	*/
+__attribute__((always_inline)) inline
+BaseType_t xHOS_RF_blockUntilAckReceived(xHOS_RF_t* pxHandle, TickType_t xTimeoutTicks)
+{
+	/*	Try to take semaphore	*/
+	BaseType_t xFlag = xSemaphoreTake(pxHandle->xAckSemaphore, xTimeoutTicks);
+
+	/*
+	 * If it was successfully taken, give it again, as it must not be cleared
+	 * within this function.
+	 */
+	if (xFlag)
+		xSemaphoreGive(pxHandle->xAckSemaphore);
+
+	return xFlag;
 }
 
 /*	See header for info	*/
@@ -236,7 +268,13 @@ void vHOS_RF_clearRxComplete(xHOS_RF_t* pxHandle)
 	pxHandle->ucRxCompleteFalg = 0;
 }
 
-
+/*	See header for info	*/
+__attribute__((always_inline)) inline
+void vHOS_RF_clearAck(xHOS_RF_t* pxHandle)
+{
+	pxHandle->ucAckFlag = 0;
+	xSemaphoreTake(pxHandle->xAckSemaphore, 0);
+}
 
 
 

@@ -220,6 +220,40 @@ void vHOS_RF_send(	xHOS_RF_t* pxHandle,
 }
 
 /*	See header for info	*/
+void vHOS_RF_sendAck(xHOS_RF_t* pxHandle, uint8_t ucDestAddress)
+{
+	/*
+	 * Check if TxBuffer is empty. If not, raise the overrun flag and return.
+	 */
+	if (xSemaphoreTake(pxHandle->xTxEmptySemaphore, 0))
+	{
+		pxHandle->ucTxEmptyFalg = 0;
+	}
+	else
+	{
+		pxHandle->ucOverrunFlag = 1;
+		return;
+	}
+
+	/*	Create pointer to the TxFrame stored in TxShiftRegister	*/
+	xHOS_RF_Frame_t* pxTxFrame = (xHOS_RF_Frame_t*)(pxHandle->pucTxShiftRegister);
+
+	/*	Write SOF and EOF to their constant values	*/
+	pxTxFrame->ucSOF = ucRF_SOF;
+	pxTxFrame->ucEOF = ucRF_EOF;
+
+	/*	Write SrcAddress and DestAddress to the TxShiftRegister	*/
+	pxTxFrame->ucSrcAddress = pxHandle->ucSelfAddress;
+	pxTxFrame->ucDestAddress = ucDestAddress;
+
+	/*	This  is an ACK frame	*/
+	pxTxFrame->ucIsAck = 1;
+
+	/*	Start the transmission in physical layer	*/
+	xHOS_RFPhysical_startTransmission(pxHandle);
+}
+
+/*	See header for info	*/
 __attribute__((always_inline)) inline
 void vHOS_RF_blockUntilTxEmpty(xHOS_RF_t* pxHandle)
 {

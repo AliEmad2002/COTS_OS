@@ -143,6 +143,11 @@ void vHOS_RF_send(	xHOS_RF_t* pxHandle,
 					uint16_t usCRC	);
 
 /*
+ * Sends an ACK frame.
+ */
+void vHOS_RF_sendAck(xHOS_RF_t* pxHandle, uint8_t ucDestAddress);
+
+/*
  * Blocks the calling task until TxEmpty flag is raised.
  * (Current transmission is done).
  */

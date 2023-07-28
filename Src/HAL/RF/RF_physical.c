@@ -69,6 +69,7 @@ static void vTxTask(void* pvParams)
 		if (pxHandle->uiTxNRemaining == 0)
 		{
 			pxHandle->ucTxEmptyFalg = 1;
+			xSemaphoreGive(pxHandle->xTxEmptySemaphore);
 			vTaskSuspend(pxHandle->xTxPhyTask);
 			xLastWakeTime = xTaskGetTickCount();
 			continue;

@@ -66,8 +66,11 @@ void vTask1(void* pvParams)
 		/*	Initiate transmission to self	*/
 		vHOS_RF_send(&xRF, xRF.ucSelfAddress, pucData, uiRF_DATA_BYTES_PER_FRAME, 0);
 
-		/*	wait for transmission to be done	*/
-		while (xRF.ucTxEmptyFalg != 1);
+		/*	Block until transmission is done	*/
+		vHOS_RF_blockUntilTxEmpty(&xRF);
+
+		/*	Block until reception is done, with a timeout of 500ms	*/
+		xHOS_RF_blockUntilRxComplete(&xRF, pdMS_TO_TICKS(500));
 
 		/*	Compare received data with the sent one	*/
 		ucMatch = 1;
@@ -83,6 +86,9 @@ void vTask1(void* pvParams)
 		uiTotalCount++;
 
 		fSuccessRatio = (float)uiSuccessCount / (float)uiTotalCount;
+
+		/*	Clear RxComplete flag	*/
+		vHOS_RF_clearRxComplete(&xRF);
 
 		/*	random delay to test HW responsiveness after being idle	*/
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(((uint32_t)rand())%2000));

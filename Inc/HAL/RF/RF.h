@@ -39,9 +39,13 @@ typedef struct{
 
 	uint8_t ucSelfAddress;
 
-	uint8_t ucRxCompleteFalg : 1;	// Set by driver after receiving a complete frame,
-									// must be cleared by user after reading the
-									// RxBuffer. If not, overrun flag will be raised.
+	uint8_t ucRxCompleteFalg : 1;	// (Read only) Set by driver after receiving
+									// a complete frame, gets cleared when user
+									// calls "clearRxCompleteFlag()"after reading the
+									// RxBuffer. If not called, and new frame was
+									// received, overrun flag will be raised.
+									// And receiving tasks are suspended until user
+			 	 	 	 	 	 	 // re-enables them using "vHOS_RF_enable()"
 
 	uint8_t ucTxEmptyFalg : 1;		// (Read only) Set by driver after transmitting
 									// a complete frame. And cleared by driver on
@@ -62,6 +66,10 @@ typedef struct{
 													// just received frame. Gets updated
 													// at the end of every frame reception.
 
+	uint16_t usRxCRC;								// (Read only) CRC of the
+													// just received frame. Gets updated
+													// at the end of every frame reception.
+
 	/*	PRIVATE	*/
 	uint8_t pucRxShiftRegister[uiRF_FRAME_SIZE_IN_BYTES];
 	uint8_t pucTxShiftRegister[uiRF_FRAME_SIZE_IN_BYTES];
@@ -69,6 +77,12 @@ typedef struct{
 	uint32_t uiTxNRemaining;
 
 	uint8_t ucEdgeDetectionFlag;
+
+	StaticSemaphore_t xTxEmptySemaphoreStatic;
+	SemaphoreHandle_t xTxEmptySemaphore;
+
+	StaticSemaphore_t xRxCompleteSemaphoreStatic;
+	SemaphoreHandle_t xRxCompleteSemaphore;
 
 	StaticSemaphore_t xDummySemaphoreStatic;
 	SemaphoreHandle_t xDummySemaphore;
@@ -124,7 +138,22 @@ void vHOS_RF_send(	xHOS_RF_t* pxHandle,
 					uint32_t uiDataSizeInBytes,
 					uint16_t usCRC	);
 
+/*
+ * Blocks the calling task until TxEmpty flag is raised.
+ * (Current transmission is done).
+ */
+void vHOS_RF_blockUntilTxEmpty(xHOS_RF_t* pxHandle);
 
+/*
+ * Blocks the calling task until RxComplete flag is raised (Current reception is
+ * done), with a given timeout.
+ *
+ * Returns pdTRUE if flag was raised during the timeout, and pdFALSE otherwise.
+ */
+BaseType_t xHOS_RF_blockUntilRxComplete(xHOS_RF_t* pxHandle, TickType_t xTimeoutTicks);
+
+/*	Clears the RxComplete flag	*/
+void vHOS_RF_clearRxComplete(xHOS_RF_t* pxHandle);
 
 
 

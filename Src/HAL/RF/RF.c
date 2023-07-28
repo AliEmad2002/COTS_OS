@@ -46,10 +46,15 @@ static void vRxTask(void* pvParams)
 
 		/*
 		 * If a new frame was received before the RxComplete flag was cleared,
-		 * overrun flag is raised.
+		 * overrun flag is raised. And receiving tasks are suspended until user
+		 * re-enables them using "vHOS_RF_enable()".
 		 */
 		if (pxHandle->ucRxCompleteFalg == 1)
+		{
 			pxHandle->ucOverrunFlag = 1;
+			vTaskSuspend(pxHandle->xRxTask);
+			continue;
+		}
 
 		/*
 		 * Compare destination address of the received frame and handle's self
@@ -60,6 +65,9 @@ static void vRxTask(void* pvParams)
 			vTaskResume(pxHandle->xRxPhyTask);
 			continue;
 		}
+
+		/*	Update SrcAddress filed.	*/
+		pxHandle->ucSrcAddress = pxRxFrame->ucSrcAddress;
 
 		/*
 		 * If the received frame is an ACK frame, raise the ACK flag and block
@@ -73,18 +81,18 @@ static void vRxTask(void* pvParams)
 		}
 
 		/*
-		 * Otherwise, update the receiver data buffer and source address with a
-		 * copy of RxShiftRegister's data field and SrcAddress filed. And raise
-		 * the RxComplete flag.
+		 * Otherwise, update the receiver data buffer and CRC with a copy of
+		 * RxShiftRegister's. And raise the RxComplete flag.
 		 */
 		for (uint32_t i = 0; i < uiRF_DATA_BYTES_PER_FRAME; i++)
 		{
 			pxHandle->pucRxBuffer[i] = pxRxFrame->pucData[i];
 		}
 
-		pxHandle->ucSrcAddress = pxRxFrame->ucSrcAddress;
+		pxHandle->usRxCRC = (uint16_t)pxRxFrame->ucCRC0 | (((uint16_t)pxRxFrame->ucCRC1) << 8);
 
 		pxHandle->ucRxCompleteFalg = 1;
+		xSemaphoreGive(pxHandle->xRxCompleteSemaphore);
 
 		/*	Resume physical layer's task	*/
 		vTaskResume(pxHandle->xRxPhyTask);
@@ -109,10 +117,17 @@ void vHOS_RF_init(xHOS_RF_t* pxHandle)
 	/*	Initialize physical layer	*/
 	xHOS_RFPhysical_init(pxHandle);
 
-	/*	Initialize flags	*/
+	/*	Initialize data-link layer's flags	*/
 	pxHandle->ucTxEmptyFalg = 1;	// Initially empty.
 	pxHandle->ucRxCompleteFalg = 0;	// Initially no received frames yet.
 	pxHandle->ucOverrunFlag = 0;
+
+	/*	Create data-link layer's semaphores	*/
+	pxHandle->xTxEmptySemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xTxEmptySemaphoreStatic);
+	xSemaphoreGive(pxHandle->xTxEmptySemaphore);	// Initially empty.
+
+	pxHandle->xRxCompleteSemaphore = xSemaphoreCreateBinaryStatic(&pxHandle->xRxCompleteSemaphoreStatic);
+	xSemaphoreTake(pxHandle->xRxCompleteSemaphore, 0);	// Initially no received frames yet.
 
 	/*	Initialize link layer's task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
@@ -158,7 +173,7 @@ void vHOS_RF_send(	xHOS_RF_t* pxHandle,
 	/*
 	 * Check if TxBuffer is empty. If not, raise the overrun flag and return.
 	 */
-	if (pxHandle->ucTxEmptyFalg == 1)
+	if (xSemaphoreTake(pxHandle->xTxEmptySemaphore, 0))
 	{
 		pxHandle->ucTxEmptyFalg = 0;
 	}
@@ -199,11 +214,27 @@ void vHOS_RF_send(	xHOS_RF_t* pxHandle,
 	xHOS_RFPhysical_startTransmission(pxHandle);
 }
 
+/*	See header for info	*/
+__attribute__((always_inline)) inline
+void vHOS_RF_blockUntilTxEmpty(xHOS_RF_t* pxHandle)
+{
+	xSemaphoreTake(pxHandle->xTxEmptySemaphore, portMAX_DELAY);
+	xSemaphoreGive(pxHandle->xTxEmptySemaphore);
+}
 
+/*	See header for info	*/
+__attribute__((always_inline)) inline
+BaseType_t xHOS_RF_blockUntilRxComplete(xHOS_RF_t* pxHandle, TickType_t xTimeoutTicks)
+{
+	return xSemaphoreTake(pxHandle->xRxCompleteSemaphore, xTimeoutTicks);
+}
 
-
-
-
+/*	See header for info	*/
+__attribute__((always_inline)) inline
+void vHOS_RF_clearRxComplete(xHOS_RF_t* pxHandle)
+{
+	pxHandle->ucRxCompleteFalg = 0;
+}
 
 
 

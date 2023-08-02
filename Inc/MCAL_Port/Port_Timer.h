@@ -60,6 +60,12 @@ extern TIM_TypeDef* const pxPortTimArr[];
  */
 extern const uint32_t puiPortTimerCounterSizeInBits[];
 
+/*
+ * ISR callbacks and their params.
+ */
+extern void (*ppfPortTimerOvfCallbackArr[4])(void*);
+extern void* ppvPortTimerOvfCallbackParamsArr[4];
+
 /*******************************************************************************
  * Handlers:
  ******************************************************************************/
@@ -133,6 +139,17 @@ static inline void vPort_TIM_enableOverflowInterrupt(uint8_t ucUnitNumber)
 static inline void vPort_TIM_disableOverflowInterrupt(uint8_t ucUnitNumber)
 {
 	LL_TIM_DisableIT_UPDATE(pxPortTimArr[ucUnitNumber]);
+}
+
+/*
+ * Sets OVF interrupt callback
+ */
+static inline void vPort_TIM_setCallback(	uint8_t ucUnitNumber,
+											void (*pfCallback)(void*),
+											void* pvParams	)
+{
+	ppfPortTimerOvfCallbackArr[ucUnitNumber] = pfCallback;
+	ppvPortTimerOvfCallbackParamsArr[ucUnitNumber] = pvParams;
 }
 
 /*

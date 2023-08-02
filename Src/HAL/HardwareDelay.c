@@ -20,23 +20,31 @@
 /*	SELF	*/
 #include "HAL/HardwareDelay/HardwareDelay.h"
 
-#if configHOS_HARDWARE_DELAY_ENABLE
 
 /*******************************************************************************
- * Static objects:
+ * Overflow handlers:
  ******************************************************************************/
-/*	Driver's internal HW mutexes	*/
-static xHOS_HardwareDelay_t pxHardwareDelayArr[configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS];
+static void vCallback(void* pvParams)
+{
+	xHOS_HardwareDelay_t* pxHandle = (xHOS_HardwareDelay_t*)pvParams;
 
-/*	Number of so-far initialized objects	*/
-static uint8_t ucHardwareDelayNumberOfCreatedObjects = 0;
+	/*	Stop counter	*/
+	vPort_TIM_disableCounter(pxHandle->ucTimerUnitNumber);
+
+	/*	Give HW mutex	*/
+	BaseType_t xHighPriorityTaskWoken = pdFALSE;
+	xSemaphoreGiveFromISR(pxHandle->xHWMutex, &xHighPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHighPriorityTaskWoken);
+}
 
 /*******************************************************************************
  * Helping (private) functions:
  ******************************************************************************/
-static inline void vInitHWTimer(	uint8_t ucTimerUnitNumber,
+static inline void vInitHWTimer(	xHOS_HardwareDelay_t* pxHandle,
 									xHOS_HardwareDelay_InitApproxFreq_t xFreqApproximate	)
 {
+	uint8_t ucTimerUnitNumber = pxHandle->ucTimerUnitNumber;
+
 	vPort_TIM_disableCounter(ucTimerUnitNumber);
 
 	vPort_TIM_useInternalClockSource(ucTimerUnitNumber);
@@ -59,6 +67,8 @@ static inline void vInitHWTimer(	uint8_t ucTimerUnitNumber,
 	vPort_TIM_setModeNormal(ucTimerUnitNumber);
 
 	vPort_TIM_clearOverflowFlag(ucTimerUnitNumber);
+
+	vPort_TIM_setCallback(ucTimerUnitNumber, vCallback, (void*)pxHandle);
 
 	vPort_TIM_enableOverflowInterrupt(ucTimerUnitNumber);
 
@@ -131,25 +141,18 @@ static inline void vDelay(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks)
 /*
  * See header file for info.
  */
-xHOS_HardwareDelay_t* pxHOS_HardwareDelay_initNewObject(xHOS_HardwareDelay_InitApproxFreq_t xFreqApproximate)
+void vHOS_HardwareDelay_init(
+	xHOS_HardwareDelay_t* pxHandle,
+	xHOS_HardwareDelay_InitApproxFreq_t xFreqApproximate	)
 {
-	/*	check if there're available resources for new object	*/
-	configASSERT(ucHardwareDelayNumberOfCreatedObjects < configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS);
-
 	/*	Init HW timer using port driver	*/
-	uint8_t ucTimerUnitNumber = ucHardwareDelayNumberOfCreatedObjects;
-	vInitHWTimer(ucTimerUnitNumber, xFreqApproximate);
+	vInitHWTimer(pxHandle, xFreqApproximate);
 
 	/*	Init "xHOS_HardwareDelay_t" object parameters	*/
-	xHOS_HardwareDelay_t* pxHandle = &pxHardwareDelayArr[ucHardwareDelayNumberOfCreatedObjects];
-	vInitHandleParams(pxHandle, ucTimerUnitNumber, xFreqApproximate);
+	vInitHandleParams(pxHandle, pxHandle->ucTimerUnitNumber, xFreqApproximate);
 
 	/*	Init overflow interrupt in interrupt controller	*/
-	vInitInterruptController(ucTimerUnitNumber);
-
-	ucHardwareDelayNumberOfCreatedObjects++;
-
-	return pxHandle;
+	vInitInterruptController(pxHandle->ucTimerUnitNumber);
 }
 
 /*
@@ -182,68 +185,8 @@ void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiUs)
 	vHOS_HardwareDelay_delayTicks(pxHandle, uiTicks);
 }
 
-/*******************************************************************************
- * Overflow handlers:
- ******************************************************************************/
-#define HANDLER(n)                                                                  \
-void port_TIM_OVF_HANDLER_##n (void)     	                                        \
-{                                                                                   \
-	/*	Check that OVF of n-th timer unit is what have caused the interrupt	*/      \
-	if (!ucPort_TIM_getOverflowFlag(n))                                             \
-		return;                                                                     \
-                                                                                    \
-	/*	Stop counter and clear OVF flag	*/                                          \
-	vPort_TIM_disableCounter(n);                                                    \
-	vPort_TIM_clearOverflowFlag(n);                                                 \
-                                                                                    \
-	/*	Give HW mutex	*/                                                          \
-	BaseType_t xHighPriorityTaskWoken = pdFALSE;                                    \
-	xSemaphoreGiveFromISR(pxHardwareDelayArr[n].xHWMutex, &xHighPriorityTaskWoken); \
-	portYIELD_FROM_ISR(xHighPriorityTaskWoken);                                     \
-}
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 0)
-HANDLER(0)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 1)
-HANDLER(1)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 2)
-HANDLER(2)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 3)
-HANDLER(3)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 4)
-HANDLER(4)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 5)
-HANDLER(5)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 6)
-HANDLER(6)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 7)
-HANDLER(7)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 8)
-HANDLER(8)
-#endif
-
-#if (configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS > 9)
-HANDLER(9)
-#endif
 
 
-#endif	/*	configHOS_HARDWARE_DELAY_ENABLE	*/
 
 
 

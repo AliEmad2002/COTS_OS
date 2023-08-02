@@ -10,9 +10,7 @@
 
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "HAL/HardwareDelay/HardwareDelayConfig.h"
 
-#if configHOS_HARDWARE_DELAY_ENABLE
 
 /*******************************************************************************
  * API structures:
@@ -20,12 +18,13 @@
 typedef struct{
 	/*				Private				*/
 	/*	These are internally used by the driver.	*/
-	uint8_t ucTimerUnitNumber;
 	uint32_t uiMaxCounterValue;
 	StaticSemaphore_t xHWStaticMutex;
 	SemaphoreHandle_t xHWMutex;
 
 	/*				Public				*/
+	uint8_t ucTimerUnitNumber;
+
 	/*	Must be taken first before using the "xHOS_HardwareDelay_t" object.	*/
 	StaticSemaphore_t xStaticMutex;
 	SemaphoreHandle_t xMutex;
@@ -53,17 +52,11 @@ typedef enum{
 }xHOS_HardwareDelay_InitApproxFreq_t;
 
 /*
- * Initializes new object.
- * Returns pointer to the initialized object.
- *
- * Notes:
- * 		-	Number of previously created objects must be less than "configHOS_HARDWARE_DELAY_MAX_NUMBER_OF_OBJECTS"
- * 			by one, otherwise, there's no more HW resources to initialize and use.
- *
- * 		-	This driver uses HW timers from the port layer, so the timer units
- * 			defined in "configHOS_HardwareDelayTimerUnits[]" must not be used elsewhere.
+ * Initializes handle.
  */
-xHOS_HardwareDelay_t* pxHOS_HardwareDelay_initNewObject(xHOS_HardwareDelay_InitApproxFreq_t xFreqApproximate);
+void vHOS_HardwareDelay_init(
+	xHOS_HardwareDelay_t* pxHandle,
+	xHOS_HardwareDelay_InitApproxFreq_t xFreqApproximate	);
 
 /*
  * Starts an RTOS blocking delay for a number of ticks. (i.e.: calling task would be blocked by FreeRTOS)
@@ -79,6 +72,5 @@ void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint64_t uiTi
  */
 void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiUs);
 
-#endif	/*	configHOS_HARDWARE_DELAY_ENABLE	*/
 
 #endif /* HAL_OS_INC_HARDWAREDELAY_HARDWAREDELAY_H_ */

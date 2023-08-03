@@ -28,6 +28,9 @@
  */
 void vHOS_Stepper_init(xHOS_Stepper_t* pxHandle)
 {
+	vPort_DIO_initPinOutput(pxHandle->ucEnPort, pxHandle->ucEnPin);
+	vHOS_Stepper_disable(pxHandle);
+
 	vPort_DIO_initPinOutput(pxHandle->ucStepPort, pxHandle->ucStepPin);
 	vPort_DIO_writePin(pxHandle->ucStepPort, pxHandle->ucStepPin, 0);
 
@@ -100,9 +103,23 @@ void vHOS_Stepper_stepN(xHOS_Stepper_t* pxHandle, int32_t iN, int32_t iUsStepInt
 	xSemaphoreGive(pxHandle->pxHardwareDelayHandle->xMutex);
 }
 
+/*
+ * See header file for info.
+ */
+__attribute__((always_inline)) inline
+void vHOS_Stepper_enable(xHOS_Stepper_t* pxHandle)
+{
+	vPort_DIO_writePin(pxHandle->ucEnPort, pxHandle->ucEnPin, 0);
+}
 
-
-
+/*
+ * See header file for info.
+ */
+__attribute__((always_inline)) inline
+void vHOS_Stepper_disable(xHOS_Stepper_t* pxHandle)
+{
+	vPort_DIO_writePin(pxHandle->ucEnPort, pxHandle->ucEnPin, 1);
+}
 
 
 

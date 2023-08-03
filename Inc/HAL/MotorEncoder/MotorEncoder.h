@@ -37,6 +37,8 @@ typedef struct{
 	uint8_t ucBPort;
 	uint8_t ucBPin;
 
+	int32_t iIncrementer;
+
 	int32_t iPos; // current position in (encoder ticks).
 	int32_t iSpeed; // current speed in  (encoder ticks per second).
 
@@ -65,22 +67,22 @@ void vHOS_MotorEncoder_init(	xHOS_MotorEncoder_t* pxHandle,
 								uint8_t ucSpeedUpdatePri	);
 
 /*
- * Enables object.
+ * Enables handle's speed update.
  *
  * Notes:
  * 		-	A "xHOS_MotorEncoder_t" is initially disabled.
  * 		-	This is an inline function.
  */
-void vHOS_MotorEncoder_enable(xHOS_MotorEncoder_t* pxHandle);
+void vHOS_MotorEncoder_enableSpeedUpdate(xHOS_MotorEncoder_t* pxHandle);
 
 /*
- * Disables object.
+ * Disables handle's speed update.
  *
  * Notes:
  * 		-	A "xHOS_MotorEncoder_t" is initially disabled.
  * 		-	This is an inline function.
  */
-void vHOS_MotorEncoder_disable(xHOS_MotorEncoder_t* pxHandle);
+void vHOS_MotorEncoder_disableSpeedUpdate(xHOS_MotorEncoder_t* pxHandle);
 
 
 

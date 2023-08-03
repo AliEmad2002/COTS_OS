@@ -102,7 +102,7 @@ static inline void vInitHandleParams(	xHOS_HardwareDelay_t* pxHandle,
 	/*	create mutex (initially available)	*/
 	pxHandle->xMutex = xSemaphoreCreateBinaryStatic(&(pxHandle->xStaticMutex));
 	configASSERT(pxHandle->xMutex != NULL);
-	xSemaphoreGive(pxHandle->xHWMutex);
+	xSemaphoreGive(pxHandle->xMutex);
 
 	/*	get actual timer unit frequency	*/
 	switch(xFreqApproximate)

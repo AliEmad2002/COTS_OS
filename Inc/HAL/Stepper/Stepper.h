@@ -24,6 +24,9 @@ typedef struct{
 	uint8_t ucDirPort;
 	uint8_t ucDirPin;
 
+	uint8_t ucEnPort;
+	uint8_t ucEnPin;
+
 	int32_t iCurrentPos;
 
 	/*	see description of "vHOS_Stepper_step()"	*/
@@ -78,6 +81,18 @@ void vHOS_Stepper_stepSingle(xHOS_Stepper_t* pxHandle);
  * 		-	This function is not ISR safe.
  */
 void vHOS_Stepper_stepN(xHOS_Stepper_t* pxHandle, int32_t iN, int32_t iUsStepInterval);
+
+/*
+ * Enables stepper (power enable).
+ */
+void vHOS_Stepper_enable(xHOS_Stepper_t* pxHandle);
+
+/*
+ * Disables stepper (power disable).
+ */
+void vHOS_Stepper_disable(xHOS_Stepper_t* pxHandle);
+
+
 
 
 

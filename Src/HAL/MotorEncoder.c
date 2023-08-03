@@ -34,7 +34,7 @@ static void vCallback(void* pvParams)
 	/*	if sensor is single sensor, increment pos and return	*/
 	if (!pxHandle->ucIsDualSensor)
 	{
-		pxHandle->iPos++;
+		pxHandle->iPos += iIncrementer;
 		return;
 	}
 
@@ -43,9 +43,9 @@ static void vCallback(void* pvParams)
 	 * pos based on the reading.
 	 */
 	if (ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin))
-		pxHandle->iPos++;
+		pxHandle->iPos += iIncrementer;
 	else
-		pxHandle->iPos--;
+		pxHandle->iPos -= iIncrementer;
 }
 
 /*******************************************************************************
@@ -88,7 +88,7 @@ void vHOS_MotorEncoder_init(	xHOS_MotorEncoder_t* pxHandle,
 		vPort_DIO_initPinInput(pxHandle->ucBPort, pxHandle->ucBPin, 0);
 
 	/*	initialize EXTI for pin A	*/
-	vPort_EXTI_disableLine(pxHandle->ucAPort, pxHandle->ucAPin);
+	vPort_EXTI_enableLine(pxHandle->ucAPort, pxHandle->ucAPin);
 	vPort_EXTI_initLine(pxHandle->ucAPort, pxHandle->ucAPin, ucCaptureEdge);
 	vPort_EXTI_setCallback(pxHandle->ucAPort, pxHandle->ucAPin, vCallback, (void*)pxHandle);
 
@@ -124,9 +124,8 @@ void vHOS_MotorEncoder_init(	xHOS_MotorEncoder_t* pxHandle,
  * See header file for info.
  */
 __attribute__((always_inline)) inline
-void vHOS_MotorEncoder_enable(xHOS_MotorEncoder_t* pxHandle)
+void vHOS_MotorEncoder_enableSpeedUpdate(xHOS_MotorEncoder_t* pxHandle)
 {
-	vPort_EXTI_enableLine(pxHandle->ucAPort, pxHandle->ucAPin);
 	vTaskResume(pxHandle->xTask);
 }
 
@@ -134,9 +133,8 @@ void vHOS_MotorEncoder_enable(xHOS_MotorEncoder_t* pxHandle)
  * See header file for info.
  */
 __attribute__((always_inline)) inline
-void vHOS_MotorEncoder_disable(xHOS_MotorEncoder_t* pxHandle)
+void vHOS_MotorEncoder_disableSpeedUpdate(xHOS_MotorEncoder_t* pxHandle)
 {
-	vPort_EXTI_disableLine(pxHandle->ucAPort, pxHandle->ucAPin);
 	vTaskSuspend(pxHandle->xTask);
 }
 

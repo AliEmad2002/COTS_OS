@@ -34,7 +34,7 @@ static void vCallback(void* pvParams)
 	/*	if sensor is single sensor, increment pos and return	*/
 	if (!pxHandle->ucIsDualSensor)
 	{
-		pxHandle->iPos += iIncrementer;
+		pxHandle->iPos += pxHandle->iIncrementer;
 		return;
 	}
 
@@ -43,9 +43,9 @@ static void vCallback(void* pvParams)
 	 * pos based on the reading.
 	 */
 	if (ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin))
-		pxHandle->iPos += iIncrementer;
+		pxHandle->iPos += pxHandle->iIncrementer;
 	else
-		pxHandle->iPos -= iIncrementer;
+		pxHandle->iPos -= pxHandle->iIncrementer;
 }
 
 /*******************************************************************************

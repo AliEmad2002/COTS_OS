@@ -27,6 +27,8 @@ typedef struct{
 	uint8_t ucEnPort;
 	uint8_t ucEnPin;
 
+	uint8_t ucIsEnabled; // (read only)
+
 	int32_t iCurrentPos;
 
 	/*	see description of "vHOS_Stepper_step()"	*/

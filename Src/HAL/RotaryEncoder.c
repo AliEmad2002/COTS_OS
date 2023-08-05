@@ -101,11 +101,19 @@ static void vTask(void* pvParams)
 		{
 			/*	if channel B is on high level	*/
 			if (pxHandle->ucBLevelFiltered == 1)
-				pxHandle->pfCWCallback(pxHandle->pvCWParams);
+			{
+				pxHandle->iPos++;
+				if (pxHandle->ucEnableCWCallback)
+					pxHandle->pfCWCallback(pxHandle->pvCWParams);
+			}
 
 			/*	if channel B is on low level	*/
 			else
-				pxHandle->pfCCWCallback(pxHandle->pvCCWParams);
+			{
+				pxHandle->iPos--;
+				if (pxHandle->ucEnableCCWCallback)
+					pxHandle->pfCCWCallback(pxHandle->pvCCWParams);
+			}
 		}
 
 		/*	Task is blocked until next sample time	*/
@@ -125,7 +133,7 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle)
 	vPort_DIO_initPinInput(pxHandle->ucAPort, pxHandle->ucAPin, 2);
 	vPort_DIO_initPinInput(pxHandle->ucBPort, pxHandle->ucBPin, 2);
 
-	/*	initialize handle's private variables	*/
+	/*	initialize handle's variables	*/
 	pxHandle->ucAPrevLevel = ucPort_DIO_readPin(pxHandle->ucAPort, pxHandle->ucAPin);
 	pxHandle->ucBPrevLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
 
@@ -136,6 +144,8 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle)
 
 	pxHandle->ucNA = 0;
 	pxHandle->ucNB = 0;
+
+	pxHandle->iPos = 0;
 
 	/*	create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;

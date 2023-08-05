@@ -54,9 +54,13 @@ typedef struct{
 
 	uint8_t ucNFilter; // recommended: 10 / uiSamplePeriodMs
 
+	int32_t iPos;
+
+	uint8_t ucEnableCWCallback;
 	void (*pfCWCallback)(void*);
 	void* pvCWParams;
 
+	uint8_t ucEnableCCWCallback;
 	void (*pfCCWCallback)(void*);
 	void* pvCCWParams;
 }xHOS_RotaryEncoder_t;

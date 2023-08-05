@@ -110,6 +110,7 @@ __attribute__((always_inline)) inline
 void vHOS_Stepper_enable(xHOS_Stepper_t* pxHandle)
 {
 	vPort_DIO_writePin(pxHandle->ucEnPort, pxHandle->ucEnPin, 0);
+	pxHandle->ucIsEnabled = 1;
 }
 
 /*
@@ -119,6 +120,7 @@ __attribute__((always_inline)) inline
 void vHOS_Stepper_disable(xHOS_Stepper_t* pxHandle)
 {
 	vPort_DIO_writePin(pxHandle->ucEnPort, pxHandle->ucEnPin, 1);
+	pxHandle->ucIsEnabled = 0;
 }
 
 

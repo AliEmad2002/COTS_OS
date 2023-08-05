@@ -12,6 +12,7 @@
 #define HAL_OS_INC_ROTARYENCODER_ROTARYENCODER_H_
 
 #include "FreeRTOS.h"
+#include "LIB/BinaryFilter/BinaryFilter.h"
 
 /*******************************************************************************
  * Structures:
@@ -22,23 +23,6 @@ typedef struct{
 	StaticTask_t xTaskStatic;
 	TaskHandle_t xTask;
 
-	TickType_t xLastActiveTimeStamp;
-
-	uint8_t ucAPrevLevel;
-	uint8_t ucBPrevLevel;
-
-	uint8_t ucANewLevel;
-	uint8_t ucBNewLevel;
-
-	uint8_t ucALevelFiltered;
-	uint8_t ucBLevelFiltered;
-
-	uint8_t ucAPrevLevelFiltered;
-	uint8_t ucBPrevLevelFiltered;
-
-	uint8_t ucNA;
-	uint8_t ucNB;
-
 	/*		PUBLIC		*/
 	uint8_t ucAPort;
 	uint8_t ucAPin;
@@ -46,15 +30,19 @@ typedef struct{
 	uint8_t ucBPort;
 	uint8_t ucBPin;
 
+	xLIB_BinaryFilter_t xAFilter;	// read only.
+	xLIB_BinaryFilter_t xBFilter;	// read only.
+
 	/*
 	 * Any of the following can be changed while object is active and running,
 	 * change effects would take place next sample.
 	 */
-	uint32_t uiSamplePeriodMs; // recommended: 5ms
-
-	uint8_t ucNFilter; // recommended: 10 / uiSamplePeriodMs
+	uint32_t uiSamplePeriodMs;
+	uint32_t uiSpeedUpdatePeriodMs;
 
 	int32_t iPos;
+	int32_t iSpeed;		// read only.
+	uint8_t ucEnableSpeedUpdate;
 
 	uint8_t ucEnableCWCallback;
 	void (*pfCWCallback)(void*);
@@ -75,7 +63,7 @@ typedef struct{
  * 		-	Must be called before scheduler start.
  * 		-	All public parameters of the passed handle must be initialized first.
  */
-void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle);
+void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle, uint8_t ucNFilter);
 
 /*
  * Enables object.

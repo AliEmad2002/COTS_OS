@@ -19,7 +19,6 @@
 #include "HAL/RotaryEncoder/RotaryEncoder.h"
 #include "HAL/MPU6050/MPU6050.h"
 #include "HAL/RF/RF.h"
-#include "HAL/MotorEncoder/MotorEncoder.h"
 #include "HAL/Stepper/Stepper.h"
 #include "HAL/Stepper/StepperSynchronizer.h"
 

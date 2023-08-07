@@ -17,6 +17,7 @@ FreeRTOS based HAL, LIB layers library.
   * Rotary encoder.
   * MPU6050 (gyroscope and acceleromter).
   * RF communication.
+  * PID controller.
   
     
 

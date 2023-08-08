@@ -11,11 +11,13 @@ FreeRTOS based HAL, LIB layers library.
   * SPI.
   * I2C.
   * Colored-LCD.
+  * Binary consecutive N-samples filter (Useful with input digital signals).
   * Push buttons.
   * Seven-segment multiplexer.
   * Rotary encoder.
   * MPU6050 (gyroscope and acceleromter).
   * RF communication.
+  * PID controller.
   
     
 

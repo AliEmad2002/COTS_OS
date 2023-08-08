@@ -83,7 +83,7 @@ static void vTask(void* pvParams)
 			if (xDeltaT >= pdMS_TO_TICKS(pxHandle->uiSpeedUpdatePeriodMs))
 			{
 				iDeltaPos = pxHandle->iPos - iPosAtPrevSpeedUpdate;
-				pxHandle->iSpeed = (iDeltaPos * 1000) / (int32_t)xDeltaT;
+				pxHandle->iSpeed = (iDeltaPos * 1000 * 60) / (int32_t)xDeltaT;
 
 				iPosAtPrevSpeedUpdate = pxHandle->iPos;
 				xTimeAtPrevSpeedUpdate = xLastWakeTime;

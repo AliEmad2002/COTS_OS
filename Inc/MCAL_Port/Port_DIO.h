@@ -120,4 +120,18 @@ static inline void vPort_DIO_togglePin(uint8_t ucPortNumber, uint8_t ucPinNumber
 	HAL_GPIO_TogglePin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber);
 }
 
+/*
+ * Reads complete port.
+ *
+ * Notes:
+ * 		-	This function is very useful when there's need for synchronized reading
+ * 			of multiple pins.
+ *
+ * 		-	Return value has level of pin_0 in bit_0.. and so on.
+ */
+static inline uint32_t uiPort_DIO_readPort(uint8_t ucPortNumber)
+{
+	return pxPortDioPortArr[ucPortNumber]->IDR;
+}
+
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */

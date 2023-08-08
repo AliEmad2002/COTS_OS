@@ -17,7 +17,7 @@
 /*
  * This function is called on system startup. It initializes low level HW (MCAL).
  */
-void vPort_HW_init(void)
+static inline void vPort_HW_init(void)
 {
 	/*	Clock control	*/
 	vPort_Clock_init();

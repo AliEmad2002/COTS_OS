@@ -39,6 +39,8 @@ typedef struct{
 	 */
 	uint32_t uiSamplePeriodMs;
 	uint32_t uiSpeedUpdatePeriodMs;
+	uint32_t uiSpeedDeadTimeMs; // If the position stays constant for this time,
+								// speed remains is set to zero.
 
 	int32_t iPos;
 	int32_t iSpeed;		// read only.

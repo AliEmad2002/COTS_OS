@@ -26,9 +26,9 @@
 /*******************************************************************************
  * Helping functions/macros:
  ******************************************************************************/
-#define ucIS_RISING_EDGE_ON_CHANNEL_A(pxHandle)	\
-		(	(pxHandle)->xAFilter.ucLevelFiltered == 1 && \
-			(pxHandle)->xAFilter.ucPrevLevelFiltered == 0	)
+#define ucIS_FALLING_EDGE_ON_CHANNEL_A(pxHandle)	\
+		(	(pxHandle)->xAFilter.ucLevelFiltered == 0 && \
+			(pxHandle)->xAFilter.ucPrevLevelFiltered == 1	)
 
 /*******************************************************************************
  * Task function
@@ -42,6 +42,10 @@ static void vTask(void* pvParams)
 	TickType_t xTimeAtPrevSpeedUpdate = 0;
 	TickType_t xDeltaT;
 	int32_t iDeltaPos;
+	int32_t iPrevDeltaPos = 0;
+	TickType_t xFirstZeroPosChangeTime = 0; // time of the sample at which position
+											// stopped changing.
+
 
 	vTaskSuspend(pxHandle->xTask);
 
@@ -55,8 +59,8 @@ static void vTask(void* pvParams)
 		vLIB_BinaryFilter_updateFilter(&pxHandle->xAFilter, ucANewLevel);
 		vLIB_BinaryFilter_updateFilter(&pxHandle->xBFilter, ucBNewLevel);
 
-		/*	if a rising edge occurred on channel A	*/
-		if (ucIS_RISING_EDGE_ON_CHANNEL_A(pxHandle))
+		/*	if a falling edge occurred on channel A	*/
+		if (ucIS_FALLING_EDGE_ON_CHANNEL_A(pxHandle))
 		{
 			/*	if channel B is on high level	*/
 			if (pxHandle->xBFilter.ucLevelFiltered == 1)
@@ -83,10 +87,40 @@ static void vTask(void* pvParams)
 			if (xDeltaT >= pdMS_TO_TICKS(pxHandle->uiSpeedUpdatePeriodMs))
 			{
 				iDeltaPos = pxHandle->iPos - iPosAtPrevSpeedUpdate;
-				pxHandle->iSpeed = (iDeltaPos * 1000 * 60) / (int32_t)xDeltaT;
+
+				/*	If position has not changed	*/
+				if (iDeltaPos == 0)
+				{
+					/*	If this is the first time in a row	*/
+					if (iPrevDeltaPos != 0)
+					{
+						/*	Take timestamp for when position started to stop changing.	*/
+						xFirstZeroPosChangeTime = xLastWakeTime;
+					}
+
+					/*
+					 * Otherwise, check if speed update dead time has passed,
+					 * speed is zero.
+					 */
+					else
+					{
+						if (xLastWakeTime - xFirstZeroPosChangeTime >= pxHandle->uiSpeedDeadTimeMs)
+						{
+							pxHandle->iSpeed = 0;
+							xTimeAtPrevSpeedUpdate = xLastWakeTime;
+						}
+					}
+				}
+
+				/*	Otherwise, if position changes, update speed normally	*/
+				else
+				{
+					pxHandle->iSpeed = (iDeltaPos * 1000 * 60) / (int32_t)xDeltaT;
+					xTimeAtPrevSpeedUpdate = xLastWakeTime;
+				}
 
 				iPosAtPrevSpeedUpdate = pxHandle->iPos;
-				xTimeAtPrevSpeedUpdate = xLastWakeTime;
+				iPrevDeltaPos = iDeltaPos;
 			}
 		}
 

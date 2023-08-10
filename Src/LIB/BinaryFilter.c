@@ -11,7 +11,9 @@
 /*	SELF	*/
 #include "LIB/BinaryFilter/BinaryFilter.h"
 
-
+/*
+ * See header file for info.
+ */
 void vLIB_BinaryFilter_init(xLIB_BinaryFilter_t* pxHandle)
 {
 	pxHandle->ucPrevLevelFiltered = 0;
@@ -20,6 +22,9 @@ void vLIB_BinaryFilter_init(xLIB_BinaryFilter_t* pxHandle)
 	pxHandle->ucCount = 0;
 }
 
+/*
+ * See header file for info.
+ */
 void vLIB_BinaryFilter_updateFilter(xLIB_BinaryFilter_t* pxHandle, uint8_t ucNewLevel)
 {
 	/*	Update "prevFiltered" value	*/

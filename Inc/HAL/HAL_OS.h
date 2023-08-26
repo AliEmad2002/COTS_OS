@@ -12,6 +12,7 @@
 #include "RTOS_PRI_Config.h"
 #include "HAL/Button/Button.h"
 #include "HAL/SevenSegmentMux/SevenSegmentMux.h"
+#include "HAL/DMA/DMA.h"
 #include "HAL/SPI/SPI.h"
 #include "HAL/I2C/I2C.h"
 #include "HAL/TFT/TFT.h"

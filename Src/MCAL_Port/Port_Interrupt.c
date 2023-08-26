@@ -18,3 +18,9 @@ const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[] = {
 const IRQn_Type pxPortInterruptExtiIrqNumberArr[] = {
 	EXTI0_IRQn, EXTI1_IRQn, EXTI2_IRQn, EXTI3_IRQn, EXTI4_IRQn
 };
+
+const IRQn_Type pxPortInterruptDmaIrqNumberArr[] = {
+	DMA1_Channel1_IRQn, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn,
+	DMA1_Channel4_IRQn, DMA1_Channel5_IRQn, DMA1_Channel6_IRQn,
+	DMA1_Channel7_IRQn
+};

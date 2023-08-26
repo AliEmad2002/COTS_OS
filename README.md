@@ -10,6 +10,7 @@ FreeRTOS based HAL, LIB layers library.
 # Available drivers:
   * SPI.
   * I2C.
+  * DMA.
   * Colored-LCD.
   * Binary consecutive N-samples filter (Useful with input digital signals).
   * Push buttons.

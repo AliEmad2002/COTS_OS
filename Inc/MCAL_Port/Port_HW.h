@@ -23,18 +23,18 @@ static inline void vPort_HW_init(void)
 	vPort_Clock_init();
 
 	/*	SPI	*/
-//	xPort_SPI_HW_Conf_t xSpi0Conf = {
-//		.ucAFIOMapNumber = 0,
-//		.ucComMode = 3,
-//		.ucFullDuplexEn = 1,
-//		.ucIsMaster = 1,
-//		.ucLSBitFirst = 0,
-//		.ucMISOEn = 0,
-//		.ucMOSIEn = 1,
-//		.ucNssEn = 0,
-//		.usBaudratePrescaler = 2
-//	};
-//	vPort_SPI_initHardware(0, &xSpi0Conf);
+	xPort_SPI_HW_Conf_t xSpi0Conf = {
+		.ucAFIOMapNumber = 0,
+		.ucComMode = 3,
+		.ucFullDuplexEn = 1,
+		.ucIsMaster = 1,
+		.ucLSBitFirst = 0,
+		.ucMISOEn = 0,
+		.ucMOSIEn = 1,
+		.ucNssEn = 0,
+		.usBaudratePrescaler = 2
+	};
+	vPort_SPI_initHardware(0, &xSpi0Conf);
 
 //	/*	I2C	*/
 //	xPort_I2C_HW_Conf_t xI2c0Conf = {

@@ -21,6 +21,8 @@
 /*	SELF	*/
 #include "HAL/DMA/DMA.h"
 
+#if portDMA_IS_AVAILABLE
+
 /*******************************************************************************
  * Helping structures:
  ******************************************************************************/
@@ -280,7 +282,7 @@ uint8_t ucHOS_DMA_releaseChannel(	uint8_t ucUnitNumber,
 
 
 
-
+#endif		/*		portDMA_IS_AVAILABLE		*/
 
 
 

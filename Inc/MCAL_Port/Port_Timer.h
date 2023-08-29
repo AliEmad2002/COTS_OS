@@ -30,13 +30,15 @@
  ******************************************************************************/
 /*
  * Prescaler value that when selected, and using the internal clock source (as
- * it is the forced source in this driver), the timer clocks at about 100kHz.
+ * it is the forced source in this driver), the timer clocks at about the frequency
+ * defined in macro's name.
  *
  * It is a numeric value that actually expresses the prescaler, not an enumeration!
  */
 #define uiPORT_TIM_PRESCALER_FOR_10_KHZ			7200
 #define uiPORT_TIM_PRESCALER_FOR_100_KHZ		720
 #define uiPORT_TIM_PRESCALER_FOR_500_KHZ		144
+#define uiPORT_TIM_PRESCALER_FOR_1_MHZ			72
 
 /*
  * In most cases, the selected prescaler among the previous definitions won't
@@ -47,6 +49,7 @@
 #define uiPORT_TIM_FREQ_ACTUAL_FOR_10_KHZ			10000
 #define uiPORT_TIM_FREQ_ACTUAL_FOR_100_KHZ			100000
 #define uiPORT_TIM_FREQ_ACTUAL_FOR_500_KHZ			500000
+#define uiPORT_TIM_FREQ_ACTUAL_FOR_1_MHZ			1000000
 
 /*
  * peripheral handles (i.e.: base pointers)
@@ -120,10 +123,8 @@ static inline void vPort_TIM_clearOverflowFlag(uint8_t ucUnitNumber)
 /*
  * Checks OVF flag of a timer unit
  */
-static inline uint8_t ucPort_TIM_getOverflowFlag(uint8_t ucUnitNumber)
-{
-	return LL_TIM_IsActiveFlag_UPDATE(pxPortTimArr[ucUnitNumber]);
-}
+#define ucPORT_TIM_GET_OVF_FLAG(ucUnitNumber)	\
+	(LL_TIM_IsActiveFlag_UPDATE(pxPortTimArr[(ucUnitNumber)]))
 
 /*
  * Enables OVF interrupt
@@ -182,10 +183,8 @@ static inline void vPort_TIM_writeCounter(uint8_t ucUnitNumber, uint32_t uiCount
 /*
  * reads counter register value.
  */
-static inline uint32_t uiPort_TIM_readCounter(uint8_t ucUnitNumber)
-{
-	return LL_TIM_GetCounter(pxPortTimArr[ucUnitNumber]);
-}
+#define uiPORT_TIM_READ_COUNTER(ucUnitNumber)	\
+	(LL_TIM_GetCounter(pxPortTimArr[(ucUnitNumber)]))
 
 /*
  * Enables counter.

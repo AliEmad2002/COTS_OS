@@ -32,7 +32,7 @@ void TIM1_UP_IRQHandler(void)
 
 void TIM2_IRQHandler(void)
 {
-	if (!ucPort_TIM_getOverflowFlag(1))
+	if (!ucPORT_TIM_GET_OVF_FLAG(1))
 		return;
 
 	ppfPortTimerOvfCallbackArr[1](ppvPortTimerOvfCallbackParamsArr[1]);
@@ -50,7 +50,7 @@ void TIM2_IRQHandler(void)
 
 void TIM4_IRQHandler(void)
 {
-	if (!ucPort_TIM_getOverflowFlag(3))
+	if (!ucPORT_TIM_GET_OVF_FLAG(3))
 		return;
 
 	ppfPortTimerOvfCallbackArr[3](ppvPortTimerOvfCallbackParamsArr[3]);

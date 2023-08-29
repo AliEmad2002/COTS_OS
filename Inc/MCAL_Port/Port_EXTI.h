@@ -72,6 +72,55 @@ static inline void vPort_EXTI_initLine(	uint8_t ucPort,
 	}
 }
 
+/*
+ * TODO: deprecate the previous function.
+ */
+static inline void vPort_EXTI_setEdge(	uint8_t ucPort,
+										uint8_t ucPin,
+										uint8_t ucEdge	)
+{
+	configASSERT(ucPin < 5);
+
+	/*	Map line to the given port	*/
+	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
+
+	/*	Set triggering edge	*/
+	configASSERT(ucEdge < 3);
+	switch(ucEdge)
+	{
+	case 0:
+		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_DisableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		break;
+	case 1:
+		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_DisableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		break;
+	case 2:
+		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		break;
+	}
+}
+
+/*
+ * returns the edge on which EXTI triggers an interrupt.
+ *
+ *
+ */
+static inline uint8_t ucPort_EXTI_getEdge(uint8_t ucPort, uint8_t ucPin)
+{
+	uint8_t ucRising = LL_EXTI_IsEnabledRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+	uint8_t ucFalling = LL_EXTI_IsEnabledFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+
+	if (ucRising && ucFalling)
+		return 2;
+	else if (ucRising)
+		return 1;
+	else
+		return 0;
+}
+
 /*	Enables line	*/
 static inline void vPort_EXTI_enableLine(uint8_t ucPort, uint8_t ucPin)
 {
@@ -98,7 +147,12 @@ static inline void vPort_EXTI_disableLine(uint8_t ucPort, uint8_t ucPin)
 #define vPORT_EXTI_CLEAR_PENDING_FLAG(ucPort, ucPin)	\
 	(LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[(ucPin)]))
 
-/*	Sets callback of EXTI handler	*/
+/*
+ * Sets callback of EXTI handler.
+ *
+ * This function should not be changed even when target is changed, as it only
+ * uses driver's defined arrays.
+ */
 static inline void vPort_EXTI_setCallback(	uint8_t ucPort,
 											uint8_t ucPin,
 											void(*pfCallback)(void*),

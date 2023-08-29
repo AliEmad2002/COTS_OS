@@ -10,6 +10,8 @@
 
 #include "MCAL_Port/Port_DMA.h"
 
+#if portDMA_IS_AVAILABLE
+
 typedef xPort_DMA_TransInfo_t xHOS_DMA_TransInfo_t;
 
 /*
@@ -112,4 +114,15 @@ uint8_t ucHOS_DMA_releaseChannel(	uint8_t ucUnitNumber,
 								TickType_t xTimeout	);
 
 
+
+
+#endif		/*		portDMA_IS_AVAILABLE		*/
+
+
+
+
 #endif /* COTS_OS_INC_HAL_DMA_DMA_H_ */
+
+
+
+

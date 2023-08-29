@@ -68,6 +68,8 @@ static inline void vPort_Clock_init(void)
 	__HAL_RCC_TIM3_CLK_ENABLE();
 	__HAL_RCC_TIM4_CLK_ENABLE();
 
+	__HAL_RCC_DMA1_CLK_ENABLE();
+
 
 }
 

@@ -27,8 +27,35 @@
 #include "MCAL_Port/Port_GPIO.h"
 #include "LIB/Assert.h"
 
-extern SPI_TypeDef* const pxPortSpiArr[];
+/*******************************************************************************
+ * Macros:
+ ******************************************************************************/
+/*
+ * Total number of SPI units in the used target.
+ */
+#define portSPI_NUMBER_OF_UNITS				2
 
+/*
+ * Mapping state between SPI units and DMA (if there's a DMA).
+ *
+ * 0==> Dynamic mapping.
+ * 1==> Static mapping. (Requires configuring the "ppucPortSpiTxeDmaMapping[]" and
+ * "ppucPortSpiRxneDmaMapping[]")
+ */
+#define portSPI_IS_DMA_STATIC_CONNECTED		1
+
+/*******************************************************************************
+ * Externs:
+ ******************************************************************************/
+extern SPI_TypeDef* const pxPortSpiArr[portSPI_NUMBER_OF_UNITS];
+
+extern void (*ppfPortSpiTxeCallbackArr[portSPI_NUMBER_OF_UNITS])(void*);
+extern void* ppvPortSpiTxeCallbackParamsArr[portSPI_NUMBER_OF_UNITS];
+
+extern void (*ppfPortSpiRxneCallbackArr[portSPI_NUMBER_OF_UNITS])(void*);
+extern void* ppvPortSpiRxneCallbackParamsArr[portSPI_NUMBER_OF_UNITS];
+
+extern const uint8_t ppucPortSpiTxeDmaMapping[portSPI_NUMBER_OF_UNITS][2];
 
 /*******************************************************************************
  * Helping structures:
@@ -178,28 +205,93 @@ static inline void vPort_SPI_disable(uint8_t ucUnitNumber)
 }
 
 /*
- * Enables transfer complete interrupt.
+ * Enables Tx buffer empty interrupt.
  */
-static inline void vPORT_SPI_enableTXCInterrupt(uint8_t ucUnitNumber)
+static inline void vPORT_SPI_enableTxeInterrupt(uint8_t ucUnitNumber)
+{
+	LL_SPI_EnableIT_TXE(pxPortSpiArr[ucUnitNumber]);
+}
+
+/*
+ * Disables Tx buffer empty interrupt.
+ */
+static inline void vPORT_SPI_disableTxeInterrupt(uint8_t ucUnitNumber)
+{
+	LL_SPI_DisableIT_TXE(pxPortSpiArr[ucUnitNumber]);
+}
+
+/*
+ * Enables Rx buffer not empty interrupt.
+ */
+static inline void vPORT_SPI_enableRxneInterrupt(uint8_t ucUnitNumber)
 {
 	LL_SPI_EnableIT_RXNE(pxPortSpiArr[ucUnitNumber]);
 }
 
-
 /*
- * Disables transfer complete interrupt.
+ * Disables Rx buffer not empty interrupt.
  */
-static inline void vPORT_SPI_disableTXCInterrupt(uint8_t ucUnitNumber)
+static inline void vPORT_SPI_disableRxneInterrupt(uint8_t ucUnitNumber)
 {
 	LL_SPI_DisableIT_RXNE(pxPortSpiArr[ucUnitNumber]);
 }
 
 /*
- * Clears transfer complete flag.
+ * Checks if Tx buffer empty interrupt is enabled.
  */
-static inline void vPORT_SPI_clearTXCFlag(uint8_t ucUnitNumber)
+static inline uint8_t ucPort_SPI_IsTxeInterruptEnabled(uint8_t ucUnitNumber)
+{
+	return LL_SPI_IsEnabledIT_TXE(pxPortSpiArr[ucUnitNumber]);
+}
+
+/*
+ * Checks if Rx buffer not empty interrupt is enabled.
+ */
+static inline uint8_t ucPort_SPI_IsRxneInterruptEnabled(uint8_t ucUnitNumber)
+{
+	return LL_SPI_IsEnabledIT_RXNE(pxPortSpiArr[ucUnitNumber]);
+}
+
+/*
+ * Clears RxNE flag.
+ */
+static inline void vPORT_SPI_clearRxneFlag(uint8_t ucUnitNumber)
 {
 	(volatile void)LL_SPI_ReceiveData8(pxPortSpiArr[ucUnitNumber]);
+}
+
+/*
+ * Reads TxE flag.
+ */
+#define ucPORT_SPI_GET_TXE_FLAG(ucUnitNumber)	\
+	(LL_SPI_IsActiveFlag_TXE(pxPortSpiArr[(ucUnitNumber)]))
+
+/*
+ * Reads RxNE flag.
+ */
+#define ucPORT_SPI_GET_RXNE_FLAG(ucUnitNumber)	\
+	(LL_SPI_IsActiveFlag_RXNE(pxPortSpiArr[(ucUnitNumber)]))
+
+/*
+ * Sets TxE callback.
+ */
+static inline void vPort_SPI_setTxeCallback(	uint8_t ucUnitNumber,
+												void(*pfCallback)(void*),
+												void* pvParams	)
+{
+	ppfPortSpiTxeCallbackArr[ucUnitNumber] = pfCallback;
+	ppvPortSpiTxeCallbackParamsArr[ucUnitNumber] = pvParams;
+}
+
+/*
+ * Sets RxNE callback.
+ */
+static inline void vPort_SPI_setRxneCallback(	uint8_t ucUnitNumber,
+												void(*pfCallback)(void*),
+												void* pvParams	)
+{
+	ppfPortSpiRxneCallbackArr[ucUnitNumber] = pfCallback;
+	ppvPortSpiRxneCallbackParamsArr[ucUnitNumber] = pvParams;
 }
 
 /*
@@ -229,21 +321,40 @@ static inline uint8_t ucPort_SPI_readDataNoWait(uint8_t ucUnitNumber)
 }
 
 /*
- * Sends byte of data.
+ * Returns pointer to unit's data register.
+ * (Used when DMA is enabled).
  */
-static inline void vPort_SPI_sendByte(uint8_t ucUnitNumber, uint8_t ucByte)
+static inline void* pvPort_SPI_getDrAddress(uint8_t ucUnitNumber)
 {
-	// wait for SPI currently running transmission:
-	while(ucPort_SPI_isBusy(ucUnitNumber));
-
-	// send:
-	vPort_SPI_writeDataNoWait(ucUnitNumber, ucByte);
+	return (void*)(&pxPortSpiArr[ucUnitNumber]->DR);
 }
 
 /*
- * Sends an array of bytes, MS_Byte first.
+ * Connects SPI unit's TxE signal to the given DMA channel.
+ *
+ * Notes:
+ * 		-	If there's no DMA in the used target, this function is ignored.
+ *
+ * 		-	If the used target has static DMA mapping, the DMA connection passed
+ * 			to this function is ignored.
  */
-void vPort_SPI_sendMSByteFirst(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize);
+static inline void vPort_SPI_connectTxeToDma(	uint8_t ucSpiUnitNumber,
+												uint8_t ucDmaUnitNumber,
+												uint8_t ucDmaChannelNumber	)
+{
+	LL_SPI_EnableDMAReq_TX(pxPortSpiArr[ucSpiUnitNumber]);
+}
+
+/*
+ * Disconnects SPI unit's TxE signal from DMA.
+ *
+ * Notes:
+ * 		-	If there's no DMA in the used target, this function is ignored.
+ */
+static inline void vPort_SPI_disconnectTxeFromDma(uint8_t ucSpiUnitNumber)
+{
+	LL_SPI_DisableDMAReq_TX(pxPortSpiArr[ucSpiUnitNumber]);
+}
 
 /*
  * Initializes HW of an SPI unit.
@@ -281,26 +392,6 @@ static inline void vPort_SPI_initHardware(uint8_t ucUnitNumber, xPort_SPI_HW_Con
 							pxHWConf->ucMISOEn,
 							pxHWConf->ucMOSIEn	);
 }
-
-/*******************************************************************************
- * Handlers (Vectors):
- ******************************************************************************/
-/*
- * Define SPI transfer complete handlers.
- *
- * Notes:
- * 		-	If the target MCU does not have a unique SPI_TC vector, user may define
- * 			SPI_Global vector. As anyways, to avoid this problem, upper layer drivers
- * 			use flag checking macros in ISR beginning.
- *
- * 		-	In order for the driver "SPI.c" to be able to use these handlers,
- * 		they must be defined like the following example:
- * 			#define configHOS_SPI_HANDLER_0		SPI1_IRQHandler
- * 			#define configHOS_SPI_HANDLER_1		SPI2_IRQHandler
- * 			... And so on.
- */
-#define port_SPI_HANDLER_0		SPI1_IRQHandler
-
 
 
 

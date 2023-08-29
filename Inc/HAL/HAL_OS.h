@@ -22,6 +22,9 @@
 #include "HAL/RF/RF.h"
 #include "HAL/Stepper/Stepper.h"
 #include "HAL/Stepper/StepperSynchronizer.h"
+#include "HAL/HWTimestamp/HWTimestamp.h"
+#include "HAL/UltraSonicDistance/UltraSonicDistance.h"
+#include "HAL/UltraSonicDistance/UltraSonicDistanceSynchronizer.h"
 
 BaseType_t xHOS_init(void);
 

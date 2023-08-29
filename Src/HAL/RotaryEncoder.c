@@ -8,6 +8,7 @@
 /*	LIB	*/
 #include <stdint.h>
 #include <stdio.h>
+#include <math.h>
 #include "LIB/BinaryFilter/BinaryFilter.h"
 
 /*	FreeRTOS	*/
@@ -115,7 +116,7 @@ static void vTask(void* pvParams)
 				/*	Otherwise, if position changes, update speed normally	*/
 				else
 				{
-					pxHandle->iSpeed = (iDeltaPos * 1000 * 60) / (int32_t)xDeltaT;
+					pxHandle->iSpeed = ((iDeltaPos * 1000 * 60) / (int32_t)xDeltaT);
 					xTimeAtPrevSpeedUpdate = xLastWakeTime;
 				}
 

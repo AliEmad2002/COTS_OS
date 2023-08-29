@@ -10,6 +10,7 @@
 
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "semphr.h"
 
 typedef struct{
 	/*		PRIVATE		*/
@@ -19,22 +20,35 @@ typedef struct{
 	int32_t iSum;
 
 	/*		PUBLIC		*/
+	/*
+	 * Number of samples of a single filtering window.
+	 */
 	uint32_t uiN;
-	int32_t iAvg;	// (Read-only).
+
+	/*
+	 * Resultant average value.
+	 *
+	 * Notes:
+	 * 		-	Read only.
+	 * 		-	Mutex of the handle must be locked first before reading.
+	 */
+	int32_t iAvg;
+
+	StaticSemaphore_t xMutexStatic;
+	SemaphoreHandle_t xMutex;
 }xLIB_NAvgFilter_t;
 
 
 /*
  * Initializes handle.
  *
- * 		-	"piDataArr": Array of data. Must be allocated by user, casted, and
- *	 		assigned to this pointer.
+ * 		-	"piDataArr": Array of data, used as queue's memory. Must be allocated
+ * 			by user, casted, and assigned to this pointer.
  *
  *	 	-	"uiN": Number of samples in the averaging window. ("piDataArr" must
  *	 		be of a length that is greater than or equal to "uiN").
  *
- *	 	-	"uiElemSizeInWords": Size of single element of the data type used
- *	 		(in words). Minimum value is 1.
+ *	 	-	Must be called before scheduler start.
  */
 void vLIB_NAvgFilter_init(	xLIB_NAvgFilter_t* pxHandle,
 							int32_t* piDataArr,
@@ -44,6 +58,8 @@ void vLIB_NAvgFilter_init(	xLIB_NAvgFilter_t* pxHandle,
  * Updates filter with new value.
  *
  * 		-	Must not be used in an ISR.
+ *
+ * 		-	Mutex of the handle must be locked first before updating.
  */
 void vLIB_NAvgFilter_update(xLIB_NAvgFilter_t* pxHandle, int32_t iNewVal);
 
@@ -51,6 +67,8 @@ void vLIB_NAvgFilter_update(xLIB_NAvgFilter_t* pxHandle, int32_t iNewVal);
  * Updates filter with new value.
  *
  * 		-	Could be used in an ISR.
+ *
+ * 		-	Mutex of the handle must be locked first before updating.
  */
 void vLIB_NAvgFilter_updateFromISR(xLIB_NAvgFilter_t* pxHandle, int32_t iNewVal);
 

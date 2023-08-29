@@ -59,7 +59,9 @@ static inline void vPort_Interrupt_setPriority(uint8_t ucIRQNumber, uint8_t ucPr
  * 		-	If the ported target has only one unit, an array of IRQs must be remained
  * 			as an array, it could be made of one element.
  ******************************************************************************/
-extern const IRQn_Type pxPortInterruptSpiIrqNumberArr[];
+extern const IRQn_Type pxPortInterruptSpiTxeIrqNumberArr[];
+
+extern const IRQn_Type pxPortInterruptSpiRxneIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[];
 

@@ -11,6 +11,7 @@
 /*	RTOS	*/
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "semphr.h"
 
 /*	SELF	*/
 #include "LIB/NAvgFilter/NAvgFilter.h"
@@ -42,6 +43,10 @@ void vLIB_NAvgFilter_init(	xLIB_NAvgFilter_t* pxHandle,
 
 	/*	Copy "uiN" to the handle	*/
 	pxHandle->uiN = uiN;
+
+	/*	Initialize mutex	*/
+	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
+	xSemaphoreGive(pxHandle->xMutex);
 }
 
 /*
@@ -61,7 +66,7 @@ void vLIB_NAvgFilter_update(xLIB_NAvgFilter_t* pxHandle, int32_t iNewVal)
 	pxHandle->iAvg = pxHandle->iSum / pxHandle->uiN;
 
 	/*	Add new value to back of the queue	*/
-	xQueueSend(pxHandle->xQueue, (void*)iNewVal, 0);
+	xQueueSend(pxHandle->xQueue, (void*)&iNewVal, 0);
 }
 
 /*
@@ -81,7 +86,7 @@ void vLIB_NAvgFilter_updateFromISR(xLIB_NAvgFilter_t* pxHandle, int32_t iNewVal)
 	pxHandle->iAvg = pxHandle->iSum / pxHandle->uiN;
 
 	/*	Add new value to back of the queue	*/
-	xQueueSendFromISR(pxHandle->xQueue, (void*)iNewVal, NULL);
+	xQueueSendFromISR(pxHandle->xQueue, (void*)&iNewVal, NULL);
 }
 
 

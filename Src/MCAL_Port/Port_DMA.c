@@ -8,6 +8,8 @@
 #include "stm32f1xx.h"
 #include "MCAL_Port/Port_DMA.h"
 
+#if portDMA_IS_AVAILABLE
+
 /*
  * This is a multidimensional array of pointers to DMA channels.
  * First dimension specifies DMA unit number, and the second specifies DMA channel
@@ -162,3 +164,6 @@ void DMA1_Channel7_IRQHandler(void)
 		vPort_DMA_CLEAR_TC_FLAG(0, 6);
 	}
 }
+
+
+#endif		/*		portDMA_IS_AVAILABLE		*/

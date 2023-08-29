@@ -14,11 +14,8 @@
 #include "semphr.h"
 
 /*	MCAL (Ported)	*/
+#include "MCAL_Port/Port_ASM.h"
 #include "MCAL_Port/Port_DIO.h"
-#include "MCAL_Port/Port_AFIO.h"
-#include "MCAL_Port/Port_GPIO.h"
-#include "MCAL_Port/Port_SPI.h"
-#include "MCAL_Port/Port_Interrupt.h"
 
 /*	SELF	*/
 #include "HAL/TFT/TFT.h"
@@ -43,7 +40,7 @@
 /*
  * resets TFT (executes reset sequence).
  */
-static inline void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
+static void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
 {
 	vTaskDelay(pdMS_TO_TICKS(1));
 
@@ -73,10 +70,10 @@ static inline void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
  * 		-	This function is not ISR safe!
  *
  */
+__attribute__((always_inline)) inline
 static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
 {
-	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
-	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
+	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucCmd, 1);
@@ -92,30 +89,36 @@ static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
  * 		-	This function is not ISR safe!
  *
  */
+__attribute__((always_inline)) inline
 static inline void vHOS_TFT_writeDataByte(xHOS_TFT_t* pxTFT, int8_t ucByte)
 {
-	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
-	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
+	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucByte, 1);
 }
 
-static inline void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize)
+static void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize)
 {
-	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
-	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
+	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+
+	vHOS_SPI_setByteDirection(	pxTFT->ucSpiUnitNumber,
+								ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST	);
+
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, pcArr, uiSize);
 }
 
-static inline void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize, uint32_t uiN)
+static void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize, uint32_t uiN)
 {
-	SemaphoreHandle_t xTransferMutex = xHOS_SPI_getTransferMutexHandle(pxTFT->ucSpiUnitNumber);
-	xSemaphoreTake(xTransferMutex, portMAX_DELAY);
+	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
 	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+
+	vHOS_SPI_setByteDirection(	pxTFT->ucSpiUnitNumber,
+								ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST	);
+
 	vHOS_SPI_sendMultiple(pxTFT->ucSpiUnitNumber, pcArr, uiSize, uiN);
 }
 
@@ -127,10 +130,7 @@ static inline void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcAr
  */
 void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 {
-	/*	Set SPI driver byte sending direction	*/
-	vHOS_SPI_setByteDirection(pxTFT->ucSpiUnitNumber, ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST);
-
-	/*	Initializes A0, reset and CS pins HW	*/
+	/*	Initialize A0, reset and CS pins HW	*/
 	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
 	vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);
 	vPort_DIO_initPinOutput(pxTFT->ucCSPort, pxTFT->ucCSPin);
@@ -139,9 +139,13 @@ void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 	vTFT_CS_ENABLE(pxTFT);
 
 	/*	initialize TFT mutex	*/
-	pxTFT->xMutexHandle = xSemaphoreCreateBinaryStatic(&pxTFT->xMutexMemory);
-	configASSERT(pxTFT->xMutexHandle != NULL);
-	xSemaphoreGive(pxTFT->xMutexHandle);
+	pxTFT->xMutex = xSemaphoreCreateMutexStatic(&pxTFT->xMutexStatic);
+	xSemaphoreGive(pxTFT->xMutex);
+
+	/*	initialize initialization done semaphore	*/
+	pxTFT->xInitDoneSemaphore =
+		xSemaphoreCreateMutexStatic(&pxTFT->xInitDoneSemaphoreStatic);
+	xSemaphoreTake(pxTFT->xInitDoneSemaphore, 0);
 
 	/*	execute reset sequence	*/
 	vHOS_TFT_reset(pxTFT);
@@ -156,24 +160,52 @@ void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 
 	/*	display on	*/
 	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_DISPLAY_ON);
+
+	/*	Release initialization done semaphore	*/
+	xSemaphoreGive(pxTFT->xInitDoneSemaphore);
 }
 
 /*
  * See header file for info.
  */
-inline __attribute__((always_inline))
-void vHOS_TFT_enableCommunication(xHOS_TFT_t* pxTFT)
+uint8_t ucHOS_TFT_blockUntilInitDone(xHOS_TFT_t* pxTFT, TickType_t xTimeout)
 {
-	vTFT_CS_ENABLE(pxTFT);
+	uint8_t ucDone = xSemaphoreTake(pxTFT->xInitDoneSemaphore, xTimeout);
+
+	if (ucDone == 1)
+	{
+		xSemaphoreGive(pxTFT->xInitDoneSemaphore);
+		return 1;
+	}
+
+	else
+		return 0;
 }
 
 /*
  * See header file for info.
  */
-inline __attribute__((always_inline))
+uint8_t ucHOS_TFT_enableCommunication(xHOS_TFT_t* pxTFT, TickType_t xTimeout)
+{
+	uint8_t ucState = ucHOS_SPI_takeMutex(pxTFT->ucSpiUnitNumber, xTimeout);
+
+	if (ucState)
+	{
+		vTFT_CS_ENABLE(pxTFT);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+/*
+ * See header file for info.
+ */
 void vHOS_TFT_disableCommunication(xHOS_TFT_t* pxTFT)
 {
 	vTFT_CS_DISABLE(pxTFT);
+
+	vHOS_SPI_releaseMutex(pxTFT->ucSpiUnitNumber);
 }
 
 /*
@@ -181,62 +213,68 @@ void vHOS_TFT_disableCommunication(xHOS_TFT_t* pxTFT)
  */
 void vHOS_TFT_setPix(	xHOS_TFT_t* pxTFT,
 						uint16_t usX, uint16_t usY,
-						uint16_t usColor	)
+						xLIB_Color16_t xColor	)
 {
 	/*	set boundaries to this pixel	*/
-	xHOS_TFT_Boundaries_t xBounds = {usY, usY, usX, usX};
-	vHOS_TFT_setBoundaries(pxTFT, &xBounds);
+	vHOS_TFT_setXBoundaries(pxTFT, usX, usX);
+	vHOS_TFT_setYBoundaries(pxTFT, usY, usY);
 
 	/*	send color data	*/
-	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&usColor, 2);
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&xColor, 2);
 }
 
 /*
  * See header file for info.
  */
 void vHOS_TFT_fillRectangle(	xHOS_TFT_t* pxTFT,
-								xHOS_TFT_Boundaries_t* pxBounds,
-								uint16_t usColor	)
+								uint16_t usXStart,
+								uint16_t usXEnd,
+								uint16_t usYStart,
+								uint16_t usYEnd,
+								xLIB_Color16_t xColor	)
 {
 	/*	set boundaries to this rectangle	*/
-	vHOS_TFT_setBoundaries(pxTFT, pxBounds);
+	vHOS_TFT_setXBoundaries(pxTFT, usXStart, usXEnd);
+	vHOS_TFT_setYBoundaries(pxTFT, usYStart, usYEnd);
 
 	/*	send color data	*/
-	uint32_t uiN = (pxBounds->usX1 - pxBounds->usX0 + 1) * (pxBounds->usY1 - pxBounds->usY0 + 1);
-	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&usColor, 2, uiN);
+	uint32_t uiN = (usXEnd - usXStart + 1) * (usYEnd - usYStart + 1);
+	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&xColor, 2, uiN);
 }
 
 /*
  * See header file for info.
  */
 void vHOS_TFT_drawRectangle(	xHOS_TFT_t* pxTFT,
-								xHOS_TFT_Boundaries_t* pxBounds,
-								uint16_t* pusColorArr	)
+								uint16_t usXStart,
+								uint16_t usXEnd,
+								uint16_t usYStart,
+								uint16_t usYEnd,
+								xLIB_Color16_t* xColorArr	)
 {
 	/*	set boundaries to this rectangle	*/
-	vHOS_TFT_setBoundaries(pxTFT, pxBounds);
+	vHOS_TFT_setXBoundaries(pxTFT, usXStart, usXEnd);
+	vHOS_TFT_setYBoundaries(pxTFT, usYStart, usYEnd);
 
 	/*	send color data	*/
-	uint32_t uiN = (pxBounds->usX1 - pxBounds->usX0 + 1) * (pxBounds->usY1 - pxBounds->usY0 + 1);
-	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)pusColorArr, 2*uiN);
+	uint32_t uiN = (usXEnd - usXStart + 1) * (usYEnd - usYStart + 1);
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)xColorArr, 2*uiN);
 }
 
 /*
  * See header file for info.
  */
-void vHOS_TFT_setBoundaries(xHOS_TFT_t* pxTFT, xHOS_TFT_Boundaries_t* pxBounds)
+void vHOS_TFT_setXBoundaries(xHOS_TFT_t* pxTFT, uint16_t usStart, uint16_t usEnd)
 {
-	/*	send set y boundaries command	*/
-	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_SET_Y_BOUNDARIES);
-
-	/*	send y boundaries in data mode	*/
-	vHOS_TFT_writeDataArr(pxTFT, ((int8_t*)pxBounds), 4);
-
 	/*	send set x boundaries command	*/
 	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_SET_X_BOUNDARIES);
 
+	/*	Prepare boundaries 4-bytes	*/
+	uint32_t uiBounds =	((uint32_t)usStart) | (((uint32_t)usEnd) << 16);
+	uiBounds = uiPort_ASM_reverseEach16(uiBounds);
+
 	/*	send x boundaries in data mode	*/
-	vHOS_TFT_writeDataArr(pxTFT, ((int8_t*)pxBounds) + 4, 4);
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&uiBounds, 4);
 
 	/*	send color writing command	*/
 	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_MEM_WRITE);
@@ -245,25 +283,51 @@ void vHOS_TFT_setBoundaries(xHOS_TFT_t* pxTFT, xHOS_TFT_Boundaries_t* pxBounds)
 /*
  * See header file for info.
  */
-void vHOS_TFT_drawNextPix(xHOS_TFT_t* pxTFT, uint16_t usColor)
+void vHOS_TFT_setYBoundaries(xHOS_TFT_t* pxTFT, uint16_t usStart, uint16_t usEnd)
+{
+	/*	Prepare boundaries 4-bytes	*/
+	uint32_t uiBounds =	((uint32_t)usStart) | (((uint32_t)usEnd) << 16);
+	uiBounds = uiPort_ASM_reverseEach16(uiBounds);
+
+	/*	send set y boundaries command	*/
+	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_SET_Y_BOUNDARIES);
+
+	/*	send x boundaries in data mode	*/
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&uiBounds, 4);
+
+	/*	send color writing command	*/
+	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_MEM_WRITE);
+}
+
+/*
+ * See header file for info.
+ */
+__attribute__((always_inline)) inline
+void inline vHOS_TFT_drawNextPix(xHOS_TFT_t* pxTFT, xLIB_Color16_t xColor)
 {
 	/*	send color data	*/
-	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&usColor, 2);
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)&xColor, 2);
 }
 
 /*
  * See header file for info.
  */
-void vHOS_TFT_drawNextNPixFromArr(xHOS_TFT_t* pxTFT, uint16_t* pusColorArr, uint32_t uiN)
+__attribute__((always_inline)) inline
+void inline vHOS_TFT_drawNextNPixFromArr(	xHOS_TFT_t* pxTFT,
+									xLIB_Color16_t* xColorArr,
+									uint32_t uiN	)
 {
-	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)pusColorArr, 2*uiN);
+	vHOS_TFT_writeDataArr(pxTFT, (int8_t*)xColorArr, 2*uiN);
 }
 
 /*
  * See header file for info.
  */
-void vHOS_TFT_drawNextNPixFromSingleColor(xHOS_TFT_t* pxTFT, uint16_t usColor, uint32_t uiN)
+__attribute__((always_inline)) inline
+void inline vHOS_TFT_drawNextNPixFromSingleColor(	xHOS_TFT_t* pxTFT,
+											xLIB_Color16_t xColor,
+											uint32_t uiN	)
 {
-	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&usColor, 2, uiN);
+	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&xColor, 2, uiN);
 }
 

@@ -8,15 +8,17 @@ FreeRTOS based HAL, LIB layers library.
   * A lot more time-efficient (less CPU busy wait load) than baremetal drivers.
   
 # Available drivers:
-  * SPI.
+  * SPI (Uses DMA if available).
   * I2C.
   * DMA.
-  * Colored-LCD.
+  * Colored-LCD (Uses DMA if available).
   * Binary consecutive N-samples filter (Useful with input digital signals).
   * Push buttons.
   * Seven-segment multiplexer.
   * Rotary encoder.
   * MPU6050 (gyroscope and acceleromter).
+  * Stepper motor (with multiple steppers synchronization driver).
+  * Ultra-sonic distance sensor (with multiple sensors synchronization driver).
   * RF communication.
   * PID controller.
   

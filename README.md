@@ -11,6 +11,7 @@ FreeRTOS based HAL, LIB layers library.
   * SPI (Uses DMA if available).
   * I2C.
   * DMA.
+  * USB (Based on ST's USB_DEVICE library).
   * Colored-LCD (Uses DMA if available).
   * Binary consecutive N-samples filter (Useful with input digital signals).
   * Push buttons.

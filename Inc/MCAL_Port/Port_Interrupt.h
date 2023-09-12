@@ -69,4 +69,31 @@ extern const IRQn_Type pxPortInterruptExtiIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];
 
+extern const IRQn_Type xPortInterruptUsbIrqNumber;
+
+/*******************************************************************************
+ * IRQ handler code enable.
+ * 	As IRQ handlers are forced to be compiled (no optimization could be done to exclude
+ * 	them from the compilation process whatsoever, even if the handler would never
+ * 	be used in the compiled program) handlers are defined only when their corresponding
+ * 	"ucPORT_INTERRUPT_IRQ_DEF_x" is defined first. Also, for any non used handlers,
+ * 	application writer should comment their corresponding "ucPORT_INTERRUPT_IRQ_DEF_x"
+ * 	to maintain reasonable flash usage.
+ ******************************************************************************/
+#define ucPORT_INTERRUPT_IRQ_DEF_USB
+#define ucPORT_INTERRUPT_IRQ_DEF_TIM
+#define ucPORT_INTERRUPT_IRQ_DEF_EXTI
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif /* HAL_OS_PORT_PORT_INTERRUPT_H_ */

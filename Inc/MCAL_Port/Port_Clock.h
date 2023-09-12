@@ -28,6 +28,7 @@ static inline void vPort_Clock_init(void)
 {
 	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+	RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
 	/** Initializes the RCC Oscillators according to the specified parameters
 	* in the RCC_OscInitTypeDef structure.
@@ -49,28 +50,21 @@ static inline void vPort_Clock_init(void)
 	RCC_ClkInitStruct.AHBCLKDivider = uiPORT_CLOCK_AHB_DIV;
 	RCC_ClkInitStruct.APB1CLKDivider = uiPORT_CLOCK_APB1_DIV;
 	RCC_ClkInitStruct.APB2CLKDivider = uiPORT_CLOCK_APB2_DIV;
-
 	vLib_ASSERT(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK, 0);
-
 	SystemCoreClockUpdate();
+
+	/*	Initialize USB clock (if used)	*/
+	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+	vLib_ASSERT(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK, 0);
+
+	__HAL_RCC_USB_CLK_ENABLE();
+
 
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
-
-	__HAL_RCC_SPI1_CLK_ENABLE();
-
-	__HAL_RCC_I2C1_CLK_ENABLE();
-
-	__HAL_RCC_TIM1_CLK_ENABLE();
-	__HAL_RCC_TIM2_CLK_ENABLE();
-	__HAL_RCC_TIM3_CLK_ENABLE();
-	__HAL_RCC_TIM4_CLK_ENABLE();
-
-	__HAL_RCC_DMA1_CLK_ENABLE();
-
-
 }
 
 

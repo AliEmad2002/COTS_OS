@@ -212,8 +212,8 @@ static void vTask(void* pvParams)
 	uint8_t ucSuccessful;
 	xHOS_MPU6050_measurement_t xMeasurement;
 	xHOS_MPU6050_measurement_t xIntegration;
-	int32_t iThetaXAccel;
-	int32_t iThetaYAccel;
+	int32_t iThetaXAccel = 0;
+	int32_t iThetaYAccel = 0;
 	int32_t iAccel;
 	uint32_t uiStableCount = 0;
 
@@ -298,15 +298,12 @@ static void vTask(void* pvParams)
 
 		if (uiStableCount == 10)
 		{
-//			/*
-//			 * Increment / decrement tilt angles in the direction of accel angle to
-//			 * compensate drift and mis-sampling.
-//			 */
-//			pxHandle->xTilt.iX += 0.8f * (float)(iThetaXAccel - pxHandle->xTilt.iX) / (float)abs(pxHandle->xTilt.iX) * (float)abs(iThetaXAccel);
-//			pxHandle->xTilt.iY += 0.8f * (float)(iThetaYAccel - pxHandle->xTilt.iY) / (float)abs(pxHandle->xTilt.iY) * (float)abs(iThetaYAccel);
-
-			pxHandle->xTilt.iX = iThetaXAccel;
-			pxHandle->xTilt.iY = iThetaYAccel;
+			/*
+			 * Increment / decrement tilt angles in the direction of accel angle to
+			 * compensate drift and mis-sampling.
+			 */
+			pxHandle->xTilt.iX += 0.8f * (float)(iThetaXAccel - pxHandle->xTilt.iX) / (float)abs(pxHandle->xTilt.iX) * (float)abs(iThetaXAccel);
+			pxHandle->xTilt.iY += 0.8f * (float)(iThetaYAccel - pxHandle->xTilt.iY) / (float)abs(pxHandle->xTilt.iY) * (float)abs(iThetaYAccel);
 
 			uiStableCount = 0;
 		}

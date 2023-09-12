@@ -12,6 +12,8 @@
 #include "stm32f1xx_ll_exti.h"
 #include "stm32f1xx_ll_gpio.h"
 
+#include "MCAL_Port/Port_Interrupt.h"
+
 
 const uint32_t puiPortExtiPinToAfioLineArr[5] = {
 	LL_GPIO_AF_EXTI_LINE0 ,
@@ -39,6 +41,7 @@ void* ppvPortExtiCallbackParamsArr[5];
  * 		-	Define them as shown, target dependent.
  * 		-	Add clearing pending flag to the end of the ISR
  ******************************************************************************/
+#ifdef ucPORT_INTERRUPT_IRQ_DEF_EXTI
 void EXTI0_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[0](ppvPortExtiCallbackParamsArr[0]);
@@ -68,3 +71,4 @@ void EXTI4_IRQHandler(void)
 	ppfPortExtiCallbackArr[4](ppvPortExtiCallbackParamsArr[4]);
 	LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[4]);
 }
+#endif

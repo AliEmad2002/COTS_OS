@@ -10,11 +10,13 @@
 
 #include "FreeRTOS.h"
 
-#define configHOS_HARD_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 1)
+#define configHOS_INIT_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 1)
 
-#define configHOS_MID_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 2)
+#define configHOS_HARD_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 2)
 
-#define configHOS_SOFT_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 3)
+#define configHOS_MID_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 3)
+
+#define configHOS_SOFT_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 4)
 
 
 

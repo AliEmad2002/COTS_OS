@@ -25,6 +25,7 @@
 #include "HAL/HWTimestamp/HWTimestamp.h"
 #include "HAL/UltraSonicDistance/UltraSonicDistance.h"
 #include "HAL/UltraSonicDistance/UltraSonicDistanceSynchronizer.h"
+#include "HAL/USBVirtualCOM/USBVirtualCOM.h"
 
 BaseType_t xHOS_init(void);
 

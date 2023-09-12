@@ -26,3 +26,7 @@ const IRQn_Type pxPortInterruptDmaIrqNumberArr[] = {
 	DMA1_Channel4_IRQn, DMA1_Channel5_IRQn, DMA1_Channel6_IRQn,
 	DMA1_Channel7_IRQn
 };
+
+const IRQn_Type xPortInterruptUsbIrqNumber = USB_LP_CAN1_RX0_IRQn;
+
+

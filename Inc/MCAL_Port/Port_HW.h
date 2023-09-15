@@ -8,7 +8,9 @@
 #ifndef HAL_OS_PORT_PORT_HW_H_
 #define HAL_OS_PORT_PORT_HW_H_
 
-#include "MCAL_Port/Port_USB.h"
+#include "MCAL_Port/Port_AFIO.h"
+#include "MCAL_Port/Port_GPIO.h"
+#include "MCAL_Port/Port_UART.h"
 
 
 /*
@@ -16,8 +18,13 @@
  */
 static inline void vPort_HW_init(void)
 {
-	/*	USB	*/
-	vPort_USB_initHardware();
+	vPort_UART_initHW(0);
+	vPort_UART_setTransferDirection(0, 2);
+	vPort_UART_setStopBitsLength(0, 1);
+	vPort_UART_setBaudRate(0, 9600);
+
+	vPort_AFIO_mapUart(0, 0);
+	vPort_GPIO_initUartPins(0, 0, 1, 1);
 }
 
 

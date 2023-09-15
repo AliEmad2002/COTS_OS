@@ -34,6 +34,15 @@ static inline void vPort_AFIO_mapI2C(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 	/*	I2C in STM32F103 has one map only	*/
 }
 
-
+static inline void vPort_AFIO_mapUart(uint8_t ucUnitNumber, uint8_t ucMapNumber)
+{
+	if (ucUnitNumber == 1)	/*	USART2 & USART3 in STM32F103 has one map only	*/
+	{
+		if (ucMapNumber == 0)
+			__HAL_AFIO_REMAP_USART1_DISABLE();
+		else
+			__HAL_AFIO_REMAP_USART1_ENABLE();
+	}
+}
 
 #endif /* HAL_OS_PORT_PORT_AFIO_H_ */

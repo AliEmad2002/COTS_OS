@@ -12,7 +12,7 @@
 #include "stm32f1xx_hal.h"
 #include "LIB/Assert.h"
 
-#define uiPORT_CLOCK_MAIN_HZ		(SystemCoreClock)
+#define uiPORT_CLOCK_MAIN_HZ		72000000//(SystemCoreClock)
 
 /*	Used with STM32 targets only	*/
 #define uiPORT_CLOCK_AHB_DIV	RCC_SYSCLK_DIV1
@@ -54,17 +54,21 @@ static inline void vPort_Clock_init(void)
 	SystemCoreClockUpdate();
 
 	/*	Initialize USB clock (if used)	*/
-	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
-	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
-	vLib_ASSERT(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK, 0);
-
-	__HAL_RCC_USB_CLK_ENABLE();
+//	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+//	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+//	vLib_ASSERT(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK, 0);
+//	__HAL_RCC_USB_CLK_ENABLE();
 
 
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
+
+
+	__HAL_RCC_USART1_CLK_ENABLE();
+
+
 }
 
 

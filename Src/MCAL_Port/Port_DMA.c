@@ -7,6 +7,7 @@
 
 #include "stm32f1xx.h"
 #include "MCAL_Port/Port_DMA.h"
+#include "MCAL_Port/Port_Interrupt.h"
 
 #if portDMA_IS_AVAILABLE
 
@@ -108,6 +109,7 @@ void* ppvPortDmaCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHA
  * 		-	Define them as shown, target dependent.
  * 		-	Add clearing pending flag to the end of the ISR
  ******************************************************************************/
+#ifdef ucPORT_INTERRUPT_IRQ_DEF_DMA
 void DMA1_Channel1_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 0))
@@ -164,6 +166,6 @@ void DMA1_Channel7_IRQHandler(void)
 		vPort_DMA_CLEAR_TC_FLAG(0, 6);
 	}
 }
-
+#endif
 
 #endif		/*		portDMA_IS_AVAILABLE		*/

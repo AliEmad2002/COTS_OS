@@ -33,4 +33,12 @@ void vPort_GPIO_initSpiPins(	uint8_t ucUnitNumber,
 /*	Initializes I2C associated pins.	*/
 void vPort_GPIO_initI2CPins(uint8_t ucUnitNumber, uint8_t ucMapNumber);
 
+/*
+ * Initializes UART associated pins.
+ */
+void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
+								uint8_t ucMapNumber,
+								uint8_t ucInitTx,
+								uint8_t ucInitRx	);
+
 #endif /* HAL_OS_PORT_PORT_GPIO_H_ */

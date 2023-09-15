@@ -9,6 +9,7 @@
 #include "stm32f1xx_hal.h"
 
 #include "MCAL_Port/Port_SPI.h"
+#include "MCAL_Port/Port_Interrupt.h"
 
 /*******************************************************************************
  * Units.
@@ -49,6 +50,7 @@ const uint8_t ppucPortSpiTxeDmaMapping[portSPI_NUMBER_OF_UNITS][2] = {
  * Notes
  * 		-	Define them as shown, target dependent.
  ******************************************************************************/
+#ifdef ucPORT_INTERRUPT_IRQ_DEF_SPI
 void SPI1_IRQHandler(void)
 {
 	if(ucPort_SPI_IsTxeInterruptEnabled(0) && ucPORT_SPI_GET_TXE_FLAG(0))
@@ -72,7 +74,7 @@ void SPI2_IRQHandler(void)
 		ppfPortSpiRxneCallbackArr[1](ppvPortSpiRxneCallbackParamsArr[1]);
 	}
 }
-
+#endif
 
 
 

@@ -11,7 +11,7 @@
 
 const IRQn_Type pxPortInterruptSpiTxeIrqNumberArr[] = {SPI1_IRQn, SPI2_IRQn};
 
-const IRQn_Type pxPortInterruptSpiRxneIrqNumberArr[] = {SPI1_IRQn, SPI2_IRQn};
+const IRQn_Type* pxPortInterruptSpiRxneIrqNumberArr = pxPortInterruptSpiTxeIrqNumberArr;
 
 const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[] = {
 	TIM1_UP_IRQn, TIM2_IRQn, TIM3_IRQn, TIM4_IRQn
@@ -29,4 +29,10 @@ const IRQn_Type pxPortInterruptDmaIrqNumberArr[] = {
 
 const IRQn_Type xPortInterruptUsbIrqNumber = USB_LP_CAN1_RX0_IRQn;
 
+const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[] = {
+	USART1_IRQn, USART2_IRQn, USART3_IRQn
+};
 
+const IRQn_Type* pxPortInterruptUartRxneIrqNumberArr = pxPortInterruptUartTxeIrqNumberArr;
+
+const IRQn_Type* pxPortInterruptUartTcIrqNumberArr = pxPortInterruptUartTxeIrqNumberArr;

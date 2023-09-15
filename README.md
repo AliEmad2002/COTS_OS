@@ -10,6 +10,7 @@ FreeRTOS based HAL, LIB layers library.
 # Available drivers:
   * SPI (Uses DMA if available).
   * I2C.
+  * UART.
   * DMA.
   * USB (Based on ST's USB_DEVICE library).
   * Colored-LCD (Uses DMA if available).
@@ -18,6 +19,7 @@ FreeRTOS based HAL, LIB layers library.
   * Seven-segment multiplexer.
   * Rotary encoder.
   * MPU6050 (gyroscope and acceleromter).
+  * RDM6300 (RFID tag reader).
   * Stepper motor (with multiple steppers synchronization driver).
   * Ultra-sonic distance sensor (with multiple sensors synchronization driver).
   * RF communication.

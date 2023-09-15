@@ -71,6 +71,12 @@ extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];
 
 extern const IRQn_Type xPortInterruptUsbIrqNumber;
 
+extern const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[];
+
+extern const IRQn_Type pxPortInterruptUartRxneIrqNumberArr[];
+
+extern const IRQn_Type pxPortInterruptUartTcIrqNumberArr[];
+
 /*******************************************************************************
  * IRQ handler code enable.
  * 	As IRQ handlers are forced to be compiled (no optimization could be done to exclude
@@ -80,10 +86,12 @@ extern const IRQn_Type xPortInterruptUsbIrqNumber;
  * 	application writer should comment their corresponding "ucPORT_INTERRUPT_IRQ_DEF_x"
  * 	to maintain reasonable flash usage.
  ******************************************************************************/
-#define ucPORT_INTERRUPT_IRQ_DEF_USB
-#define ucPORT_INTERRUPT_IRQ_DEF_TIM
-#define ucPORT_INTERRUPT_IRQ_DEF_EXTI
-
+//#define ucPORT_INTERRUPT_IRQ_DEF_USB
+//#define ucPORT_INTERRUPT_IRQ_DEF_TIM
+//#define ucPORT_INTERRUPT_IRQ_DEF_EXTI
+//#define ucPORT_INTERRUPT_IRQ_DEF_SPI
+//#define ucPORT_INTERRUPT_IRQ_DEF_DMA
+#define ucPORT_INTERRUPT_IRQ_DEF_UART
 
 
 

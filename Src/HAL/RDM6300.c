@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "LIB/CheckSum.h"
+#include "LIB/String.h"
 
 /*	FreeRTOS	*/
 #include "FreeRTOS.h"
@@ -35,8 +36,11 @@ static inline void vBlockUntilIntTrigger(xHOS_RDM6300_t* pxHandle)
 	/*	Assure new read semaphore is not available	*/
 	xSemaphoreTake(pxHandle->xNewReadSemaphore, 0);
 
+	/*	Clear EXTI pending flag	*/
+	vPORT_EXTI_CLEAR_PENDING_FLAG(pxHandle->ucIntPort, pxHandle->ucIntPin);
+
 	/*	Enable interrupt (Disabled in the ISR)	*/
-	vPort_EXTI_disableLine(pxHandle->ucIntPort, pxHandle->ucIntPin);
+	vPort_EXTI_enableLine(pxHandle->ucIntPort, pxHandle->ucIntPin);
 
 	/*	Block on the new read semaphore	*/
 	xSemaphoreTake(pxHandle->xNewReadSemaphore, portMAX_DELAY);
@@ -48,22 +52,24 @@ static inline uint8_t ucTryReadingNewFrame(xHOS_RDM6300_t* pxHandle)
 				pxHandle->ucUartUnitNumber,
 				(int8_t*)&pxHandle->xFrame,
 				sizeof(xHOS_RDM6300_Frame_t),
-				pdMS_TO_TICKS(15)	); // transmission time of 13-bytes < 15ms
+				pdMS_TO_TICKS(150)	); // transmission time of 13-bytes < 15ms
 }
 
 static inline void vEnqueueNewReading(xHOS_RDM6300_t* pxHandle)
 {
 	/*	If there's no available space, overwrite the queue	*/
 	if (uxQueueSpacesAvailable(pxHandle->xReadQueue) == 0)
-		xQueueOverwrite(pxHandle->xReadQueue, (void*)pxHandle->xFrame.xID.pucData);
+		xQueueOverwrite(pxHandle->xReadQueue, (void*)pxHandle->xTempID.pucData);
 
 	/*	Otherwise, normal enqueue	*/
 	else
-		xQueueSend(pxHandle->xReadQueue, (void*)pxHandle->xFrame.xID.pucData, portMAX_DELAY);
+		xQueueSend(pxHandle->xReadQueue, (void*)&pxHandle->xTempID, portMAX_DELAY);
 }
 
 static inline void vProcessNewFrame(xHOS_RDM6300_t* pxHandle)
 {
+	uint8_t ucCheckSumReceived, ucCheckSumCalculated;
+
 	/*	Check SOF	*/
 	if (pxHandle->xFrame.ucSOF != 0x02)
 		return;
@@ -73,10 +79,13 @@ static inline void vProcessNewFrame(xHOS_RDM6300_t* pxHandle)
 		return;
 
 	/*	Calculate checksum	*/
-	uint8_t ucCheckSum = ucLIB_CheckSum_get8BitCheck(pxHandle->xFrame.xID.pucData, 10);
+	vLIB_String_str2hex((char*)pxHandle->xFrame.pcIDStr, pxHandle->xTempID.pucData, 5);
+	ucCheckSumCalculated = ucLIB_CheckSum_get8BitCheck(pxHandle->xTempID.pucData, 5);
+
+	vLIB_String_str2hex((char*)pxHandle->xFrame.pcCheckSumStr, &ucCheckSumReceived, 1);
 
 	/*	If check-sum matches, add new ID to the queue	*/
-	if (ucCheckSum == pxHandle->xFrame.ucCheckSum)
+	if (ucCheckSumCalculated == ucCheckSumReceived)
 		vEnqueueNewReading(pxHandle);
 }
 
@@ -88,7 +97,7 @@ static void vCallback(void* pvParams)
 	xHOS_RDM6300_t* pxHandle = (xHOS_RDM6300_t*)pvParams;
 
 	/*	Validate interrupt's signal	*/
-	if (ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin) == 1)
+	if (ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin) == 0)
 		return;
 
 	/*	Disable interrupt	*/
@@ -107,17 +116,28 @@ static void vTask(void* pvParams)
 {
 	xHOS_RDM6300_t* pxHandle = (xHOS_RDM6300_t*)pvParams;
 
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+
+	const uint32_t uiDelayMs = (sizeof(xHOS_RDM6300_Frame_t) * 8000) / 9600;
+
 	while(1)
 	{
 		/*	Block until INT pin is triggered	*/
 		vBlockUntilIntTrigger(pxHandle);
 
-		/*	Try reading a frame over the UART bus. If read fails, continue	*/
+		xLastWakeTime = xTaskGetTickCount();
+
+		/*	Try reading a frame over the UART bus. If read fails, do nothing	*/
 		if (!ucTryReadingNewFrame(pxHandle))
-			continue;
+		{	}
 
 		/*	Otherwise, process the new read frame	*/
-		vProcessNewFrame(pxHandle);
+		else
+			vProcessNewFrame(pxHandle);
+
+		/*	Block until next reading time	*/
+
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(uiDelayMs));
 	}
 }
 
@@ -151,7 +171,7 @@ void vHOS_RDM6300_init(xHOS_RDM6300_t* pxHandle)
 	/*	Create queue handle	*/
 	pxHandle->xReadQueue = xQueueCreateStatic(
 		uiCONF_RDM6300_READ_QUEUE_LEN,
-		sizeof(xHOS_RDM6300_Frame_t),
+		sizeof(xHOS_RDM6300_ID_t),
 		(uint8_t*)pxHandle->pucReadQueueMemory,
 		&pxHandle->xReadQueueStatic	);
 
@@ -160,7 +180,7 @@ void vHOS_RDM6300_init(xHOS_RDM6300_t* pxHandle)
 
 	vPort_EXTI_disableLine(pxHandle->ucIntPort, pxHandle->ucIntPin);
 
-	vPort_EXTI_initLine(pxHandle->ucIntPort, pxHandle->ucIntPin, 0);
+	vPort_EXTI_initLine(pxHandle->ucIntPort, pxHandle->ucIntPin, 1);
 
 	vPort_EXTI_setCallback(	pxHandle->ucIntPort,
 							pxHandle->ucIntPin,

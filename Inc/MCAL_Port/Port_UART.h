@@ -176,6 +176,10 @@ static inline void vPort_UART_disableTcInterrupt(uint8_t ucUnitNumber)
 #define ucPORT_UART_GET_TC_FLAG(ucUnitNumber)	\
 	(LL_USART_IsActiveFlag_TC(pxPortUartArr[(ucUnitNumber)]))
 
+/*	Reads ORE (Overrun error) flag	*/
+#define ucPORT_UART_GET_ORE_FLAG(ucUnitNumber)	\
+	(LL_USART_IsActiveFlag_ORE(pxPortUartArr[(ucUnitNumber)]))
+
 /*	Clears RxNE flag	*/
 #define vPORT_UART_CLEAR_RXNE_FLAG(ucUnitNumber)	\
 	(LL_USART_ClearFlag_RXNE(pxPortUartArr[(ucUnitNumber)]))
@@ -183,6 +187,10 @@ static inline void vPort_UART_disableTcInterrupt(uint8_t ucUnitNumber)
 /*	Clears TC flag	*/
 #define vPORT_UART_CLEAR_TC_FLAG(ucUnitNumber)	\
 	(LL_USART_ClearFlag_TC(pxPortUartArr[(ucUnitNumber)]))
+
+/*	Clears ORE flag	*/
+#define vPORT_UART_CLEAR_ORE_FLAG(ucUnitNumber)	\
+	(LL_USART_ClearFlag_ORE(pxPortUartArr[(ucUnitNumber)]))
 
 /*	Sets TxE callback	*/
 static inline void vPort_UART_setTxeCallback(	uint8_t ucUnitNumber,

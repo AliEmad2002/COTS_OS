@@ -15,7 +15,7 @@
 {                                                                         \
 	if ((exp) == 0)                                                       \
 	{                                                                     \
-		vLIB_PRINT("Assertion failed. Error code: %d\n.", (errCode));     \
+		/*vLIB_PRINT("Assertion failed. Error code: %d\n.", (errCode));*/     \
 		volatile uint8_t cont = 0;                                        \
 		vPort_Breakpoint();                                               \
 		while(cont == 0);                                                 \

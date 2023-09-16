@@ -14,14 +14,14 @@
 
 typedef struct{
 	/*	PUBLIC	*/
-	uint8_t pucData[10];
+	uint8_t pucData[5];
 }xHOS_RDM6300_ID_t;
 
 typedef struct{
 	/*	PRIVATE	*/
 	uint8_t ucSOF;
-	xHOS_RDM6300_ID_t xID;
-	uint8_t ucCheckSum;
+	char pcIDStr[10];
+	char pcCheckSumStr[2];
 	uint8_t ucEOF;
 }xHOS_RDM6300_Frame_t;
 
@@ -40,11 +40,13 @@ typedef struct{
 	StaticSemaphore_t xNewReadSemaphoreStatic;
 	SemaphoreHandle_t xNewReadSemaphore;
 
-	uint8_t pucReadQueueMemory[uiCONF_RDM6300_READ_QUEUE_LEN * sizeof(xHOS_RDM6300_Frame_t)];
+	uint8_t pucReadQueueMemory[uiCONF_RDM6300_READ_QUEUE_LEN * sizeof(xHOS_RDM6300_ID_t)];
 	StaticQueue_t xReadQueueStatic;
 	QueueHandle_t xReadQueue;
 
 	xHOS_RDM6300_Frame_t xFrame;
+
+	xHOS_RDM6300_ID_t xTempID;
 }xHOS_RDM6300_t;
 
 

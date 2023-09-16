@@ -27,6 +27,7 @@
 #include "HAL/UltraSonicDistance/UltraSonicDistanceSynchronizer.h"
 #include "HAL/USBVirtualCOM/USBVirtualCOM.h"
 #include "HAL/UART/UART.h"
+#include "HAL/RDM6300/RDM6300.h"
 
 
 

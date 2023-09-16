@@ -17,10 +17,10 @@
 
 #include "FreeRTOS.h"
 
-extern uint32_t puiPortExtiPinToAfioLineArr[5];
-extern uint32_t puiPortExtiPinToExtiLineArr[5];
-extern void(*ppfPortExtiCallbackArr[5])(void*);
-extern void* ppvPortExtiCallbackParamsArr[5];
+extern const uint32_t puiPortExtiPinToAfioLineArr[16];
+extern const uint32_t puiPortExtiPinToExtiLineArr[16];
+extern void(*ppfPortExtiCallbackArr[16])(void*);
+extern void* ppvPortExtiCallbackParamsArr[16];
 
 /*******************************************************************************
  * API functions:
@@ -50,8 +50,6 @@ static inline void vPort_EXTI_initLine(	uint8_t ucPort,
 										uint8_t ucPin,
 										uint8_t ucEdge	)
 {
-	configASSERT(ucPin < 5);
-
 	/*	Map line to the given port	*/
 	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
 
@@ -79,8 +77,6 @@ static inline void vPort_EXTI_setEdge(	uint8_t ucPort,
 										uint8_t ucPin,
 										uint8_t ucEdge	)
 {
-	configASSERT(ucPin < 5);
-
 	/*	Map line to the given port	*/
 	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
 
@@ -124,16 +120,12 @@ static inline uint8_t ucPort_EXTI_getEdge(uint8_t ucPort, uint8_t ucPin)
 /*	Enables line	*/
 static inline void vPort_EXTI_enableLine(uint8_t ucPort, uint8_t ucPin)
 {
-	configASSERT(ucPin < 5);
-
 	LL_EXTI_EnableIT_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 }
 
 /*	Disables line	*/
 static inline void vPort_EXTI_disableLine(uint8_t ucPort, uint8_t ucPin)
 {
-	configASSERT(ucPin < 5);
-
 	LL_EXTI_DisableIT_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
 }
 
@@ -148,6 +140,20 @@ static inline void vPort_EXTI_disableLine(uint8_t ucPort, uint8_t ucPin)
 	(LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[(ucPin)]))
 
 /*
+ * Reads pending flag.
+ *
+ * Notes:
+ * 		-	This macro does not perform range checking on the parameters for
+ * 			fast use, hence must be used with care.
+ *
+ * 		-	This macro evaluates to zero if pending flag of the given channel is
+ * 			not set. Otherwise, it evaluates to a non-zero value. (Shouldn't
+ * 			necessary be 1).
+ */
+#define uiPORT_EXTI_READ_PENDING_FLAG(ucPort, ucPin)	\
+	(LL_EXTI_ReadFlag_0_31(puiPortExtiPinToExtiLineArr[(ucPin)]))
+
+/*
  * Sets callback of EXTI handler.
  *
  * This function should not be changed even when target is changed, as it only
@@ -158,8 +164,6 @@ static inline void vPort_EXTI_setCallback(	uint8_t ucPort,
 											void(*pfCallback)(void*),
 											void* pvParams)
 {
-	configASSERT(ucPin < 5);
-
 	ppfPortExtiCallbackArr[ucPin] = pfCallback;
 	ppvPortExtiCallbackParamsArr[ucPin] = pvParams;
 }

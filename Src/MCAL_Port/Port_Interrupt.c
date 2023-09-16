@@ -18,8 +18,12 @@ const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[] = {
 };
 
 const IRQn_Type pxPortInterruptExtiIrqNumberArr[] = {
-	EXTI0_IRQn, EXTI1_IRQn, EXTI2_IRQn, EXTI3_IRQn, EXTI4_IRQn
+	EXTI0_IRQn, EXTI1_IRQn, EXTI2_IRQn, EXTI3_IRQn, EXTI4_IRQn,
+	EXTI9_5_IRQn, EXTI9_5_IRQn, EXTI9_5_IRQn, EXTI9_5_IRQn, EXTI9_5_IRQn,
+	EXTI15_10_IRQn, EXTI15_10_IRQn, EXTI15_10_IRQn, EXTI15_10_IRQn,
+	EXTI15_10_IRQn, EXTI15_10_IRQn
 };
+
 
 const IRQn_Type pxPortInterruptDmaIrqNumberArr[] = {
 	DMA1_Channel1_IRQn, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn,
@@ -36,3 +40,11 @@ const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[] = {
 const IRQn_Type* pxPortInterruptUartRxneIrqNumberArr = pxPortInterruptUartTxeIrqNumberArr;
 
 const IRQn_Type* pxPortInterruptUartTcIrqNumberArr = pxPortInterruptUartTxeIrqNumberArr;
+
+const IRQn_Type xPortInterruptPwrPvdIrqNumber = PVD_IRQn;
+
+
+
+
+
+

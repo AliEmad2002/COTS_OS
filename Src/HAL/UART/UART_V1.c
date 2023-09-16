@@ -131,8 +131,6 @@ static void vTxeCallback(void* pvParams)
 
 static void vRxneCallback(void* pvParams)
 {
-	vPort_DIO_writePin(1, 11, 1);
-
 	xHOS_UART_Unit_t* pxUnit = (xHOS_UART_Unit_t*)pvParams;
 
 	pxUnit->xRxInfo.pcRxBuffer[pxUnit->xRxInfo.uiRxCurrentSize++] =
@@ -147,8 +145,6 @@ static void vRxneCallback(void* pvParams)
 
 		portYIELD_FROM_ISR(xHighPriorityTaskWoken);
 	}
-
-	vPort_DIO_writePin(1, 11, 0);
 }
 
 static void vTcCallback(void* pvParams)
@@ -200,7 +196,7 @@ void vHOS_UART_init(void)
 		/*	create RxNE semaphore	*/
 		pxUnit->xRxneSemaphore =
 			xSemaphoreCreateBinaryStatic(&pxUnit->xRxneSemaphoreStatic);
-		xSemaphoreGive(pxUnit->xRxneSemaphore);
+		xSemaphoreTake(pxUnit->xRxneSemaphore, 0);
 
 		/*	Initialize unit's TxE interrupt	*/
 		vPort_Interrupt_setPriority(	pxPortInterruptUartTxeIrqNumberArr[i],

@@ -8,6 +8,7 @@
 #ifndef COTS_OS_INC_MCAL_PORT_PORT_RTC_H_
 #define COTS_OS_INC_MCAL_PORT_PORT_RTC_H_
 
+#include "stm32f1xx_ll_rtc.h"
 
 /*******************************************************************************
  * Structures:
@@ -34,22 +35,6 @@ typedef struct{
 }xMCAL_RTC_TimeAccurate_t;
 
 /*******************************************************************************
- * Base time:
- *
- * Since the driver is using an unsigned 32-bit value to represent total number
- * of seconds since the  base time, this value has a maximum of about 139 years.
- * Hence, the "xPortRtcStartingTime" must not be too old.
- ******************************************************************************/
-const xMCAL_RTC_Time_t xPortRtcStartingTime = {
-	.usYear = 1970,
-	.ucMonth = 1,
-	.ucDay = 1,
-	.ucHour = 0,
-	.ucMinute = 0,
-	.ucSecond = 0
-};
-
-/*******************************************************************************
  * API functions:
  ******************************************************************************/
 /*
@@ -65,27 +50,24 @@ void vPort_RTC_convertTotalSecondsToTime(	uint32_t uiTotalSeconds,
 											xMCAL_RTC_Time_t* pxTime	);
 
 /*
- * Initializes RTC with new time settings.
- *
- * Note: RTC must be disabled before changing time.
+ * Initializes RTC.
  */
-void inline vPort_init(uint32_t uiCurrentTotalSeconds);
+void vPort_init(void);
+
+/*
+ * Changes RTC time count.
+ */
+void vPort_setTime(uint32_t uiCurrentTotalSeconds);
 
 /*
  * Enables (Runs) RTC.
  */
-void inline vPort_RTC_enable(void)
-{
-
-}
+void vPort_RTC_enable(void);
 
 /*
  * Disables (Runs) RTC.
  */
-void inline vPort_RTC_disable(void)
-{
-
-}
+void vPort_RTC_disable(void);
 
 /*
  * Gets current timestamp.
@@ -103,7 +85,10 @@ void vPort_RTC_getTimestampDif(	const xMCAL_RTC_TimeAccurate_t* pxTime1,
 								const xMCAL_RTC_TimeAccurate_t* pxTime2,
 								xMCAL_RTC_TimeAccurate_t* pxTimeDif	);
 
-
+/*
+ * Enables RTC calibration output.
+ */
+void vPort_RTC_enableCalibrationOutput(void);
 
 
 

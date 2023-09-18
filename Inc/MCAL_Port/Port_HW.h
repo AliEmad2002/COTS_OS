@@ -10,7 +10,10 @@
 
 #include "MCAL_Port/Port_PWR.h"
 #include "MCAL_Port/Port_BKP.h"
+#include "MCAL_Port/Port_Interrupt.h"
+#include "MCAL_Port/Port_RTC.h"
 
+extern void vShutdownHandler(void* pvParams);
 
 /*
  * This function is called on system startup. It initializes low level HW (MCAL).
@@ -26,17 +29,21 @@ static inline void vPort_HW_init(void)
 //	vPort_GPIO_initUartPins(0, 0, 0, 1);
 
 	/*	PWR	*/
-	vPort_PWR_init();
-	vPort_PWR_setPvdThreshold(2900);
-	vPort_PWR_enablePvd();
-	vPort_PWR_setPvdCallback(vShutdownHandler, NULL);
-	vPort_Interrupt_setPriority(
-		xPortInterruptPwrPvdIrqNumber,
-		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	);
-	vPort_Interrupt_enableIRQ(xPortInterruptPwrPvdIrqNumber);
+//	vPort_PWR_init();
+//	vPort_PWR_setPvdThreshold(2900);
+//	vPort_PWR_enablePvd();
+//	vPort_PWR_setPvdCallback(vShutdownHandler, NULL);
+//	vPort_Interrupt_setPriority(
+//		xPortInterruptPwrPvdIrqNumber,
+//		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	);
+//	vPort_Interrupt_enableIRQ(xPortInterruptPwrPvdIrqNumber);
 
-	/*	BKP	*/
-	vPort_BKP_init();
+//	/*	BKP	*/
+//	vPort_BKP_init();
+//
+//	/*	RTC	*/
+//	vPort_init();
+//	vPort_RTC_enable();
 }
 
 

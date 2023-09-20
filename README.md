@@ -24,6 +24,7 @@ FreeRTOS based HAL, LIB layers library.
   * Ultra-sonic distance sensor (with multiple sensors synchronization driver).
   * RF communication.
   * PID controller.
+  * SW PWM measurement (Duty and frequency).
   
     
 

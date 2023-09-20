@@ -61,6 +61,8 @@ static inline void vPort_Clock_init(void)
 	__HAL_RCC_PWR_CLK_ENABLE();
 	__HAL_RCC_BKP_CLK_ENABLE();
 
+	__HAL_RCC_TIM2_CLK_ENABLE();
+
 	/*	Initialize USB clock	*/
 //	RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 //	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;

@@ -101,52 +101,52 @@ uint64_t ulHOS_HWTimestamp_getTimestamp(void)
 	//return uiOvfCount * uiMaxCounterVal + uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
 
 	uint64_t ulTimestamp;
+	register uint32_t uiCNT;
+	register uint32_t uiOvfFlag;
+	register uint32_t uiOvfOccuredBeforeCnt;
 
 	taskENTER_CRITICAL();
 	{
-		/*	1. Read 1st counter value	*/
-		register uint32_t uiCNT0 = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
-
-		/*	2. Wait for one tick to pass	*/
-		while(uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER) != uiCNT0);
-
-		/*	3. Read OVF flag	*/
-		register uint32_t uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
-
-		/*	4. Read 2nd counter value	*/
-		register uint32_t uiCNT1 = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		/*	Read counter value and OVF flag	*/
+		uiCNT = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
 
 		/*
-		 * 5. 	If overflow occurred, find out whether it occurred after reading
-		 * 		the 1st counter value, or before it
-		 */
-		register uint32_t uiOvfOccuredBeforeCnt0 = (uiCNT0 < uiCNT1) && uiOvfFlag;
-
-		/*
-		 * 6.	Has overflow occurred before reading 1st counter value, and as
-		 * 		the flag was not cleared until it was read in this critical section,
-		 * 		this means that overflow occurred exactly after entering the critical
-		 * 		section. Thus, "uiOvfCount" won't be incremented. Therefore, this
-		 * 		function adds 1 to it when calculating the timestamp, to assure
-		 * 		timestamp is valid.
-		 */
-		if (uiOvfOccuredBeforeCnt0)
-			ulTimestamp = (uiOvfCount + 1) * uiMaxCounterVal + uiCNT0;
-
-		/*
-		 * 7.	Otherwise, has overflow occurred after reading 1st counter value,
-		 * 		there's no need for adding 1 to the "uiOvfCount" in this function,
-		 * 		as "uiCNT0" would be nearly equal to "uiMaxCounterVal", and
-		 * 		"uiOvfCount" would be incremented safely in the ISR after exiting
-		 * 		this critical section.
+		 * If overflow flag was set, then one of two possibilities has happened:
+		 * 		-	Flag was set after reading the counter register value.
+		 * 		-	Flag was set before reading the counter register value.
 		 *
-		 * 		Also, has no overflow occurred at all, no need for adding 1 to
-		 * 		the "uiOvfCount".
+		 * This could be detected from the value of "uiCNT". Had it been less than
+		 * half the top counter value, then the overflow has happened before reading.
+		 * Otherwise, it would have happened after reading.
+		 */
+		uiOvfOccuredBeforeCnt = (uiCNT < uiMaxCounterVal/2) && uiOvfFlag;
+
+		/*
+		 * Has overflow occurred before reading counter value, and as the flag was not
+		 * cleared until it was read in this critical section, this means that
+		 * overflow occurred exactly after entering the critical section. Thus,
+		 * "uiOvfCount" won't be incremented. Therefore, this function adds 1 to it
+		 * when calculating the timestamp, to assure timestamp is valid.
+		 */
+		if (uiOvfOccuredBeforeCnt)
+			ulTimestamp = (uiOvfCount + 1) * uiMaxCounterVal + uiCNT;
+
+		/*
+		 * Otherwise, has overflow occurred after reading counter value, there's
+		 * no need for adding 1 to the "uiOvfCount" in this function, as "uiCN0"
+		 * would be nearly equal to "uiMaxCounterVal", and "uiOvfCount" would be
+		 * incremented safely in the ISR after exiting this critical section.
+		 *
+		 * Also, has no overflow occurred at all, no need for adding 1 to the
+		 * "uiOvfCount".
 		 */
 		else
-			ulTimestamp = uiOvfCount * uiMaxCounterVal + uiCNT0;
+			ulTimestamp = uiOvfCount * uiMaxCounterVal + uiCNT;
 	}
 	taskEXIT_CRITICAL();
+
+
 
 	return ulTimestamp;
 }
@@ -156,30 +156,31 @@ uint64_t ulHOS_HWTimestamp_getTimestamp(void)
  */
 uint64_t ulHOS_HWTimestamp_getTimestampFromISR(void)
 {
-	uint64_t ulTimestamp;
-
 	/*
 	 * Same implementation as the previous function, only difference is that this
 	 * function uses the ISR-safe version of entering and exiting critical section.
 	 */
+	//return uiOvfCount * uiMaxCounterVal + uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+
+	uint64_t ulTimestamp;
+	register uint32_t uiCNT;
+	register uint32_t uiOvfFlag;
+	register uint32_t uiOvfOccuredBeforeCnt;
+
 	UBaseType_t uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
 	{
-		register uint32_t uiCNT0 = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		uiCNT = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		uiOvfOccuredBeforeCnt = (uiCNT < uiMaxCounterVal/2) && uiOvfFlag;
 
-		while(uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER) != uiCNT0);
-
-		register uint32_t uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
-
-		register uint32_t uiCNT1 = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
-
-		register uint32_t uiOvfOccuredBeforeCnt0 = (uiCNT0 < uiCNT1) && uiOvfFlag;
-
-		if (uiOvfOccuredBeforeCnt0)
-			ulTimestamp = (uiOvfCount + 1) * uiMaxCounterVal + uiCNT0;
+		if (uiOvfOccuredBeforeCnt)
+			ulTimestamp = (uiOvfCount + 1) * uiMaxCounterVal + uiCNT;
 		else
-			ulTimestamp = uiOvfCount * uiMaxCounterVal + uiCNT0;
+			ulTimestamp = uiOvfCount * uiMaxCounterVal + uiCNT;
 	}
 	taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
+
+
 
 	return ulTimestamp;
 

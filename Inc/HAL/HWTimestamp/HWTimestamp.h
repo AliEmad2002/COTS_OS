@@ -47,13 +47,28 @@ uint64_t ulHOS_HWTimestamp_getTimestampFromISR(void);
 /*
  * Converts time from ms to ticks.
  */
-#define ulHOS_HWTIMESTAMP_MS_TO_TICKS(uiMs)	\
-	(((uiMs) * uiHOS_HWTIMESTAMP_TIMER_FREQ_ACTUAL) / 1000)
+#define ulHOS_HWTIMESTAMP_MS_TO_TICKS(ulMs)	\
+	(((uint64_t)(ulMs) * (uint64_t)uiHOS_HWTIMESTAMP_TIMER_FREQ_ACTUAL) / 1000)
 
 /*
  * Converts time from us to ticks.
  */
 #define ulHOS_HWTIMESTAMP_US_TO_TICKS(uiUs)	\
 	(((uiUs) * uiHOS_HWTIMESTAMP_TIMER_FREQ_ACTUAL) / 1000000)
+
+/*
+ * Converts time from ticks to ms.
+ */
+#define ulHOS_HWTIMESTAMP_TICKS_TO_MS(ulTicks)	\
+	(((uint64_t)(ulTicks) * (uint64_t)1000) / uiHOS_HWTIMESTAMP_TIMER_FREQ_ACTUAL)
+
+/*
+ * Converts time from ticks to us.
+ */
+#define ulHOS_HWTIMESTAMP_TICKS_TO_US(ulTicks)	\
+	(((uint64_t)(ulTicks) * (uint64_t)1000000) / uiHOS_HWTIMESTAMP_TIMER_FREQ_ACTUAL)
+
+
+
 
 #endif /* COTS_OS_INC_HAL_HWTIMESTAMP_HWTIMESTAMP_H_ */

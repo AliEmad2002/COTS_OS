@@ -168,7 +168,10 @@ static inline void vPort_EXTI_setCallback(	uint8_t ucPort,
 	ppvPortExtiCallbackParamsArr[ucPin] = pvParams;
 }
 
-
+/*
+ * Returns IRQ number of a given EXTI channel.
+ */
+uint32_t uiPort_EXTI_getIrqNum(uint8_t ucPort, uint8_t ucPin);
 
 
 

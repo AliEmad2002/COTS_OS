@@ -11,6 +11,8 @@
 #include "stm32f1xx_ll_exti.h"
 #include "stm32f1xx_ll_gpio.h"
 
+#include "LIB/Assert.h"
+
 #include "MCAL_Port/Port_Interrupt.h"
 
 const uint32_t puiPortExtiPinToAfioLineArr[16] = {
@@ -55,6 +57,26 @@ void(*ppfPortExtiCallbackArr[16])(void*);
 void* ppvPortExtiCallbackParamsArr[16];
 
 #include "MCAL_Port/Port_EXTI.h"
+
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
+/*
+ * TODO:
+ * this function should deprecate the "pxPortInterruptExtiIrqNumberArr[]" array.
+ */
+uint32_t uiPort_EXTI_getIrqNum(uint8_t ucPort, uint8_t ucPin)
+{
+	if (ucPin < 5)							return EXTI0_IRQn + ucPin;
+	else if (5 <= ucPin && ucPin <= 9)		return EXTI9_5_IRQn;
+	else if (10 <= ucPin && ucPin <= 15)	return EXTI15_10_IRQn;
+
+	else
+	{
+		vLib_ASSERT(0, 0);
+		return 0;
+	}
+}
 
 /*******************************************************************************
  * ISRs:

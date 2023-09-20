@@ -141,26 +141,6 @@ static void vTask(void* pvParams)
  */
 void vHOS_PWMMeasure_init(xHOS_PWMDutyMeasure_t* pxHandle)
 {
-	/*	Initialize pin	*/
-	vPort_DIO_initPinInput(pxHandle->ucPort, pxHandle->ucPin, 0);
-
-	/*	Initialize EXTI	*/
-	vPort_EXTI_setEdge(pxHandle->ucPort, pxHandle->ucPin, 2);
-
-	vPort_EXTI_setCallback(	pxHandle->ucPort,
-							pxHandle->ucPin,
-							vCallback,
-							(void*)pxHandle	);
-
-	vPort_EXTI_enableLine(pxHandle->ucPort, pxHandle->ucPin);
-
-	/*	Initialize interrupt controller	*/
-	uint32_t uiIrqNum = uiPort_EXTI_getIrqNum(pxHandle->ucPort, pxHandle->ucPin);
-
-	vPort_Interrupt_setPriority(uiIrqNum, uiCONF_PWM_MEASURE_EXTI_PRI);
-
-	vPort_Interrupt_enableIRQ(uiIrqNum);
-
 	/*	Initialize task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
 	char pcTaskName[configMAX_TASK_NAME_LEN];
@@ -187,6 +167,26 @@ void vHOS_PWMMeasure_init(xHOS_PWMDutyMeasure_t* pxHandle)
 								//	callback does not get stuck at  first edge.
 	pxHandle->ulPrevRisingTime = 0;
 	pxHandle->uiNumberOfIdlePeriods = 0;
+
+	/*	Initialize pin	*/
+	vPort_DIO_initPinInput(pxHandle->ucPort, pxHandle->ucPin, 0);
+
+	/*	Initialize EXTI	*/
+	vPort_EXTI_setEdge(pxHandle->ucPort, pxHandle->ucPin, 2);
+
+	vPort_EXTI_setCallback(	pxHandle->ucPort,
+							pxHandle->ucPin,
+							vCallback,
+							(void*)pxHandle	);
+
+	vPort_EXTI_enableLine(pxHandle->ucPort, pxHandle->ucPin);
+
+	/*	Initialize interrupt controller	*/
+	uint32_t uiIrqNum = uiPort_EXTI_getIrqNum(pxHandle->ucPort, pxHandle->ucPin);
+
+	vPort_Interrupt_setPriority(uiIrqNum, uiCONF_PWM_MEASURE_EXTI_PRI);
+
+	vPort_Interrupt_enableIRQ(uiIrqNum);
 }
 
 /*

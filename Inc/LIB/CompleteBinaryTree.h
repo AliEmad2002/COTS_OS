@@ -32,6 +32,11 @@ typedef struct{
  * Public:
  ******************************************************************************/
 /*
+ * Initializes tree handle.
+ */
+void vLIB_CompleteBinaryTree_init(xLIB_CompleteBinaryTree_t* pxTree);
+
+/*
  * Mutex locking and unlocking of a CompleteBinaryTree handle.
  *
  * Notes:
@@ -46,13 +51,8 @@ typedef struct{
 #define ucLIB_COMPLETE_BINARY_TREE_LOCK(pxTree, xTimeout)	\
 	(	ucLIB_VECTOR_LOCK(&(pxTree)->xVector, (xTimeout))	)
 
-#define vLIB_COMPLETE_BINARY_TREE_RELEASE(pxVector)	\
+#define vLIB_COMPLETE_BINARY_TREE_RELEASE(pxTree)	\
 	(	vLIB_VECTOR_RELEASE(&(pxTree)->xVector)	)
-
-/*
- * Initializes tree handle.
- */
-void vLIB_CompleteBinaryTree_init(xLIB_CompleteBinaryTree_t* pxTree);
 
 /*
  * Gets tree's size.
@@ -111,8 +111,8 @@ void vLIB_CompleteBinaryTree_init(xLIB_CompleteBinaryTree_t* pxTree);
 /*
  * Adds node after last node in the tree.
  */
-#define vLIB_COMPLETE_BINARY_TREE_ADD_LAST(pxTree, pxNewElem)	\
-	(	vLIB_VECTOR_ADD_BACK(&(pxTree)->xVector, pxNewElem)	)
+#define vLIB_COMPLETE_BINARY_TREE_ADD_LAST(pxTree, xNewElem)	\
+	(	vLIB_VECTOR_ADD_BACK(&(pxTree)->xVector, xNewElem)	)
 
 /*
  * Removes last node of a given tree.

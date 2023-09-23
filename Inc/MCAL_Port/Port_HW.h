@@ -12,6 +12,7 @@
 #include "MCAL_Port/Port_BKP.h"
 #include "MCAL_Port/Port_Interrupt.h"
 #include "MCAL_Port/Port_RTC.h"
+#include "MCAL_Port/Port_USB.h"
 
 extern void vShutdownHandler(void* pvParams);
 
@@ -44,6 +45,9 @@ static inline void vPort_HW_init(void)
 //	/*	RTC	*/
 //	vPort_init();
 //	vPort_RTC_enable();
+
+	/*	USB	*/
+	vPort_USB_initHardware();
 }
 
 

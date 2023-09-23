@@ -88,7 +88,7 @@ extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
  * 	application writer should comment their corresponding "ucPORT_INTERRUPT_IRQ_DEF_x"
  * 	to maintain reasonable flash usage.
  ******************************************************************************/
-//#define ucPORT_INTERRUPT_IRQ_DEF_USB
+#define ucPORT_INTERRUPT_IRQ_DEF_USB
 #define ucPORT_INTERRUPT_IRQ_DEF_TIM
 #define ucPORT_INTERRUPT_IRQ_DEF_EXTI
 //#define ucPORT_INTERRUPT_IRQ_DEF_SPI

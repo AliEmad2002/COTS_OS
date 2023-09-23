@@ -51,6 +51,8 @@ static StackType_t xTaskStack[configMINIMAL_STACK_SIZE];
 
 static xTxPend_t xTxPend;
 
+static uint32_t uiRxLen = 0;
+
 /*******************************************************************************
  * RTOS task:
  ******************************************************************************/
@@ -81,6 +83,9 @@ static void vTask(void* pvParams)
 		/*	Check if there's new received data	*/
 		if (*puiPortUsbRxBufferLen > 0)
 		{
+			uiRxLen = *puiPortUsbRxBufferLen;
+			*puiPortUsbRxBufferLen = 0;
+
 			/*	Release RxAvailable semaphore	*/
 			xSemaphoreGive(xRxAvailableSemaphore);
 		}
@@ -175,10 +180,10 @@ uint8_t ucHOS_USBVirtualCOM_readRxBuffer(	uint8_t* pucBuffer,
 		return 0;
 
 	/*	Otherwise, copy the RxBuffer to "pucBuffer"	*/
-	for (uint32_t i = 0; i < *puiPortUsbRxBufferLen; i++)
+	for (uint32_t i = 0; i < uiRxLen; i++)
 		pucBuffer[i] = pucPortUsbRxBuffer[i];
 
-	*puiLen = *puiPortUsbRxBufferLen;
+	*puiLen = uiRxLen;
 
 	return 1;
 }

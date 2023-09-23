@@ -3,6 +3,10 @@
  *
  *  Created on: Sep 23, 2023
  *      Author: Ali Emad
+ *
+ * References:
+ * 		-	"Data Structures and Algorithms in C++. Michael Goodrich": 8.3.2 Complete
+ * 			Binary Trees and Their Representation.
  */
 
 #ifndef COTS_OS_INC_LIB_COMPLETEBINARYTREE_H_
@@ -69,22 +73,22 @@ void vLIB_CompleteBinaryTree_init(xLIB_CompleteBinaryTree_t* pxTree);
 	(	&xLIB_VECTOR_GET_ELEM(&(pxTree)->xVector, 2 * uiLIB_COMPLETE_BINARY_TREE_GET_INDEX(pxTree, pxParent))	)
 
 /*
- * Gets pointer to the parent of a given node.
- */
-#define pxLIB_COMPLETE_BINARY_TREE_GET_PARENT_PTR(pxTree, pxNode)	\
-	(	&xLIB_VECTOR_GET_ELEM(&(pxTree)->xVector, uiLIB_COMPLETE_BINARY_TREE_GET_INDEX(pxTree, pxNode) / 2)	)
-
-/*
  * Gets pointer to the right child of a given node.
  */
 #define pxLIB_COMPLETE_BINARY_TREE_GET_RIGHT_PTR(pxTree, pxParent)	\
 	(	&xLIB_VECTOR_GET_ELEM(&(pxTree)->xVector, 2 * uiLIB_COMPLETE_BINARY_TREE_GET_INDEX(pxTree, pxParent) + 1)	)
 
 /*
+ * Gets pointer to the parent of a given node.
+ */
+#define pxLIB_COMPLETE_BINARY_TREE_GET_PARENT_PTR(pxTree, pxNode)	\
+	(	&xLIB_VECTOR_GET_ELEM(&(pxTree)->xVector, uiLIB_COMPLETE_BINARY_TREE_GET_INDEX(pxTree, pxNode) / 2)	)
+
+/*
  * Gets pointer to the last node in a tree.
  */
 #define pxLIB_COMPLETE_BINARY_TREE_GET_LAST_PTR(pxTree)	\
-	(	&xLIB_VECTOR_GET_ELEM(&(pxTree)->xVector, uiLIB_COMPLETE_BINARY_TREE_GET_SIZE(pxTree) + 1)	)
+	(	&xLIB_VECTOR_GET_ELEM(&(pxTree)->xVector, uiLIB_COMPLETE_BINARY_TREE_GET_SIZE(pxTree))	)
 
 /*
  * Checks whether a node is the root or not.

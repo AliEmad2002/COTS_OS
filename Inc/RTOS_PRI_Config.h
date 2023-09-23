@@ -18,6 +18,8 @@
 
 #define configHOS_SOFT_REAL_TIME_TASK_PRI		(configMAX_PRIORITIES - 4)
 
+#define configHOS_IDLE_REAL_TIME_TASK_PRI		(0)	// i.e.:	(configMAX_PRIORITIES - 5)
+
 
 
 #endif /* HAL_OS_INC_RTOS_PRI_CONFIG_H_ */

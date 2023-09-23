@@ -47,7 +47,7 @@ typedef struct{
  * Initializes handle.
  *
  * Notes:
- * 		-	"HWTimestamp" driver must be initialized first.
+ * 		-	"HWTime" driver must be initialized first.
  *
  * 		-	Configurations in "PWMMeasure_Config.h" must be set to valid values.
  *

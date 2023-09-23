@@ -22,7 +22,7 @@
 
 /*	HAL-OS	*/
 #include "RTOS_PRI_Config.h"
-#include "HAL/HWTimestamp/HWTimestamp.h"
+#include "HAL/HWTime/HWTime.h"
 
 /*	SELF	*/
 #include "HAL/UltraSonicDistance/UltraSonicDistance.h"
@@ -45,7 +45,7 @@ static inline void vBlockUntilNextSampleTime(xHOS_UltraSonicDistance_t* pxHandle
 static inline void vRisingCallback(xHOS_UltraSonicDistance_t* pxHandle)
 {
 	/*	Update risingEchoTimestamp	*/
-	pxHandle->risingEchoTimestamp = ulHOS_HWTimestamp_getTimestampFromISR();
+	pxHandle->risingEchoTimestamp = ulHOS_HWTime_getTimestampFromISR();
 
 	/*	Configure EXTI to  generate event on falling edge	*/
 	vPort_EXTI_setEdge(pxHandle->ucEchoPort, pxHandle->ucEchoPin, 0);
@@ -54,7 +54,7 @@ static inline void vRisingCallback(xHOS_UltraSonicDistance_t* pxHandle)
 static inline void vFallingCallback(xHOS_UltraSonicDistance_t* pxHandle)
 {
 	/*	Update fallingEchoTimestamp	*/
-	pxHandle->fallingEchoTimestamp = ulHOS_HWTimestamp_getTimestampFromISR();
+	pxHandle->fallingEchoTimestamp = ulHOS_HWTime_getTimestampFromISR();
 
 	/*
 	 * If "fallingEchoTimestamp" is too close to "risingEchoTimestamp", then
@@ -66,7 +66,7 @@ static inline void vFallingCallback(xHOS_UltraSonicDistance_t* pxHandle)
 	 * Vdd noise (few milli-volts), a false falling edge may be detected).
 	 */
 	if (	pxHandle->fallingEchoTimestamp - pxHandle->risingEchoTimestamp <
-			ulHOS_HWTIMESTAMP_US_TO_TICKS(10)	)
+			ulHOS_HWTime_US_TO_TICKS(10)	)
 	{
 		return;
 	}
@@ -153,7 +153,7 @@ static void vTask(void* pvParams)
 		{
 			/*	Calculate distance	*/
 			ulDeltaTicks = pxHandle->fallingEchoTimestamp - pxHandle->risingEchoTimestamp;
-			iNewDist = (1000 * (343/2) * ulDeltaTicks) / uiHOS_HWTIMESTAMP_TIMER_FREQ_ACTUAL;
+			iNewDist = (1000 * (343/2) * ulDeltaTicks) / uiHOS_HWTIME_TIMER_FREQ_ACTUAL;
 
 			/*	Add new distance to the filter	*/
 			xSemaphoreTake(pxHandle->xFilter.xMutex, portMAX_DELAY);

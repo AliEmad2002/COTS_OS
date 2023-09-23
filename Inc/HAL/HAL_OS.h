@@ -22,7 +22,7 @@
 #include "HAL/RF/RF.h"
 #include "HAL/Stepper/Stepper.h"
 #include "HAL/Stepper/StepperSynchronizer.h"
-#include "HAL/HWTimestamp/HWTimestamp.h"
+#include "HAL/HWTime/HWTime.h"
 #include "HAL/UltraSonicDistance/UltraSonicDistance.h"
 #include "HAL/UltraSonicDistance/UltraSonicDistanceSynchronizer.h"
 #include "HAL/USBVirtualCOM/USBVirtualCOM.h"

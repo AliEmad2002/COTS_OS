@@ -11,7 +11,7 @@
  * "UltraSonicDistanceSynchronizer.h" driver alongside this driver.
  *
  * Notes:
- * 		-	In order for this driver to operate, HWTimestamp must be initialized
+ * 		-	In order for this driver to operate, HWTime must be initialized
  * 			@ at least F_TIM = 500KHz
  */
 

@@ -22,7 +22,7 @@
 #include "MCAL_Port/Port_Interrupt.h"
 
 /*	HAL	*/
-#include "HAL/HWTimestamp/HWTimestamp.h"
+#include "HAL/HWTime/HWTime.h"
 
 /*	SELF	*/
 #include "HAL/PWMMeasure/PWMMeasure.h"
@@ -41,7 +41,7 @@ static void vCallback(void* pvParams)
 	xHOS_PWMDutyMeasure_t* pxHandle = (xHOS_PWMDutyMeasure_t*)pvParams;
 
 	/*	Get current timestamp	*/
-	uint64_t ulCurrentTime = ulHOS_HWTimestamp_getTimestampFromISR();
+	uint64_t ulCurrentTime = ulHOS_HWTime_getTimestampFromISR();
 
 	/*	Get pin state	*/
 	uint8_t ucPinState = ucPort_DIO_readPin(pxHandle->ucPort, pxHandle->ucPin);
@@ -106,7 +106,7 @@ static void vTask(void* pvParams)
 			uiTimeoutMs = portMAX_DELAY;
 		else
 		{
-			uiTimeoutMs = ulHOS_HWTIMESTAMP_TICKS_TO_MS(2 * pxHandle->uiPeriodTime);
+			uiTimeoutMs = ulHOS_HWTime_TICKS_TO_MS(2 * pxHandle->uiPeriodTime);
 
 			if (uiTimeoutMs < 1)
 				uiTimeoutMs = 1;
@@ -237,7 +237,7 @@ uint32_t uiHOS_PWMMeasure_getFreq(xHOS_PWMDutyMeasure_t* pxHandle)
 		return 0;
 
 	else
-		return 1000000 / ulHOS_HWTIMESTAMP_TICKS_TO_US(uiPeriodTime);
+		return 1000000 / ulHOS_HWTime_TICKS_TO_US(uiPeriodTime);
 }
 
 

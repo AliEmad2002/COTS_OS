@@ -1,5 +1,5 @@
 /*
- * HWTimestamp.c
+ * HWTime.c
  *
  *  Created on: Aug 28, 2023
  *      Author: Ali Emad
@@ -18,7 +18,7 @@
 #include "MCAL_Port/Port_Interrupt.h"
 
 /*	SELF	*/
-#include "HAL/HWTimestamp/HWTimestamp.h"
+#include "HAL/HWTime/HWTime.h"
 
 /*******************************************************************************
  * Static / Global variables:
@@ -28,9 +28,9 @@ static uint32_t uiOvfCount = 0;
 static uint32_t uiMaxCounterVal;
 
 /*******************************************************************************
- * Overflow handler:
+ * Callbacks:
  ******************************************************************************/
-static void vCallback(void* pvParams)
+static void vOvfCallback(void* pvParams)
 {
 	/*	Increment overflow counter	*/
 	uiOvfCount++;
@@ -42,22 +42,22 @@ static void vCallback(void* pvParams)
  ******************************************************************************/
 static inline void vInitHWTimer(void)
 {
-	uint8_t ucTimerUnitNumber = ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER;
+	uint8_t ucTimerUnitNumber = ucHOS_HWTIME_TIMER_UNIT_NUMBER;
 
 	uiMaxCounterVal =
-		(1 << puiPortTimerCounterSizeInBits[ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER]) - 1;
+		(1 << puiPortTimerCounterSizeInBits[ucHOS_HWTIME_TIMER_UNIT_NUMBER]) - 1;
 
 	vPort_TIM_disableCounter(ucTimerUnitNumber);
 
 	vPort_TIM_useInternalClockSource(ucTimerUnitNumber);
 
-	vPort_TIM_setPrescaler(ucTimerUnitNumber, uiHOS_HWTIMESTAMP_TIMER_PRESCALER);
+	vPort_TIM_setPrescaler(ucTimerUnitNumber, uiHOS_HWTIME_TIMER_PRESCALER);
 
 	vPort_TIM_setModeNormal(ucTimerUnitNumber);
 
 	vPort_TIM_clearOverflowFlag(ucTimerUnitNumber);
 
-	vPort_TIM_setCallback(ucTimerUnitNumber, vCallback, NULL);
+	vPort_TIM_setCallback(ucTimerUnitNumber, vOvfCallback, NULL);
 
 	vPort_TIM_enableOverflowInterrupt(ucTimerUnitNumber);
 
@@ -70,7 +70,7 @@ static inline void vInitHWTimer(void)
 
 static inline void vInitInterruptController()
 {
-	uint8_t ucTimerUnitNumber = ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER;
+	uint8_t ucTimerUnitNumber = ucHOS_HWTIME_TIMER_UNIT_NUMBER;
 
 	vPort_Interrupt_setPriority(
 		pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber],
@@ -80,11 +80,13 @@ static inline void vInitInterruptController()
 }
 
 
-
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
 /*
  * See header for info.
  */
-void vHOS_HWTimestamp_init(void)
+void vHOS_HWTime_init(void)
 {
 	/*	Initialize HW timer	*/
 	vInitHWTimer();
@@ -96,9 +98,9 @@ void vHOS_HWTimestamp_init(void)
 /*
  * See header for info.
  */
-uint64_t ulHOS_HWTimestamp_getTimestamp(void)
+uint64_t ulHOS_HWTime_getTimestamp(void)
 {
-	//return uiOvfCount * uiMaxCounterVal + uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+	//return uiOvfCount * uiMaxCounterVal + uiPORT_TIM_READ_COUNTER(ucHOS_HWTIME_TIMER_UNIT_NUMBER);
 
 	uint64_t ulTimestamp;
 	register uint32_t uiCNT;
@@ -108,8 +110,8 @@ uint64_t ulHOS_HWTimestamp_getTimestamp(void)
 	taskENTER_CRITICAL();
 	{
 		/*	Read counter value and OVF flag	*/
-		uiCNT = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
-		uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		uiCNT = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIME_TIMER_UNIT_NUMBER);
+		uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIME_TIMER_UNIT_NUMBER);
 
 		/*
 		 * If overflow flag was set, then one of two possibilities has happened:
@@ -154,13 +156,13 @@ uint64_t ulHOS_HWTimestamp_getTimestamp(void)
 /*
  * See header for info.
  */
-uint64_t ulHOS_HWTimestamp_getTimestampFromISR(void)
+uint64_t ulHOS_HWTime_getTimestampFromISR(void)
 {
 	/*
 	 * Same implementation as the previous function, only difference is that this
 	 * function uses the ISR-safe version of entering and exiting critical section.
 	 */
-	//return uiOvfCount * uiMaxCounterVal + uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+	//return uiOvfCount * uiMaxCounterVal + uiPORT_TIM_READ_COUNTER(ucHOS_HWTIME_TIMER_UNIT_NUMBER);
 
 	uint64_t ulTimestamp;
 	register uint32_t uiCNT;
@@ -169,8 +171,8 @@ uint64_t ulHOS_HWTimestamp_getTimestampFromISR(void)
 
 	UBaseType_t uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
 	{
-		uiCNT = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
-		uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIMESTAMP_TIMER_UNIT_NUMBER);
+		uiCNT = uiPORT_TIM_READ_COUNTER(ucHOS_HWTIME_TIMER_UNIT_NUMBER);
+		uiOvfFlag = ucPORT_TIM_GET_OVF_FLAG(ucHOS_HWTIME_TIMER_UNIT_NUMBER);
 		uiOvfOccuredBeforeCnt = (uiCNT < uiMaxCounterVal/2) && uiOvfFlag;
 
 		if (uiOvfOccuredBeforeCnt)
@@ -185,3 +187,28 @@ uint64_t ulHOS_HWTimestamp_getTimestampFromISR(void)
 	return ulTimestamp;
 
 }
+
+/*
+ * See header for info.
+ */
+void vHOS_HWTime_delay(uint32_t uiTicks)
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -8,10 +8,14 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 
-#include "LIB/Vector/Vector_Config.h"
+#include "LIB/Assert.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
+
+#include "LIB/Vector/Vector_Config.h"
+
+
 
 typedef struct{
 	/*		PRIVATE		*/
@@ -51,11 +55,16 @@ void vLIB_Vector_init(xLIB_Vector_t* pxVector);
  * Adds a new element to the end of the vector handle.
  *
  * Notes:
- * 		-	Vector overflow is not checked within this macro. It may be checked
- * 			before adding new element (by comparing it to  "xCONF_VECTOR_MAX_SIZE").
+ * 		-	For the sake of efficiency, Vector overflow is not checked within this
+ * 			macro. It may be checked before adding new element (by comparing it
+ * 			to  "xCONF_VECTOR_MAX_SIZE").
+ * 			Although, for debugging purposes, assertion is done before every addition.
  */
-#define vLIB_VECTOR_ADD_BACK(pxVector, xNewElem)	\
-	(	(pxVector)->pxArr[(pxVector)->uiSize++] = (xNewElem)	)
+#define vLIB_VECTOR_ADD_BACK(pxVector, xNewElem)					\
+{                                                                   \
+	vLib_ASSERT((pxVector)->uiSize < xCONF_VECTOR_MAX_SIZE, 1);     \
+	(	(pxVector)->pxArr[(pxVector)->uiSize++] = (xNewElem)	);  \
+}
 
 /*
  * Removes last element in the vector.

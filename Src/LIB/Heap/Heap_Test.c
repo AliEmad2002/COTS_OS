@@ -16,7 +16,7 @@
  * This test code uses "int32_t" as a "xCONF_VECTOR_ELEM_TYPE".
  */
 
-#if 1
+#if 0
 
 /*	LIB	*/
 #include <stdint.h>
@@ -34,6 +34,8 @@
 /*	HAL_OS	*/
 #include "HAL/HAL_OS.h"
 
+#define MAX_VAL ((1 << 31) - 1)
+
 /*******************************************************************************
  * Tasks stacks and handles (initialization task and main tasks):
  ******************************************************************************/
@@ -49,12 +51,18 @@ static TaskHandle_t xTaskInitHandle;
  * Function prototypes:
  ******************************************************************************/
 static void init_main_tasks(void);
+static uint8_t is_element_in_arr(int32_t iElem, int32_t piArr[], uint32_t uiArrLen);
+static void sort_arr(int32_t piArr[], int32_t iArrLen);
 
 /*******************************************************************************
  * Global variables:
  ******************************************************************************/
 xLIB_Heap_t xHeap;
 int32_t piElemArr[xCONF_VECTOR_MAX_SIZE];
+volatile uint32_t uiArrSize;
+volatile uint32_t uiNumberOfElementsToRemove;
+volatile uint32_t uiSuccessCount = 0;
+volatile int32_t iParent, iLeftChild, iRightChild;
 
 /*******************************************************************************
  * Task functions:
@@ -63,6 +71,8 @@ static void vInitTask(void* pvParams)
 {
 	/*	Initialize MCU's hardware	*/
 	vPort_HW_init();
+
+	srand(100);
 
 	/*	Initialize COTS_OS	*/
 	vLIB_Heap_init(&xHeap);
@@ -76,27 +86,68 @@ static void vInitTask(void* pvParams)
 
 static void vMainTask1(void* pvParams)
 {
-	for (uint32_t i = 0; i < 5; i++)
-	{
-		vLIB_Heap_addElem(&xHeap, (int32_t*)&piElemArr[i]);
-	}
-
-	vLIB_Heap_removeTop(&xHeap);
-
 	while(1)
 	{
+		/*	Give the array a random length	*/
+		uiArrSize = abs(rand()) % (xCONF_VECTOR_MAX_SIZE);
+
 		/*	Fill the array with random numbers	*/
+		for (uint32_t i = 0; i < uiArrSize; i++)
+			piElemArr[i] = abs(rand()) % MAX_VAL;
 
 		/*	Insert array to the heap	*/
+		for (uint32_t i = 0; i < uiArrSize; i++)
+			vLIB_Heap_addElem(&xHeap, (int32_t*)&piElemArr[i]);
+
+		/*	Sort the array	*/
+		sort_arr(piElemArr, uiArrSize);
+
+		/*	Remove random amount of elements from the heap	*/
+		uiNumberOfElementsToRemove = abs(rand()) % (uiArrSize + 1);
+		for (uint32_t i = 0; i < uiNumberOfElementsToRemove; i++)
+			vLIB_Heap_removeTop(&xHeap);
+
+		/*	Remove same elements from the array	*/
+		uiArrSize -= uiNumberOfElementsToRemove;
 
 		/*	Validate size	*/
+		vLib_ASSERT(uiLIB_HEAP_GET_SIZE(&xHeap) == uiArrSize, 2);
 
 		/*	Validate that each element of the heap is available in the array	*/
+		for (uint32_t i = 1; i < uiArrSize + 1; i++)
+		{
+			vLib_ASSERT(is_element_in_arr(xHeap.xTree.xVector.pxArr[i], piElemArr, uiArrSize), 2);
+		}
 
 		/*	Validate that each element of the array is available in the heap	*/
+		for (uint32_t i = 0; i < uiArrSize; i++)
+		{
+			vLib_ASSERT(is_element_in_arr(piElemArr[i], xHeap.xTree.xVector.pxArr, uiArrSize+1), 2);
+		}
 
 		/*	Validate heap nodes' priorities	*/
+		for (uint32_t i = 1; i < uiArrSize + 1; i++)
+		{
+			iParent = xHeap.xTree.xVector.pxArr[i];
 
+			if (ucLIB_COMPLETE_BINARY_TREE_HAS_LEFT(&xHeap.xTree, &xHeap.xTree.xVector.pxArr[i]))
+			{
+				iLeftChild = xHeap.xTree.xVector.pxArr[2 * i];
+				vLib_ASSERT(ucCONF_HEAP_COMPARE(iParent, iLeftChild), 2);
+			}
+
+			if (ucLIB_COMPLETE_BINARY_TREE_HAS_RIGHT(&xHeap.xTree, &xHeap.xTree.xVector.pxArr[i]))
+			{
+				iRightChild = xHeap.xTree.xVector.pxArr[2 * i + 1];
+				vLib_ASSERT(ucCONF_HEAP_COMPARE(iParent, iRightChild), 2);
+			}
+		}
+
+		/*	Clear heap for next iteration	*/
+		while(uiLIB_HEAP_GET_SIZE(&xHeap) > 0)
+			vLIB_Heap_removeTop(&xHeap);
+
+		uiSuccessCount++;
 	}
 }
 
@@ -150,6 +201,35 @@ static void init_main_tasks(void)
 		configHOS_SOFT_REAL_TIME_TASK_PRI,
 		puxTask1Stack,
 		&xTask1StaticHandle);
+}
+
+/*******************************************************************************
+ * Helping functions:
+ ******************************************************************************/
+static uint8_t is_element_in_arr(int32_t iElem, int32_t piArr[], uint32_t uiArrLen)
+{
+	for (uint32_t i = 0; i < uiArrLen; i++)
+	{
+		if (piArr[i] == iElem)
+			return 1;
+	}
+	return 0;
+}
+
+static void sort_arr(int32_t piArr[], int32_t iArrLen)
+{
+	for (int32_t i = 0; i < iArrLen - 1; i++)
+	{
+		for (int32_t j = i + 1; j < iArrLen; j++)
+		{
+			if (piArr[i] < piArr[j])
+			{
+				int32_t _temp = piArr[i];
+				piArr[i] = piArr[j];
+				piArr[j] = _temp;
+			}
+		}
+	}
 }
 
 /*******************************************************************************

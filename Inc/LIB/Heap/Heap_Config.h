@@ -14,7 +14,7 @@
  * top than "xElem2". Otherwise, it evaluates to 0.
  */
 #define ucCONF_HEAP_COMPARE(xElem1, xElem2)		\
-	(	(xElem1) < (xElem2)	)
+	(	(xElem1) <= (xElem2)	)
 
 
 #endif /* COTS_OS_INC_LIB_HEAP_HEAP_CONFIG_H_ */

@@ -19,12 +19,11 @@
 #define uiPORT_CLOCK_APB1_DIV	RCC_HCLK_DIV2
 #define uiPORT_CLOCK_APB2_DIV	RCC_SYSCLK_DIV1
 
-/*
- * Initializes clock control peripheral, and enables the needed peripherals.
- * If the ported target does not have any, or has implementation of clock control
- * defined privately and called at startup, this wrapper is left empty.
- */
-void vPort_Clock_init(void);
+
+void vPort_Clock_initCpuClock(void);
+
+void vPort_Clock_initPeriphClock(void);
+
 
 
 

@@ -10,7 +10,7 @@
 
 #include "MCAL_Port/Port_Clock.h"
 
-void vPort_Clock_init(void)
+void vPort_Clock_initCpuClock(void)
 {
 	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -38,15 +38,21 @@ void vPort_Clock_init(void)
 	RCC_ClkInitStruct.APB2CLKDivider = uiPORT_CLOCK_APB2_DIV;
 	vLib_ASSERT(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK, 0);
 	SystemCoreClockUpdate();
+}
 
+void vPort_Clock_initPeriphClock(void)
+{
+	/*	Initialize GPIO	clock	*/
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
 
+	/*	Initialize Backup-domain clock	*/
 	__HAL_RCC_PWR_CLK_ENABLE();
 	__HAL_RCC_BKP_CLK_ENABLE();
 
+	/*	Initialize timers clock	*/
 	__HAL_RCC_TIM2_CLK_ENABLE();
 
 	/*	Initialize USB clock	*/
@@ -56,3 +62,15 @@ void vPort_Clock_init(void)
 	vLib_ASSERT(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK, 0);
 	__HAL_RCC_USB_CLK_ENABLE();
 }
+
+
+
+
+
+
+
+
+
+
+
+

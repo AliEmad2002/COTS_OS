@@ -10,6 +10,7 @@
 
 #include "MCAL_Port/Port_HW.h"
 
+#include "MCAL_Port/Port_Clock.h"
 #include "MCAL_Port/Port_PWR.h"
 #include "MCAL_Port/Port_BKP.h"
 #include "MCAL_Port/Port_Interrupt.h"
@@ -18,6 +19,9 @@
 
 void vPort_HW_init(void)
 {
+	/*	Initialize peripherals' clocks	*/
+	vPort_Clock_initPeriphClock();
+
 	/*		UART1		*/
 //	vPort_UART_initHW(0);
 //	vPort_UART_setTransferDirection(0, 2);

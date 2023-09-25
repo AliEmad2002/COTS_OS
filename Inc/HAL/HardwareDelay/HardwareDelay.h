@@ -3,6 +3,13 @@
  *
  *  Created on: Jun 26, 2023
  *      Author: Ali Emad
+ *
+ * Notes:
+ * 		-	When tested on STM32F103C8T6 @72MHz, minimum possible delay was about
+ * 			40us.
+ *
+ * 		-	For delays less than this (probably for signal generation), PWM mode
+ * 			and OPM (one-pulse mode) could be used achieve signal's timing.
  */
 
 #ifndef HAL_OS_INC_HARDWAREDELAY_HARDWAREDELAY_H_
@@ -29,7 +36,7 @@ typedef struct{
 	StaticSemaphore_t xStaticMutex;
 	SemaphoreHandle_t xMutex;
 
-	/*	Actual/accurate number of tick per second	*/
+	/*	Actual/accurate number of tick per second (Read only)	*/
 	uint32_t uiTicksPerSecond;
 }xHOS_HardwareDelay_t;
 

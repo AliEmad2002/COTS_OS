@@ -41,7 +41,7 @@ static void vTask(void* pvParams)
 	while(1)
 	{
 		/*	read digital level of button's DIO pin	*/
-		pinLevel = ucPort_DIO_readPin(pxHandle->ucPortNumber, pxHandle->ucPinNumber);
+		pinLevel = ucPORT_DIO_READ_PIN(pxHandle->ucPortNumber, pxHandle->ucPinNumber);
 
 		/*	if it is the pressed level	*/
 		if (pinLevel == pxHandle->ucPressedLevel)

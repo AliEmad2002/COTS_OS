@@ -54,8 +54,8 @@ static void vTask(void* pvParams)
 	while(1)
 	{
 		/*	Read both channels, with applying the N-consicutive samples filtering method 	*/
-		ucANewLevel = ucPort_DIO_readPin(pxHandle->ucAPort, pxHandle->ucAPin);
-		ucBNewLevel = ucPort_DIO_readPin(pxHandle->ucBPort, pxHandle->ucBPin);
+		ucANewLevel = ucPORT_DIO_READ_PIN(pxHandle->ucAPort, pxHandle->ucAPin);
+		ucBNewLevel = ucPORT_DIO_READ_PIN(pxHandle->ucBPort, pxHandle->ucBPin);
 
 		vLIB_BinaryFilter_updateFilter(&pxHandle->xAFilter, ucANewLevel);
 		vLIB_BinaryFilter_updateFilter(&pxHandle->xBFilter, ucBNewLevel);

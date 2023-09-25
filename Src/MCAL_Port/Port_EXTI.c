@@ -53,14 +53,48 @@ const uint32_t puiPortExtiPinToExtiLineArr[16] = {
 		LL_EXTI_LINE_15
 };
 
-void(*ppfPortExtiCallbackArr[16])(void*);
-void* ppvPortExtiCallbackParamsArr[16];
-
 #include "MCAL_Port/Port_EXTI.h"
 
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
+void vPort_EXTI_setEdge(uint8_t ucPort, uint8_t ucPin, uint8_t ucEdge)
+{
+	/*	Map line to the given port	*/
+	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
+
+	/*	Set triggering edge	*/
+	configASSERT(ucEdge < 3);
+	switch(ucEdge)
+	{
+	case 0:
+		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_DisableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		break;
+	case 1:
+		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_DisableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		break;
+	case 2:
+		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+		break;
+	}
+}
+
+uint8_t ucPort_EXTI_getEdge(uint8_t ucPort, uint8_t ucPin)
+{
+	uint8_t ucRising = LL_EXTI_IsEnabledRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+	uint8_t ucFalling = LL_EXTI_IsEnabledFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
+
+	if (ucRising && ucFalling)
+		return 2;
+	else if (ucRising)
+		return 1;
+	else
+		return 0;
+}
+
 /*
  * TODO:
  * this function should deprecate the "pxPortInterruptExtiIrqNumberArr[]" array.
@@ -86,6 +120,19 @@ uint32_t uiPort_EXTI_getIrqNum(uint8_t ucPort, uint8_t ucPin)
  * 		-	Add clearing pending flag to the end of the ISR
  ******************************************************************************/
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_EXTI
+
+void(*ppfPortExtiCallbackArr[16])(void*);
+void* ppvPortExtiCallbackParamsArr[16];
+
+void vPort_EXTI_setCallback(	uint8_t ucPort,
+											uint8_t ucPin,
+											void(*pfCallback)(void*),
+											void* pvParams)
+{
+	ppfPortExtiCallbackArr[ucPin] = pfCallback;
+	ppvPortExtiCallbackParamsArr[ucPin] = pvParams;
+}
+
 void EXTI0_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[0](ppvPortExtiCallbackParamsArr[0]);

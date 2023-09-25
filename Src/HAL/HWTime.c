@@ -51,11 +51,11 @@ static inline void vInitHWTimer(void)
 	uiMaxCounterVal =
 		(1ul << pucPortTimerCounterSizeInBits[ucHOS_HWTIME_TIMER_UNIT_NUMBER]) - 1;
 
-	vPort_TIM_disableCounter(ucTimerUnitNumber);
+	vPORT_TIM_DISABLE_COUNTER(ucTimerUnitNumber);
 
 	vPort_TIM_useInternalClockSource(ucTimerUnitNumber);
 
-	vPort_TIM_setPrescaler(ucTimerUnitNumber, uiHOS_HWTIME_TIMER_PRESCALER);
+	VPORT_TIM_SET_PRESCALER(ucTimerUnitNumber, uiHOS_HWTIME_TIMER_PRESCALER);
 
 	vPort_TIM_setModeNormal(ucTimerUnitNumber);
 
@@ -63,24 +63,24 @@ static inline void vInitHWTimer(void)
 
 	vPort_TIM_setOvfCallback(ucTimerUnitNumber, vOvfCallback, NULL);
 
-	vPort_TIM_enableOverflowInterrupt(ucTimerUnitNumber);
+	vPORT_TIM_ENABLE_OVF_INTERRUPT(ucTimerUnitNumber);
 
-	vPort_TIM_setCountingDirUp(ucTimerUnitNumber);
+	vPORT_TIM_SET_COUNTING_DIR_UP(ucTimerUnitNumber);
 
-	vPort_TIM_setCounterUpperLimit(ucTimerUnitNumber, uiMaxCounterVal);
+	vPORT_TIM_SET_COUNTER_UPPER_LIMIT(ucTimerUnitNumber, uiMaxCounterVal);
 
-	vPort_TIM_enableCounter(ucTimerUnitNumber);
+	vPORT_TIM_ENABLE_COUNTER(ucTimerUnitNumber);
 }
 
 static inline void vInitInterruptController()
 {
 	uint8_t ucTimerUnitNumber = ucHOS_HWTIME_TIMER_UNIT_NUMBER;
 
-	vPort_Interrupt_setPriority(
+	VPORT_INTERRUPT_SET_PRIORITY(
 		pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber],
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 
-	vPort_Interrupt_enableIRQ(pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber]);
+	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber]);
 }
 
 

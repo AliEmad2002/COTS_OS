@@ -3,6 +3,8 @@
  *
  *  Created on: Jul 9, 2023
  *      Author: Ali Emad
+ *
+ * TODO: this driver is not yet optimized.
  */
 
 #ifndef COTS_OS_INC_MCAL_PORT_PORT_I2C_H_

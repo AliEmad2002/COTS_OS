@@ -40,7 +40,7 @@ static inline void vBlockUntilIntTrigger(xHOS_RDM6300_t* pxHandle)
 	vPORT_EXTI_CLEAR_PENDING_FLAG(pxHandle->ucIntPort, pxHandle->ucIntPin);
 
 	/*	Enable interrupt (Disabled in the ISR)	*/
-	vPort_EXTI_enableLine(pxHandle->ucIntPort, pxHandle->ucIntPin);
+	vPORT_EXTI_ENABLE_LINE(pxHandle->ucIntPort, pxHandle->ucIntPin);
 
 	/*	Block on the new read semaphore	*/
 	xSemaphoreTake(pxHandle->xNewReadSemaphore, portMAX_DELAY);
@@ -97,11 +97,11 @@ static void vCallback(void* pvParams)
 	xHOS_RDM6300_t* pxHandle = (xHOS_RDM6300_t*)pvParams;
 
 	/*	Validate interrupt's signal	*/
-	if (ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin) == 0)
+	if (ucPORT_DIO_READ_PIN(pxHandle->ucIntPort, pxHandle->ucIntPin) == 0)
 		return;
 
 	/*	Disable interrupt	*/
-	vPort_EXTI_disableLine(pxHandle->ucIntPort, pxHandle->ucIntPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucIntPort, pxHandle->ucIntPin);
 
 	/*	Release the new read semaphore	*/
 	BaseType_t xHPTWoken = pdFALSE;
@@ -178,9 +178,9 @@ void vHOS_RDM6300_init(xHOS_RDM6300_t* pxHandle)
 	/*	Initialize EXTI channel	*/
 	vPort_DIO_initPinInput(pxHandle->ucIntPort, pxHandle->ucIntPin, 0);
 
-	vPort_EXTI_disableLine(pxHandle->ucIntPort, pxHandle->ucIntPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucIntPort, pxHandle->ucIntPin);
 
-	vPort_EXTI_initLine(pxHandle->ucIntPort, pxHandle->ucIntPin, 1);
+	vPort_EXTI_setEdge(pxHandle->ucIntPort, pxHandle->ucIntPin, 1);
 
 	vPort_EXTI_setCallback(	pxHandle->ucIntPort,
 							pxHandle->ucIntPin,
@@ -188,11 +188,11 @@ void vHOS_RDM6300_init(xHOS_RDM6300_t* pxHandle)
 							(void*)pxHandle	);
 
 	/*	Initialize interrupt controller	*/
-	vPort_Interrupt_setPriority(
+	VPORT_INTERRUPT_SET_PRIORITY(
 		pxPortInterruptExtiIrqNumberArr[pxHandle->ucIntPin],
 		configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-	vPort_Interrupt_enableIRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucIntPin]);
+	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucIntPin]);
 }
 
 /*

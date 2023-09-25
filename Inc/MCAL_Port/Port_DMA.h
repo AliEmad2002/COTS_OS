@@ -21,7 +21,7 @@
  *
  * If the used target does not have DMA, make sure that "portDMA_IS_AVAILABLE" is 0.
  */
-#define portDMA_IS_AVAILABLE					0
+#define portDMA_IS_AVAILABLE					1
 
 
 #if portDMA_IS_AVAILABLE
@@ -42,8 +42,7 @@
  */
 extern DMA_Channel_TypeDef* const pxPort_DmaChArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
 extern DMA_TypeDef* const pxPort_DmaArr[];
-extern volatile void(*ppfPortDmaCallbackArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT]) (void*);
-extern void* ppvPortDmaCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
+
 
 /*******************************************************************************
  * Helping structures / Enums:
@@ -105,10 +104,7 @@ typedef struct{
  * empty. Although, it must be called in upper layer code before using DMA, for
  * portability.
  */
-static inline void vPort_DMA_initUnit(uint8_t ucUnitNumber)
-{
-
-}
+void vPort_DMA_initUnit(uint8_t ucUnitNumber);
 
 /*
  * Initializes DMA channel.
@@ -117,10 +113,7 @@ static inline void vPort_DMA_initUnit(uint8_t ucUnitNumber)
  * left empty. Although, it must be called in upper layer code before using DMA,
  * for portability.
  */
-static inline void vPort_DMA_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
-{
-
-}
+void vPort_DMA_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber);
 
 /*
  * Initiates new DMA transfer.
@@ -147,18 +140,14 @@ void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t*  pxInfo);
 /*
  * Enables transfer complete interrupt of a channel.
  */
-static inline void vPort_DMA_enableTransferCompleteInterrupt(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
-{
-	LL_DMA_EnableIT_TC(pxPort_DmaArr[ucUnitNumber], ucChannelNumber+1);
-}
+#define vPORT_DMA_ENABLE_TRANSFER_COMPLETE_INTERRUPT(ucUnitNumber, ucChannelNumber)	\
+	(	LL_DMA_EnableIT_TC(pxPort_DmaArr[(ucUnitNumber)], (ucChannelNumber) + 1)	)
 
 /*
  * Disables transfer complete interrupt of a channel.
  */
-static inline void vPort_DMA_disableTransferCompleteInterrupt(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
-{
-	LL_DMA_DisableIT_TC(pxPort_DmaArr[ucUnitNumber], ucChannelNumber+1);
-}
+#define vPORT_DMA_DISABLE_TRANSFER_COMPLETE_INTERRUPT(ucUnitNumber, ucChannelNumber)	\
+	(	LL_DMA_DisableIT_TC(pxPort_DmaArr[(ucUnitNumber)], (ucChannelNumber) + 1)	)
 
 /*
  * Sets callback of transfer complete interrupt of a certain channel.
@@ -166,14 +155,10 @@ static inline void vPort_DMA_disableTransferCompleteInterrupt(uint8_t ucUnitNumb
  * This function should not be changed even when target is changed, as it only
  * uses driver's defined arrays.
  */
-static inline void vPort_DMA_setTransferCompleteCallback(	uint8_t ucUnitNumber,
+void vPort_DMA_setTransferCompleteCallback(	uint8_t ucUnitNumber,
 															uint8_t ucChannelNumber,
 															void(*pfCallback)(void*),
-															void* pvParams	)
-{
-	ppfPortDmaCallbackArr[ucUnitNumber][ucChannelNumber] = pfCallback;
-	ppvPortDmaCallbackParamsArr[ucUnitNumber][ucChannelNumber] = pvParams;
-}
+															void* pvParams	);
 
 
 

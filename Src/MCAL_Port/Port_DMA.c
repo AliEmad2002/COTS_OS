@@ -35,6 +35,16 @@ DMA_TypeDef* const pxPort_DmaArr[] = {DMA1};
 /*******************************************************************************
  * Functions:
  ******************************************************************************/
+void vPort_DMA_initUnit(uint8_t ucUnitNumber)
+{
+
+}
+
+void vPort_DMA_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
+{
+
+}
+
 void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t* pxInfo)
 {
 	uint32_t uiConf;
@@ -96,11 +106,6 @@ void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t* pxInfo)
 	LL_DMA_EnableChannel(pxUnitHandle, uiChannelNumber);
 }
 
-/*******************************************************************************
- * ISRs:
- ******************************************************************************/
-volatile void(*ppfPortDmaCallbackArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT]) (void*);
-void* ppvPortDmaCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
 
 /*******************************************************************************
  * ISRs:
@@ -110,6 +115,19 @@ void* ppvPortDmaCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHA
  * 		-	Add clearing pending flag to the end of the ISR
  ******************************************************************************/
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_DMA
+
+volatile void(*ppfPortDmaCallbackArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT]) (void*);
+void* ppvPortDmaCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
+
+void vPort_DMA_setTransferCompleteCallback(	uint8_t ucUnitNumber,
+															uint8_t ucChannelNumber,
+															void(*pfCallback)(void*),
+															void* pvParams	)
+{
+	ppfPortDmaCallbackArr[ucUnitNumber][ucChannelNumber] = pfCallback;
+	ppvPortDmaCallbackParamsArr[ucUnitNumber][ucChannelNumber] = pvParams;
+}
+
 void DMA1_Channel1_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 0))
@@ -166,6 +184,7 @@ void DMA1_Channel7_IRQHandler(void)
 		vPort_DMA_CLEAR_TC_FLAG(0, 6);
 	}
 }
+
 #endif
 
 #endif		/*		portDMA_IS_AVAILABLE		*/

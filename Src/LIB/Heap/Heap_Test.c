@@ -34,7 +34,7 @@
 /*	HAL_OS	*/
 #include "HAL/HAL_OS.h"
 
-#define MAX_VAL ((1 << 31) - 1)
+#define MAX_VAL ((1ul << 31) - 1)
 
 /*******************************************************************************
  * Tasks stacks and handles (initialization task and main tasks):

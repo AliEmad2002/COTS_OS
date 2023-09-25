@@ -72,7 +72,7 @@ static inline void vFallingCallback(xHOS_UltraSonicDistance_t* pxHandle)
 	}
 
 	/*	Disable interrupt (Enabled by handle's task at next sample)	*/
-	vPort_EXTI_disableLine(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
 
 	/*	Acknowledge handle's task that a new read is available	*/
 	BaseType_t xHighPriorityTaskWoken = pdFALSE;
@@ -129,14 +129,14 @@ static void vTask(void* pvParams)
 		vPORT_EXTI_CLEAR_PENDING_FLAG(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
 
 		/*	Enable EXTI interrupt (Disabled in the ISR)	*/
-		vPort_EXTI_enableLine(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
+		vPORT_EXTI_ENABLE_LINE(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
 
 		/*	trigger sensor	*/
-		vPort_DIO_writePin(pxHandle->ucTrigPort, pxHandle->ucTrigPin, 1);
+		vPORT_DIO_WRITE_PIN(pxHandle->ucTrigPort, pxHandle->ucTrigPin, 1);
 
 		/*	After 1 ms, turn off the trigger signal	*/
 		vTaskDelay(1);
-		vPort_DIO_writePin(pxHandle->ucTrigPort, pxHandle->ucTrigPin, 0);
+		vPORT_DIO_WRITE_PIN(pxHandle->ucTrigPort, pxHandle->ucTrigPin, 0);
 
 		/*
 		 * Block until EXTI callback is executed and has stored new timestamps,
@@ -162,7 +162,7 @@ static void vTask(void* pvParams)
 		}
 
 		/*	Disable EXTI interrupt	*/
-		vPort_EXTI_disableLine(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
+		vPORT_EXTI_DISABLE_LINE(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
 
 		/*	Delay until next sample time	*/
 		vTaskDelayUntil(
@@ -212,24 +212,24 @@ void vHOS_UltraSonicDistance_init(	xHOS_UltraSonicDistance_t* pxHandle,
 
 	/*	Initialize pins	*/
 	vPort_DIO_initPinOutput(pxHandle->ucTrigPort, pxHandle->ucTrigPin);
-	vPort_DIO_writePin(pxHandle->ucTrigPort, pxHandle->ucTrigPin, 0);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucTrigPort, pxHandle->ucTrigPin, 0);
 
 	vPort_DIO_initPinInput(pxHandle->ucEchoPort, pxHandle->ucEchoPin, 0);
 
 	/*	Initialize EXTI	*/
 	vPort_EXTI_setEdge(pxHandle->ucEchoPort, pxHandle->ucEchoPin, 1);
-	vPort_EXTI_disableLine(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
 	vPort_EXTI_setCallback(	pxHandle->ucEchoPort,
 							pxHandle->ucEchoPin,
 							vCallback,
 							(void*)pxHandle	);
 
 	/*	Initialize interrupt controller	*/
-	vPort_Interrupt_setPriority(
+	VPORT_INTERRUPT_SET_PRIORITY(
 		pxPortInterruptExtiIrqNumberArr[pxHandle->ucEchoPin],
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1	);
 
-	vPort_Interrupt_enableIRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucEchoPin]);
+	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucEchoPin]);
 }
 
 /*

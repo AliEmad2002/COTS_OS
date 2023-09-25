@@ -44,7 +44,7 @@ static void vCallback(void* pvParams)
 	uint64_t ulCurrentTime = ulHOS_HWTime_getTimestampFromISR();
 
 	/*	Get pin state	*/
-	uint8_t ucPinState = ucPort_DIO_readPin(pxHandle->ucPort, pxHandle->ucPin);
+	uint8_t ucPinState = ucPORT_DIO_READ_PIN(pxHandle->ucPort, pxHandle->ucPin);
 
 	/*	If callback is due to a rising edge	*/
 	if (ucPinState == 1)
@@ -117,7 +117,7 @@ static void vTask(void* pvParams)
 		 */
 		if (xSemaphoreTake(pxHandle->xNewMeasurementSemaphore, uiTimeoutMs) == 0)
 		{
-			if (ucPort_DIO_readPin(pxHandle->ucPort, pxHandle->ucPin))
+			if (ucPORT_DIO_READ_PIN(pxHandle->ucPort, pxHandle->ucPin))
 				pxHandle->uiActiveTime = (uint32_t)-1; // maximum active time.
 			else
 				pxHandle->uiActiveTime = 0;
@@ -179,14 +179,14 @@ void vHOS_PWMMeasure_init(xHOS_PWMDutyMeasure_t* pxHandle)
 							vCallback,
 							(void*)pxHandle	);
 
-	vPort_EXTI_enableLine(pxHandle->ucPort, pxHandle->ucPin);
+	vPORT_EXTI_ENABLE_LINE(pxHandle->ucPort, pxHandle->ucPin);
 
 	/*	Initialize interrupt controller	*/
 	uint32_t uiIrqNum = uiPort_EXTI_getIrqNum(pxHandle->ucPort, pxHandle->ucPin);
 
-	vPort_Interrupt_setPriority(uiIrqNum, uiCONF_PWM_MEASURE_EXTI_PRI);
+	VPORT_INTERRUPT_SET_PRIORITY(uiIrqNum, uiCONF_PWM_MEASURE_EXTI_PRI);
 
-	vPort_Interrupt_enableIRQ(uiIrqNum);
+	vPORT_INTERRUPT_ENABLE_IRQ(uiIrqNum);
 }
 
 /*
@@ -202,13 +202,13 @@ uint32_t uiHOS_PWMMeasure_getDuty(xHOS_PWMDutyMeasure_t* pxHandle)
 	 * Disable EXTI, to assure a new measurement won't take place in the middle
 	 * of reading handle's data.
 	 */
-	vPort_EXTI_disableLine(pxHandle->ucPort, pxHandle->ucPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucPort, pxHandle->ucPin);
 
 	uint32_t uiActiveTime = pxHandle->uiActiveTime;
 	uint32_t uiPeriodTime = pxHandle->uiPeriodTime;
 
 	/*	Enable EXTI back	*/
-	vPort_EXTI_enableLine(pxHandle->ucPort, pxHandle->ucPin);
+	vPORT_EXTI_ENABLE_LINE(pxHandle->ucPort, pxHandle->ucPin);
 
 	/*	If active time is set to maximum value, or period time is zero, return maximum duty	*/
 	if (uiActiveTime == (uint32_t)-1 || uiPeriodTime == 0)

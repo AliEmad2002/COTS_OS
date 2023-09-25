@@ -16,33 +16,33 @@ extern SPI_TypeDef* const pxPortSpiArr[];
  * Helping structures:
  ******************************************************************************/
 typedef struct{
-	uint8_t ucNssPort;
-	uint8_t ucNssPin;
+	uint8_t ucNssPort : 4;
+	uint8_t ucNssPin : 4;
 
-	uint8_t ucSckPort;
-	uint8_t ucSckPin;
+	uint8_t ucSckPort : 4;
+	uint8_t ucSckPin : 4;
 
-	uint8_t ucMISOPort;
-	uint8_t ucMISOPin;
+	uint8_t ucMISOPort : 4;
+	uint8_t ucMISOPin : 4;
 
-	uint8_t ucMOSIPort;
-	uint8_t ucMOSIPin;
+	uint8_t ucMOSIPort : 4;
+	uint8_t ucMOSIPin : 4;
 }xPort_GPIO_SpiMap_t;
 
 typedef struct{
-	uint8_t ucSclPort;
-	uint8_t ucSclPin;
+	uint8_t ucSclPort : 4;
+	uint8_t ucSclPin : 4;
 
-	uint8_t ucSdaPort;
-	uint8_t ucSdaPin;
+	uint8_t ucSdaPort : 4;
+	uint8_t ucSdaPin : 4;
 }xPort_GPIO_I2CMap_t;
 
 typedef struct{
-	uint8_t ucTxPort;
-	uint8_t ucTxPin;
+	uint8_t ucTxPort : 4;
+	uint8_t ucTxPin : 4;
 
-	uint8_t ucRxPort;
-	uint8_t ucRxPin;
+	uint8_t ucRxPort : 4;
+	uint8_t ucRxPin : 4;
 }xPort_GPIO_UartMap_t;
 
 /*******************************************************************************
@@ -51,7 +51,7 @@ typedef struct{
 static void vPort_GPIO_initPinAFPP(uint8_t ucPort, uint8_t ucPin)
 {
 	GPIO_InitTypeDef xConf;
-	xConf.Pin = 1 << ucPin;
+	xConf.Pin = 1ul << ucPin;
 	xConf.Mode = GPIO_MODE_AF_PP;
 	xConf.Pull = GPIO_NOPULL;
 	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -61,7 +61,7 @@ static void vPort_GPIO_initPinAFPP(uint8_t ucPort, uint8_t ucPin)
 static void vPort_GPIO_initPinAFOD(uint8_t ucPort, uint8_t ucPin)
 {
 	GPIO_InitTypeDef xConf;
-	xConf.Pin = 1 << ucPin;
+	xConf.Pin = 1ul << ucPin;
 	xConf.Mode = GPIO_MODE_AF_OD;
 	xConf.Pull = GPIO_NOPULL;
 	xConf.Speed = GPIO_SPEED_FREQ_HIGH;

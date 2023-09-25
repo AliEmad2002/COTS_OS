@@ -117,7 +117,7 @@ xHOS_SDC_Version_t xHOS_SDC_initBranch0(xHOS_SDC_t* pxSdc)
 	while(xTaskGetTickCount() < xEndTime)
 	{
 		/*	send ACMD41	*/
-		ucSuccessfull = ucHOS_SDC_sendAcmd(pxSdc, 41, 1 << 30);
+		ucSuccessfull = ucHOS_SDC_sendAcmd(pxSdc, 41, 1ul << 30);
 		if (!ucSuccessfull)
 			break;
 
@@ -177,7 +177,7 @@ uint8_t ucHOS_SDC_initFlow(xHOS_SDC_t* pxSdc)
 	/**	Initialization flow: (Diagram is at the directory: ../Inc/HAL/SDC)	**/
 
 	/*	select chip	*/
-	vPort_DIO_writePin(pxSdc->ucCsPort, pxSdc->ucCsPin, 1);
+	vPORT_DIO_WRITE_PIN(pxSdc->ucCsPort, pxSdc->ucCsPin, 1);
 
 	vTaskDelay(pdMS_TO_TICKS(2));
 
@@ -185,7 +185,7 @@ uint8_t ucHOS_SDC_initFlow(xHOS_SDC_t* pxSdc)
 	vHOS_SPI_sendMultiple(pxSdc->ucSpiUnitNumber, (int8_t*)&ucDummyByte, 1, 10);
 
 	/*	select chip	*/
-	vPort_DIO_writePin(pxSdc->ucCsPort, pxSdc->ucCsPin, 0);
+	vPORT_DIO_WRITE_PIN(pxSdc->ucCsPort, pxSdc->ucCsPin, 0);
 
 	/*	send CMD0	*/
 	vHOS_SDC_sendCommand(pxSdc, 0, 0);

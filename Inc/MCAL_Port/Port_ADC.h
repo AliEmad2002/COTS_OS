@@ -2,7 +2,7 @@
  * Port_ADC.h
  *
  *  Created on: ٢٤‏/٠٦‏/٢٠٢٣
- *      Author: mohamed
+ *      Author: Mohamed Mahomud Abdo
  */
 
 #ifndef PORT_PORT_ADC_H_
@@ -26,7 +26,6 @@ extern ADC_TypeDef* const pxPortADCArr[];
 typedef enum{
 	eSampleTimMin = ADC_SAMPLETIME_1CYCLE_5,
 	eSampleTimMax = ADC_SAMPLETIME_239CYCLES_5,
-
 }ADC_TimeSampling_t;
 
 
@@ -36,7 +35,6 @@ typedef enum{
  * 		-	configure the ADC Parameters
  * 		-	The u16Port_ADC_PollingRead must do one converge in the call so no sequence reading
  ******************************************************************************/
-
 void  vPort_ADC_Init(uint8_t ucADCNumber);
 
 /*******************************************************************************
@@ -44,7 +42,6 @@ void  vPort_ADC_Init(uint8_t ucADCNumber);
  * Purpose:
  * 		- init the Pin for analog read
  *******************************************************************************/
-
 void vPort_ADC_InitChannel(uint8_t ucADCNumber,uint16_t usChannelNumber,ADC_TimeSampling_t xSamplingTime);
 
 
@@ -58,11 +55,10 @@ void vPort_ADC_InitChannel(uint8_t ucADCNumber,uint16_t usChannelNumber,ADC_Time
  * return:
  * 		- the analog value on the pin the (12 bit res)
  *******************************************************************************/
-
 uint16_t usPort_ADC_PollingRead(uint8_t ucAdcNumbe,uint32_t ulTimeout);
 
 /*******************************************************************************
- * u16Port_ADC_DirectRead.
+ * usPort_ADC_DirectRead.
  * Purpose:
  * 		- return the ADC conversion
  * 		- it is not a blocking function, just returns whatever value is in the
@@ -72,21 +68,15 @@ uint16_t usPort_ADC_PollingRead(uint8_t ucAdcNumbe,uint32_t ulTimeout);
  * 		- the analog value on the pin the (12 bit res)
  *******************************************************************************/
 
-static inline uint16_t usPort_ADC_DirectRead(uint8_t ucAdcNumber)
-{
-	return LL_ADC_REG_ReadConversionData12(pxPortADCArr[ucAdcNumber]);
-}
+#define usPORT_ADC_DIRECT_READ(ucAdcNumber)	\
+	(	LL_ADC_REG_ReadConversionData12(pxPortADCArr[(ucAdcNumber)])	)
 
 /*	Returns voltage in mV. No blocking	*/
-static inline int32_t iPort_ADC_DirectReadVoltage(uint8_t ucAdcNumber)
-{
-	return (LL_ADC_REG_ReadConversionData12(pxPortADCArr[ucAdcNumber]) * 3300) / 4096;
-}
+#define iPORT_ADC_DIRECT_READ_VOLTAGE(ucAdcNumber)	\
+	(	(LL_ADC_REG_ReadConversionData12(pxPortADCArr[(ucAdcNumber)]) * 3300) / 4096	)
 
-static inline void vPort_ADC_SWTrigger(uint8_t ucAdcNumber)
-{
-	LL_ADC_REG_StartConversionSWStart(pxPortADCArr[ucAdcNumber]);
-}
+#define vPORT_ADC_SW_TRIGGER(ucAdcNumber)	\
+	(	LL_ADC_REG_StartConversionSWStart(pxPortADCArr[(ucAdcNumber)])	)
 
 
 

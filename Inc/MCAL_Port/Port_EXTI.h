@@ -19,14 +19,12 @@
 
 extern const uint32_t puiPortExtiPinToAfioLineArr[16];
 extern const uint32_t puiPortExtiPinToExtiLineArr[16];
-extern void(*ppfPortExtiCallbackArr[16])(void*);
-extern void* ppvPortExtiCallbackParamsArr[16];
 
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
 /*
- * Initializes certain pin to trigger an interrupt on signal edges.
+ * Sets the edge on which the interrupt request would be generated on certain EXTI pin.
  *
  * Notes:
  * 		-	Pin GPIO configuration must be done independently.
@@ -44,90 +42,24 @@ extern void* ppvPortExtiCallbackParamsArr[16];
  *
  * 		-	If the ported target does not support some pins, port writer must
  * 			declare them in this comment note, and range check them in the function.
- * 			(porting for STM32F103 using this SW gives the ability of using pins 0-4)
+ * 			(porting for STM32F103 using this SW gives the ability of using pins 0-15)
  */
-static inline void vPort_EXTI_initLine(	uint8_t ucPort,
-										uint8_t ucPin,
-										uint8_t ucEdge	)
-{
-	/*	Map line to the given port	*/
-	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
-
-	/*	Set triggering edge	*/
-	configASSERT(ucEdge < 3);
-	switch(ucEdge)
-	{
-	case 0:
-		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		break;
-	case 1:
-		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		break;
-	case 2:
-		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		break;
-	}
-}
-
-/*
- * TODO: deprecate the previous function.
- */
-static inline void vPort_EXTI_setEdge(	uint8_t ucPort,
-										uint8_t ucPin,
-										uint8_t ucEdge	)
-{
-	/*	Map line to the given port	*/
-	LL_GPIO_AF_SetEXTISource(ucPort, puiPortExtiPinToAfioLineArr[ucPin]);
-
-	/*	Set triggering edge	*/
-	configASSERT(ucEdge < 3);
-	switch(ucEdge)
-	{
-	case 0:
-		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		LL_EXTI_DisableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		break;
-	case 1:
-		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		LL_EXTI_DisableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		break;
-	case 2:
-		LL_EXTI_EnableFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		LL_EXTI_EnableRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-		break;
-	}
-}
+void vPort_EXTI_setEdge(uint8_t ucPort, uint8_t ucPin, uint8_t ucEdge);
 
 /*
  * returns the edge on which EXTI triggers an interrupt.
  *
  *
  */
-static inline uint8_t ucPort_EXTI_getEdge(uint8_t ucPort, uint8_t ucPin)
-{
-	uint8_t ucRising = LL_EXTI_IsEnabledRisingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-	uint8_t ucFalling = LL_EXTI_IsEnabledFallingTrig_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-
-	if (ucRising && ucFalling)
-		return 2;
-	else if (ucRising)
-		return 1;
-	else
-		return 0;
-}
+uint8_t ucPort_EXTI_getEdge(uint8_t ucPort, uint8_t ucPin);
 
 /*	Enables line	*/
-static inline void vPort_EXTI_enableLine(uint8_t ucPort, uint8_t ucPin)
-{
-	LL_EXTI_EnableIT_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-}
+#define vPORT_EXTI_ENABLE_LINE(ucPort, ucPin)	\
+	(	LL_EXTI_EnableIT_0_31(puiPortExtiPinToExtiLineArr[(ucPin)])	)
 
 /*	Disables line	*/
-static inline void vPort_EXTI_disableLine(uint8_t ucPort, uint8_t ucPin)
-{
-	LL_EXTI_DisableIT_0_31(puiPortExtiPinToExtiLineArr[ucPin]);
-}
+#define vPORT_EXTI_DISABLE_LINE(ucPort, ucPin)	\
+	(	LL_EXTI_DisableIT_0_31(puiPortExtiPinToExtiLineArr[(ucPin)])	)
 
 /*
  * Clears pending flag.
@@ -159,14 +91,10 @@ static inline void vPort_EXTI_disableLine(uint8_t ucPort, uint8_t ucPin)
  * This function should not be changed even when target is changed, as it only
  * uses driver's defined arrays.
  */
-static inline void vPort_EXTI_setCallback(	uint8_t ucPort,
+void vPort_EXTI_setCallback(	uint8_t ucPort,
 											uint8_t ucPin,
 											void(*pfCallback)(void*),
-											void* pvParams)
-{
-	ppfPortExtiCallbackArr[ucPin] = pfCallback;
-	ppvPortExtiCallbackParamsArr[ucPin] = pvParams;
-}
+											void* pvParams);
 
 /*
  * Returns IRQ number of a given EXTI channel.

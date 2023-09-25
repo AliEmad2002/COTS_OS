@@ -229,20 +229,20 @@ void vHOS_SPI_init(void)
 		xSemaphoreGive(pxUnit->xRxneSemaphore);
 
 		/*	Initialize unit's TxE interrupt	*/
-		vPort_Interrupt_setPriority(	pxPortInterruptSpiTxeIrqNumberArr[i],
+		VPORT_INTERRUPT_SET_PRIORITY(	pxPortInterruptSpiTxeIrqNumberArr[i],
 										configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-		vPort_Interrupt_enableIRQ(pxPortInterruptSpiTxeIrqNumberArr[i]);
+		vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptSpiTxeIrqNumberArr[i]);
 
 		vPort_SPI_setTxeCallback(i, vTxeCallback, (void*)pxUnit);
 
 		vPORT_SPI_disableTxeInterrupt(i);
 
 		/*	Initialize unit's RxNE interrupt	*/
-		vPort_Interrupt_setPriority(	pxPortInterruptSpiRxneIrqNumberArr[i],
+		VPORT_INTERRUPT_SET_PRIORITY(	pxPortInterruptSpiRxneIrqNumberArr[i],
 										configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-		vPort_Interrupt_enableIRQ(pxPortInterruptSpiRxneIrqNumberArr[i]);
+		vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptSpiRxneIrqNumberArr[i]);
 
 		vPort_SPI_setRxneCallback(i, vRxneCallback, (void*)pxUnit);
 

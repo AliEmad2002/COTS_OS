@@ -32,10 +32,10 @@
 #define ucTFT_CMD_SCROLL								0x37
 
 #define vTFT_CS_ENABLE(pxTFT)	\
-	(vPort_DIO_writePin((pxTFT)->ucCSPort, (pxTFT)->ucCSPin, 0))
+	(vPORT_DIO_WRITE_PIN((pxTFT)->ucCSPort, (pxTFT)->ucCSPin, 0))
 
 #define vTFT_CS_DISABLE(pxTFT)	\
-	(vPort_DIO_writePin((pxTFT)->ucCSPort, (pxTFT)->ucCSPin, 1))
+	(vPORT_DIO_WRITE_PIN((pxTFT)->ucCSPort, (pxTFT)->ucCSPin, 1))
 
 /*
  * resets TFT (executes reset sequence).
@@ -44,19 +44,19 @@ static void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
 {
 	vTaskDelay(pdMS_TO_TICKS(1));
 
-	vPort_DIO_writePin(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
 	vTaskDelay(pdMS_TO_TICKS(1));
 
-	vPort_DIO_writePin(pxTFT->ucRstPort, pxTFT->ucRstPin, 0);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucRstPort, pxTFT->ucRstPin, 0);
 	vTaskDelay(pdMS_TO_TICKS(1));
 
-	vPort_DIO_writePin(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
 	vTaskDelay(pdMS_TO_TICKS(1));
 
-	vPort_DIO_writePin(pxTFT->ucRstPort, pxTFT->ucRstPin, 0);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucRstPort, pxTFT->ucRstPin, 0);
 	vTaskDelay(pdMS_TO_TICKS(1));
 
-	vPort_DIO_writePin(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
 	vTaskDelay(pdMS_TO_TICKS(120));
 }
 
@@ -75,7 +75,7 @@ static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
 {
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
-	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucCmd, 1);
 }
 
@@ -94,7 +94,7 @@ static inline void vHOS_TFT_writeDataByte(xHOS_TFT_t* pxTFT, int8_t ucByte)
 {
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
-	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucByte, 1);
 }
 
@@ -102,7 +102,7 @@ static void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiS
 {
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
-	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
 
 	vHOS_SPI_setByteDirection(	pxTFT->ucSpiUnitNumber,
 								ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST	);
@@ -114,7 +114,7 @@ static void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint
 {
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
 
-	vPort_DIO_writePin(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
 
 	vHOS_SPI_setByteDirection(	pxTFT->ucSpiUnitNumber,
 								ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST	);

@@ -44,7 +44,7 @@
 
 #define ucGET_MSB(pucSR) 	(((pucSR)[uiSHIFT_REG_SIZE_IN_BYTES - 1] >> 7) & 1)
 
-#define ucSET_MSB(pucSR) 	((pucSR)[uiSHIFT_REG_SIZE_IN_BYTES - 1] |= (1 << 7))
+#define ucSET_MSB(pucSR) 	((pucSR)[uiSHIFT_REG_SIZE_IN_BYTES - 1] |= (1ul << 7))
 
 #define ucIS_SOF_MATCH(pxHandle)		\
 	(((xHOS_RF_Frame_t*)((pxHandle)->pucRxShiftRegister))->ucSOF == ucRF_SOF)
@@ -80,9 +80,9 @@ static void vTxTask(void* pvParams)
 		{
 			for (uint32_t i = 0; i < uiRF_DUMMY_FIELD_SIZE_IN_BITS; i++)
 			{
-				vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 1);
+				vPORT_DIO_WRITE_PIN(pxHandle->ucTxPort, pxHandle->ucTxPin, 1);
 				vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
-				vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
+				vPORT_DIO_WRITE_PIN(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
 				vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
 			}
 
@@ -99,9 +99,9 @@ static void vTxTask(void* pvParams)
 		 */
 		if (ucNewBit == 1)
 		{
-			vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 1);
+			vPORT_DIO_WRITE_PIN(pxHandle->ucTxPort, pxHandle->ucTxPin, 1);
 			vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
-			vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
+			vPORT_DIO_WRITE_PIN(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
 			vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
 
 			vSHIFT_LEFT(pxHandle->pucTxShiftRegister);
@@ -218,20 +218,20 @@ void xHOS_RFPhysical_init(xHOS_RF_t* pxHandle)
 {
 	/*	Initialize transmitter's pin as output, initially at low level voltage	*/
 	vPort_DIO_initPinOutput(pxHandle->ucTxPort, pxHandle->ucTxPin);
-	vPort_DIO_writePin(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucTxPort, pxHandle->ucTxPin, 0);
 
 	/*	Initialize receiver's pin as input, with rising edge interrupt, initially disabled	*/
 	vPort_DIO_initPinInput(pxHandle->ucRxPort, pxHandle->ucRxPin, 0);
-	vPort_EXTI_initLine(pxHandle->ucRxPort, pxHandle->ucRxPin, 1);
+	vPort_EXTI_setEdge(pxHandle->ucRxPort, pxHandle->ucRxPin, 1);
 	vPort_EXTI_setCallback(pxHandle->ucRxPort, pxHandle->ucRxPin, vISR, (void*)pxHandle);
-	vPort_EXTI_disableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Initialize receiver's interrupt in the interrupt controller	*/
-	vPort_Interrupt_setPriority(
+	VPORT_INTERRUPT_SET_PRIORITY(
 		pxPortInterruptExtiIrqNumberArr[pxHandle->ucRxPin],
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1	);
 
-	vPort_Interrupt_enableIRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucRxPin]);
+	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucRxPin]);
 
 	/*	Initialize counters and flags	*/
 	pxHandle->uiTxNRemaining = 0;
@@ -274,7 +274,7 @@ void xHOS_RFPhysical_init(xHOS_RF_t* pxHandle)
 void xHOS_RFPhysical_enable(xHOS_RF_t* pxHandle)
 {
 	/*	Enable EXTI line */
-	vPort_EXTI_enableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
+	vPORT_EXTI_ENABLE_LINE(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Resume Rx, Tx tasks	*/
 	vTaskResume(pxHandle->xRxPhyTask);
@@ -284,7 +284,7 @@ void xHOS_RFPhysical_enable(xHOS_RF_t* pxHandle)
 void xHOS_RFPhysical_disable(xHOS_RF_t* pxHandle)
 {
 	/*	Disable EXTI line */
-	vPort_EXTI_disableLine(pxHandle->ucRxPort, pxHandle->ucRxPin);
+	vPORT_EXTI_DISABLE_LINE(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Suspend Rx, Tx tasks	*/
 	vTaskSuspend(pxHandle->xRxPhyTask);

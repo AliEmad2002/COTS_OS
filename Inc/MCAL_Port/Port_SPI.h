@@ -3,6 +3,8 @@
  *
  *  Created on: Jun 12, 2023
  *      Author: Ali Emad
+ *
+ * TODO: this driver is not yet optimized.
  */
 
 #ifndef HAL_OS_PORT_PORT_SPI_H_

@@ -47,17 +47,7 @@ extern GPIO_TypeDef* const pxPortDioPortArr[];
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull)
-{
-	GPIO_InitTypeDef conf = {
-		.Pin = 1 << ucPinNumber,
-		.Mode = GPIO_MODE_INPUT,
-		.Pull = ucPull,
-		.Speed = GPIO_SPEED_FREQ_HIGH
-	};
-
-	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
-}
+void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull);
 
 /*
  * Initializes pin as digital output.
@@ -65,17 +55,7 @@ static inline void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNum
  * Notes:
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
-{
-	GPIO_InitTypeDef conf = {
-		.Pin = 1 << ucPinNumber,
-		.Mode = GPIO_MODE_OUTPUT_PP,
-		.Pull = GPIO_NOPULL,
-		.Speed = GPIO_SPEED_FREQ_HIGH
-	};
-
-	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
-}
+void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber);
 
 /*
  * Reads pin input value
@@ -87,10 +67,8 @@ static inline void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNu
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline uint8_t ucPort_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumber)
-{
-	return HAL_GPIO_ReadPin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber);
-}
+#define ucPORT_DIO_READ_PIN(ucPortNumber, ucPinNumber)	\
+	(	HAL_GPIO_ReadPin(pxPortDioPortArr[(ucPortNumber)], 1 << (ucPinNumber))	)
 
 /*
  * Writes pin output value
@@ -102,10 +80,8 @@ static inline uint8_t ucPort_DIO_readPin(uint8_t ucPortNumber, uint8_t ucPinNumb
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vPort_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucLevel)
-{
-	HAL_GPIO_WritePin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber, ucLevel);
-}
+#define vPORT_DIO_WRITE_PIN(ucPortNumber, ucPinNumber, ucLevel)	\
+	(	HAL_GPIO_WritePin(pxPortDioPortArr[(ucPortNumber)], 1 << (ucPinNumber), (ucLevel))	)
 
 /*
  * Toggles pin output value
@@ -115,10 +91,8 @@ static inline void vPort_DIO_writePin(uint8_t ucPortNumber, uint8_t ucPinNumber,
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-static inline void vPort_DIO_togglePin(uint8_t ucPortNumber, uint8_t ucPinNumber)
-{
-	HAL_GPIO_TogglePin(pxPortDioPortArr[ucPortNumber], 1 << ucPinNumber);
-}
+#define vPORT_DIO_TOGGLE_PIN(ucPortNumber, ucPinNumber)	\
+	(	HAL_GPIO_TogglePin(pxPortDioPortArr[(ucPortNumber)], 1 << (ucPinNumber))	)
 
 /*
  * Reads complete port.
@@ -129,9 +103,7 @@ static inline void vPort_DIO_togglePin(uint8_t ucPortNumber, uint8_t ucPinNumber
  *
  * 		-	Return value has level of pin_0 in bit_0.. and so on.
  */
-static inline uint32_t uiPort_DIO_readPort(uint8_t ucPortNumber)
-{
-	return pxPortDioPortArr[ucPortNumber]->IDR;
-}
+#define uiPORT_DIO_READ_PORT(ucPortNumber)	\
+	(	pxPortDioPortArr[(ucPortNumber)]->IDR	)
 
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */

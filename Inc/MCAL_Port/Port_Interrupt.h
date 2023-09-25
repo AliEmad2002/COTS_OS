@@ -25,30 +25,20 @@
 #include "stm32f1xx_hal.h"
 #include "cmsis_gcc.h"
 
-static inline void vPort_Interrupt_enableGlobalInterrupt()
-{
-	__enable_irq();
-}
+#define vPORT_INTERRUPT_ENABLE_GLOBAL_INTERRUPT()	\
+	(	__enable_irq()	)
 
-static inline void vPort_Interrupt_disableGlobalInterrupt()
-{
-	__disable_irq();
-}
+#define vPORT_INTERRUPT_DISABLE_GLOBAL_INTERRUPT()	\
+	(	__disable_irq()	)
 
-static inline void vPort_Interrupt_enableIRQ(uint8_t ucIRQNumber)
-{
-	HAL_NVIC_EnableIRQ(ucIRQNumber);
-}
+#define vPORT_INTERRUPT_ENABLE_IRQ(ucIRQNumber)	\
+	(	HAL_NVIC_EnableIRQ((ucIRQNumber))	)
 
-static inline void vPort_Interrupt_disableIRQ(uint8_t ucIRQNumber)
-{
-	HAL_NVIC_DisableIRQ(ucIRQNumber);
-}
+#define vPORT_INTERRUPT_DISABLE_IRQ(ucIRQNumber)	\
+	(	HAL_NVIC_DisableIRQ((ucIRQNumber))	)
 
-static inline void vPort_Interrupt_setPriority(uint8_t ucIRQNumber, uint8_t ucPri)
-{
-	NVIC_SetPriority(ucIRQNumber, ucPri);
-}
+#define VPORT_INTERRUPT_SET_PRIORITY(ucIRQNumber, ucPri)	\
+	(	NVIC_SetPriority((ucIRQNumber), (ucPri))	)
 
 /*******************************************************************************
  * IRQ numbers.
@@ -94,7 +84,7 @@ extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
 #define ucPORT_INTERRUPT_IRQ_DEF_TIM
 #define ucPORT_INTERRUPT_IRQ_DEF_EXTI
 //#define ucPORT_INTERRUPT_IRQ_DEF_SPI
-//#define ucPORT_INTERRUPT_IRQ_DEF_DMA
+#define ucPORT_INTERRUPT_IRQ_DEF_DMA
 //#define ucPORT_INTERRUPT_IRQ_DEF_UART
 //#define ucPORT_INTERRUPT_IRQ_DEF_PWR_PVD
 

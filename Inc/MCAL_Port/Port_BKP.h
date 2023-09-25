@@ -19,27 +19,20 @@
  * Initializes back-up peripheral.
  * (Left empty if no initialization needed)
  */
-static inline void vPort_BKP_init(void)
-{
-
-}
+void vPort_BKP_init(void);
 
 /*
  * Unlocks back-up data registers.
  * (They are normally locked against writing, to avoid parasitic writes)
  */
-static inline void vPort_BKP_unlockDataRegisters(void)
-{
-	LL_PWR_EnableBkUpAccess();
-}
+#define vPORT_BKP_UNLOCK_DATA_REGISTERS()	\
+	(	LL_PWR_EnableBkUpAccess()	)
 
 /*
  * Locks back-up data registers.
  */
-static inline void vPort_BKP_lockDataRegisters(void)
-{
-	LL_PWR_DisableBkUpAccess();
-}
+#define vPORT_BKP_LOCK_DATA_REGISTERS()	\
+	(	LL_PWR_DisableBkUpAccess()	)
 
 /*
  * Writes data to a certain register.
@@ -51,12 +44,8 @@ static inline void vPort_BKP_lockDataRegisters(void)
  *
  * 		-	Data registers must be unlocked first.
  */
-static inline void vPort_BKP_writeDataRegister(uint32_t uiRegNum, uint16_t usData)
-{
-	vLib_ASSERT(uiRegNum < 10, 0);	/*	STM32F103C8T6 has only 10 registers	*/
-
-	(&BKP->DR1)[uiRegNum] = (uint32_t)usData;
-}
+#define vPORT_BKP_WRITE_DATA_REGISTER(uiRegNum, usData)	\
+	(	(&BKP->DR1)[(uiRegNum)] = (uint32_t)(usData)	)
 
 /*
  * Reads data from a certain register.
@@ -68,12 +57,8 @@ static inline void vPort_BKP_writeDataRegister(uint32_t uiRegNum, uint16_t usDat
  *
  * 		-	Data registers must be unlocked first.
  */
-static inline uint16_t usPort_BKP_readDataRegister(uint32_t uiRegNum)
-{
-	vLib_ASSERT(uiRegNum < 10, 0);	/*	STM32F103C8T6 has only 10 registers	*/
-
-	return (uint16_t)((&BKP->DR1)[uiRegNum] & 0xFFFF);
-}
+#define usPORT_BKP_READ_DATA_REGISTER(uiRegNum)	\
+	(	(uint16_t)((&BKP->DR1)[(uiRegNum)] & 0xFFFF)	)
 
 
 

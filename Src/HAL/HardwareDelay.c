@@ -29,7 +29,7 @@ static void vCallback(void* pvParams)
 	xHOS_HardwareDelay_t* pxHandle = (xHOS_HardwareDelay_t*)pvParams;
 
 	/*	Stop counter	*/
-	vPort_TIM_disableCounter(pxHandle->ucTimerUnitNumber);
+	vPORT_TIM_DISABLE_COUNTER(pxHandle->ucTimerUnitNumber);
 
 	/*	Give HW mutex	*/
 	BaseType_t xHighPriorityTaskWoken = pdFALSE;
@@ -45,46 +45,44 @@ static inline void vInitHWTimer(	xHOS_HardwareDelay_t* pxHandle,
 {
 	uint8_t ucTimerUnitNumber = pxHandle->ucTimerUnitNumber;
 
-	vPort_TIM_disableCounter(ucTimerUnitNumber);
+	vPORT_TIM_DISABLE_COUNTER(ucTimerUnitNumber);
 
-	vPort_TIM_useInternalClockSource(ucTimerUnitNumber);
+	vPORT_TIM_USE_INTERNAL_CLOCK_SOURCE(ucTimerUnitNumber);
 
 	switch(xFreqApproximate)
 	{
 	case xHOS_HardwareDelay_Frequency_10kHz:
-		vPort_TIM_setPrescaler(ucTimerUnitNumber, uiPORT_TIM_PRESCALER_FOR_10_KHZ);
+		VPORT_TIM_SET_PRESCALER(ucTimerUnitNumber, uiPORT_TIM_PRESCALER_FOR_10_KHZ);
 		break;
 
 	case xHOS_HardwareDelay_Frequency_100kHz:
-		vPort_TIM_setPrescaler(ucTimerUnitNumber, uiPORT_TIM_PRESCALER_FOR_100_KHZ);
+		VPORT_TIM_SET_PRESCALER(ucTimerUnitNumber, uiPORT_TIM_PRESCALER_FOR_100_KHZ);
 		break;
 
 	case xHOS_HardwareDelay_Frequency_500kHz:
-		vPort_TIM_setPrescaler(ucTimerUnitNumber, uiPORT_TIM_PRESCALER_FOR_500_KHZ);
+		VPORT_TIM_SET_PRESCALER(ucTimerUnitNumber, uiPORT_TIM_PRESCALER_FOR_500_KHZ);
 		break;
 	}
-
-	vPort_TIM_setModeNormal(ucTimerUnitNumber);
 
 	vPORT_TIM_CLEAR_OVF_FLAG(ucTimerUnitNumber);
 
 	vPort_TIM_setOvfCallback(ucTimerUnitNumber, vCallback, (void*)pxHandle);
 
-	vPort_TIM_enableOverflowInterrupt(ucTimerUnitNumber);
+	vPORT_TIM_ENABLE_OVF_INTERRUPT(ucTimerUnitNumber);
 
-	vPort_TIM_setCountingDirUp(ucTimerUnitNumber);
+	vPORT_TIM_SET_COUNTING_DIR_UP(ucTimerUnitNumber);
 
 	uint32_t uiMaxCounterVal = (1ul << pucPortTimerCounterSizeInBits[ucTimerUnitNumber]) - 1;
-	vPort_TIM_setCounterUpperLimit(ucTimerUnitNumber, uiMaxCounterVal);
+	vPORT_TIM_SET_COUNTER_UPPER_LIMIT(ucTimerUnitNumber, uiMaxCounterVal);
 }
 
 static inline void vInitInterruptController(uint8_t ucTimerUnitNumber)
 {
-	vPort_Interrupt_setPriority(
+	VPORT_INTERRUPT_SET_PRIORITY(
 		pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber],
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 
-	vPort_Interrupt_enableIRQ(pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber]);
+	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber]);
 }
 
 static inline void vInitHandleParams(	xHOS_HardwareDelay_t* pxHandle,
@@ -128,8 +126,8 @@ static inline void vDelay(xHOS_HardwareDelay_t* pxHandle, uint32_t uiTicks)
 
 	/*	Start timer such that it overflows after "uiTicks"	*/
 	uint32_t uiCounterVal = pxHandle->uiMaxCounterValue - uiTicks;
-	vPort_TIM_writeCounter(pxHandle->ucTimerUnitNumber, uiCounterVal);
-	vPort_TIM_enableCounter(pxHandle->ucTimerUnitNumber);
+	vPORT_TIM_WRITE_COUNTER(pxHandle->ucTimerUnitNumber, uiCounterVal);
+	vPORT_TIM_ENABLE_COUNTER(pxHandle->ucTimerUnitNumber);
 
 	/*	Take HW mutex (block until OVF_Hnadler gives it)	*/
 	xSemaphoreTake(pxHandle->xHWMutex, portMAX_DELAY);

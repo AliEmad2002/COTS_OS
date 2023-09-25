@@ -22,10 +22,7 @@
  */
 void vPort_RNG_init(void);
 
-static inline uint32_t uiPort_RNG_getRand(void)
-{
-	return rand();
-}
+#define iPORT_RNG_GET_RAND()	(	rand()	)
 
 
 #endif /* INC_MCAL_PORT_PORT_RNG_H_ */

@@ -199,30 +199,30 @@ void vHOS_UART_init(void)
 		xSemaphoreTake(pxUnit->xRxneSemaphore, 0);
 
 		/*	Initialize unit's TxE interrupt	*/
-		vPort_Interrupt_setPriority(	pxPortInterruptUartTxeIrqNumberArr[i],
+		VPORT_INTERRUPT_SET_PRIORITY(	pxPortInterruptUartTxeIrqNumberArr[i],
 										configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-		vPort_Interrupt_enableIRQ(pxPortInterruptUartTxeIrqNumberArr[i]);
+		vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptUartTxeIrqNumberArr[i]);
 
 		vPort_UART_setTxeCallback(i, vTxeCallback, (void*)pxUnit);
 
 		vPort_UART_disableTxeInterrupt(i);
 
 		/*	Initialize unit's RxNE interrupt	*/
-		vPort_Interrupt_setPriority(	pxPortInterruptUartRxneIrqNumberArr[i],
+		VPORT_INTERRUPT_SET_PRIORITY(	pxPortInterruptUartRxneIrqNumberArr[i],
 										configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-		vPort_Interrupt_enableIRQ(pxPortInterruptUartRxneIrqNumberArr[i]);
+		vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptUartRxneIrqNumberArr[i]);
 
 		vPort_UART_setRxneCallback(i, vRxneCallback, (void*)pxUnit);
 
 		vPort_UART_disableRxneInterrupt(i);
 
 		/*	Initialize unit's TC interrupt	*/
-		vPort_Interrupt_setPriority(	pxPortInterruptUartTcIrqNumberArr[i],
+		VPORT_INTERRUPT_SET_PRIORITY(	pxPortInterruptUartTcIrqNumberArr[i],
 										configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-		vPort_Interrupt_enableIRQ(pxPortInterruptUartTcIrqNumberArr[i]);
+		vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptUartTcIrqNumberArr[i]);
 
 		vPort_UART_setTcCallback(i, vTcCallback, (void*)pxUnit);
 

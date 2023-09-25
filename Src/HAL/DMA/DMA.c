@@ -118,17 +118,17 @@ void vHOS_DMA_init(void)
 			pxChannelArr[i].ucIsInQueue = 1;
 
 			/*	Initialize channel's interrupt	*/
-			vPort_Interrupt_setPriority(	pxPortInterruptDmaIrqNumberArr[i],
+			VPORT_INTERRUPT_SET_PRIORITY(	pxPortInterruptDmaIrqNumberArr[i],
 											configLIBRARY_LOWEST_INTERRUPT_PRIORITY	);
 
-			vPort_Interrupt_enableIRQ(pxPortInterruptDmaIrqNumberArr[i]);
+			vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptDmaIrqNumberArr[i]);
 
 			vPort_DMA_setTransferCompleteCallback(	ucUnit,
 													ucCh,
 													vCallback,
 													(void*)pxChannel	);
 
-			vPort_DMA_enableTransferCompleteInterrupt(ucUnit, ucCh);
+			vPORT_DMA_ENABLE_TRANSFER_COMPLETE_INTERRUPT(ucUnit, ucCh);
 
 			i++;
 		}

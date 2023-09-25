@@ -32,7 +32,7 @@ void vHOS_Stepper_init(xHOS_Stepper_t* pxHandle)
 	vHOS_Stepper_disable(pxHandle);
 
 	vPort_DIO_initPinOutput(pxHandle->ucStepPort, pxHandle->ucStepPin);
-	vPort_DIO_writePin(pxHandle->ucStepPort, pxHandle->ucStepPin, 0);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucStepPort, pxHandle->ucStepPin, 0);
 
 	vPort_DIO_initPinOutput(pxHandle->ucDirPort, pxHandle->ucDirPin);
 	vHOS_Stepper_setDir(pxHandle, ucHOS_STEPPER_DIR_FORWARD);
@@ -48,13 +48,13 @@ void vHOS_Stepper_setDir(xHOS_Stepper_t* pxHandle, uint8_t ucDir)
 {
 	if (ucDir == ucHOS_STEPPER_DIR_FORWARD)
 	{
-		vPort_DIO_writePin(pxHandle->ucDirPort, pxHandle->ucDirPin, 0);
+		vPORT_DIO_WRITE_PIN(pxHandle->ucDirPort, pxHandle->ucDirPin, 0);
 		pxHandle->cPosIncrementer = 1;
 	}
 
 	else
 	{
-		vPort_DIO_writePin(pxHandle->ucDirPort, pxHandle->ucDirPin, 1);
+		vPORT_DIO_WRITE_PIN(pxHandle->ucDirPort, pxHandle->ucDirPin, 1);
 		pxHandle->cPosIncrementer = -1;
 	}
 }
@@ -65,12 +65,12 @@ void vHOS_Stepper_setDir(xHOS_Stepper_t* pxHandle, uint8_t ucDir)
 __attribute__((always_inline)) inline
 void vHOS_Stepper_stepSingle(xHOS_Stepper_t* pxHandle)
 {
-	vPort_DIO_writePin(pxHandle->ucStepPort, pxHandle->ucStepPin, 1);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucStepPort, pxHandle->ucStepPin, 1);
 
 	vPort_BusyWait1us();
 	vPort_BusyWait1us();
 
-	vPort_DIO_writePin(pxHandle->ucStepPort, pxHandle->ucStepPin, 0);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucStepPort, pxHandle->ucStepPin, 0);
 
 	pxHandle->iCurrentPos += pxHandle->cPosIncrementer;
 }
@@ -109,7 +109,7 @@ void vHOS_Stepper_stepN(xHOS_Stepper_t* pxHandle, int32_t iN, int32_t iUsStepInt
 __attribute__((always_inline)) inline
 void vHOS_Stepper_enable(xHOS_Stepper_t* pxHandle)
 {
-	vPort_DIO_writePin(pxHandle->ucEnPort, pxHandle->ucEnPin, 0);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucEnPort, pxHandle->ucEnPin, 0);
 	pxHandle->ucIsEnabled = 1;
 }
 
@@ -119,7 +119,7 @@ void vHOS_Stepper_enable(xHOS_Stepper_t* pxHandle)
 __attribute__((always_inline)) inline
 void vHOS_Stepper_disable(xHOS_Stepper_t* pxHandle)
 {
-	vPort_DIO_writePin(pxHandle->ucEnPort, pxHandle->ucEnPin, 1);
+	vPORT_DIO_WRITE_PIN(pxHandle->ucEnPort, pxHandle->ucEnPin, 1);
 	pxHandle->ucIsEnabled = 0;
 }
 

@@ -252,7 +252,7 @@ static void vTask(void* pvParams)
 	while(1)
 	{
 		/*	Wait for INT pin. (To synchronize task with samples taken by the MPU6050)	*/
-		while(!ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin));
+		while(!ucPORT_DIO_READ_PIN(pxHandle->ucIntPort, pxHandle->ucIntPin));
 
 		/*	Read accel measurement	*/
 		ucSuccessful = ucHOS_MPU6050_readAccelMeasurement(pxHandle, &xMeasurement);
@@ -406,7 +406,7 @@ void vHOS_MPU6050_init(xHOS_MPU6050_t* pxHandle)
 uint8_t ucHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle)
 {
 	/*	Exit sleep mode	*/
-	uint8_t ucSuccesssful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 0);
+	uint8_t ucSuccesssful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1ul << 6, 0);
 	if (!ucSuccesssful)
 		return 0;
 
@@ -419,7 +419,7 @@ uint8_t ucHOS_MPU6050_enable(xHOS_MPU6050_t* pxHandle)
 uint8_t ucHOS_MPU6050_disable(xHOS_MPU6050_t* pxHandle)
 {
 	/*	Enter sleep mode	*/
-	uint8_t ucSuccesssful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1 << 6, 1 << 6);
+	uint8_t ucSuccesssful = ucEditReg(pxHandle, MPU6050_REG_PWR_MGMT_1, 1ul << 6, 1ul << 6);
 
 	if (!ucSuccesssful)
 		return 0;
@@ -467,7 +467,7 @@ uint8_t ucHOS_MPU6050_calibrate(xHOS_MPU6050_t* pxHandle)
 	for(uint16_t i = 0; i < 1000; i++)
 	{
 		/*	wait for new  sample to be ready	*/
-		while(!ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin));
+		while(!ucPORT_DIO_READ_PIN(pxHandle->ucIntPort, pxHandle->ucIntPin));
 
 		/*	Read accel measurement, and add it to the drift value	*/
 		ucSuccessful = ucHOS_MPU6050_readAccelMeasurement(pxHandle, &xMeasurement);
@@ -534,7 +534,7 @@ void vHOS_MPU6050_enterDebuggerMode(xHOS_MPU6050_t* pxHandle)
 		{
 			/*	Read register	*/
 			ucSuccessful = ucHOS_MPU6050_readReg(pxHandle, ucAddress, (uint8_t*)&ucReg);
-			if (!ucSuccessful)	{	vPort_Breakpoint();	}
+			if (!ucSuccessful)	{	vPORT_BREAKPOINT();	}
 		}
 
 		//vPort_Breakpoint();
@@ -542,7 +542,7 @@ void vHOS_MPU6050_enterDebuggerMode(xHOS_MPU6050_t* pxHandle)
 		{
 			/*	Write register	*/
 			ucSuccessful = ucHOS_MPU6050_writeReg(pxHandle, ucAddress, ucReg);
-			if (!ucSuccessful)	{	vPort_Breakpoint();	}
+			if (!ucSuccessful)	{	vPORT_BREAKPOINT();	}
 		}
 
 		if (ucExit)
@@ -788,7 +788,7 @@ uint8_t ucHOS_MPU6050_confLpdfAndSampleRate(	xHOS_MPU6050_t* pxHandle,
 /*	See header for info	*/
 void vHOS_MPU6050_waitDataReadyInt(xHOS_MPU6050_t* pxHandle)
 {
-	while(!ucPort_DIO_readPin(pxHandle->ucIntPort, pxHandle->ucIntPin));
+	while(!ucPORT_DIO_READ_PIN(pxHandle->ucIntPort, pxHandle->ucIntPin));
 }
 
 /*	See header for info	*/

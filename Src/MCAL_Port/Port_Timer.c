@@ -12,12 +12,6 @@ TIM_TypeDef* const pxPortTimArr[] = {TIM1, TIM2, TIM3, TIM4};
 
 const uint8_t pucPortTimerCounterSizeInBits[] = {16, 16, 16, 16};
 
-void (*ppfPortTimerOvfCallbackArr[4])(void*);
-void* ppvPortTimerOvfCallbackParamsArr[4];
-
-void (*ppfPortTimerCompareCallbackArr[4])(void*);
-void* ppvPortTimerCompareCallbackParamsArr[4];
-
 #include "MCAL_Port/Port_Timer.h"
 #include "MCAL_Port/Port_Interrupt.h"
 
@@ -29,6 +23,30 @@ void* ppvPortTimerCompareCallbackParamsArr[4];
  * 		-	Add clearing pending flag to the end of the ISR
  ******************************************************************************/
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_TIM
+
+void (*ppfPortTimerOvfCallbackArr[4])(void*);
+void* ppvPortTimerOvfCallbackParamsArr[4];
+
+void (*ppfPortTimerCompareCallbackArr[4])(void*);
+void* ppvPortTimerCompareCallbackParamsArr[4];
+
+
+void vPort_TIM_setOvfCallback(	uint8_t ucUnitNumber,
+												void (*pfCallback)(void*),
+												void* pvParams	)
+{
+	ppfPortTimerOvfCallbackArr[ucUnitNumber] = pfCallback;
+	ppvPortTimerOvfCallbackParamsArr[ucUnitNumber] = pvParams;
+}
+
+void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
+								void (*pfCallback)(void*),
+								void* pvParams	)
+{
+	ppfPortTimerCompareCallbackArr[ucUnitNumber] = pfCallback;
+	ppvPortTimerCompareCallbackParamsArr[ucUnitNumber] = pvParams;
+}
+
 void TIM1_UP_IRQHandler(void)
 {
 	ppfPortTimerOvfCallbackArr[0](ppvPortTimerOvfCallbackParamsArr[0]);

@@ -19,6 +19,18 @@
 
 #include "HAL/HWTime/HWTime_config.h"
 
+typedef struct{
+	/*		PRIVATE		*/
+
+	/*	Time at which the delay ends	*/
+	uint64_t ulReleaseTimestamp;
+
+	/*	Binary semaphore that gets locked at start of the delay, unlocked at the end of it	*/
+	SemaphoreHandle_t xSemaphore;
+	StaticSemaphore_t xSemaphoreStatic;
+}xHOS_HWTime_Delay_t;
+
+
 /*
  * Initializes driver.
  *
@@ -40,11 +52,6 @@ uint64_t ulHOS_HWTime_getTimestamp(void);
  * Gets timestamp from inside ISR.
  */
 uint64_t ulHOS_HWTime_getTimestampFromISR(void);
-
-/*
- * Delay (non-blocking) for the given amount of ticks.
- */
-void vHOS_HWTime_delay(uint32_t uiTicks);
 
 /*
  * Converts time from ms to ticks.
@@ -69,6 +76,54 @@ void vHOS_HWTime_delay(uint32_t uiTicks);
  */
 #define ulHOS_HWTime_TICKS_TO_US(ulTicks)	\
 	(((uint64_t)(ulTicks) * (uint64_t)1000000) / uiHOS_HWTIME_TIMER_FREQ_ACTUAL)
+
+/*
+ * Initialize Delay handle.
+ *
+ * Notes:
+ * 		-	This must be globally defined (In order for the HWTime code to be able
+ * 			to deal with it when the task using it is not running).
+ */
+void vHOS_HWTime_initDelay(xHOS_HWTime_Delay_t* pxHandle);
+
+/*
+ * Configures delay handle.
+ *
+ * Notes:
+ * 		-	The passed handle must not be currently in use (waiting for a previous
+ * 			delay to end).
+ */
+void vHOS_HWTime_delay(xHOS_HWTime_Delay_t* pxHandle, uint32_t uiTicks);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

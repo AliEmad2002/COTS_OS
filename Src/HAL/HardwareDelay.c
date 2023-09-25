@@ -66,15 +66,15 @@ static inline void vInitHWTimer(	xHOS_HardwareDelay_t* pxHandle,
 
 	vPort_TIM_setModeNormal(ucTimerUnitNumber);
 
-	vPort_TIM_clearOverflowFlag(ucTimerUnitNumber);
+	vPORT_TIM_CLEAR_OVF_FLAG(ucTimerUnitNumber);
 
-	vPort_TIM_setCallback(ucTimerUnitNumber, vCallback, (void*)pxHandle);
+	vPort_TIM_setOvfCallback(ucTimerUnitNumber, vCallback, (void*)pxHandle);
 
 	vPort_TIM_enableOverflowInterrupt(ucTimerUnitNumber);
 
 	vPort_TIM_setCountingDirUp(ucTimerUnitNumber);
 
-	uint32_t uiMaxCounterVal = (1 << puiPortTimerCounterSizeInBits[ucTimerUnitNumber]) - 1;
+	uint32_t uiMaxCounterVal = (1ul << pucPortTimerCounterSizeInBits[ucTimerUnitNumber]) - 1;
 	vPort_TIM_setCounterUpperLimit(ucTimerUnitNumber, uiMaxCounterVal);
 }
 
@@ -93,7 +93,7 @@ static inline void vInitHandleParams(	xHOS_HardwareDelay_t* pxHandle,
 {
 	pxHandle->ucTimerUnitNumber = ucTimerUnitNumber;
 
-	pxHandle->uiMaxCounterValue = (1 << puiPortTimerCounterSizeInBits[ucTimerUnitNumber]) - 1;
+	pxHandle->uiMaxCounterValue = (1ul << pucPortTimerCounterSizeInBits[ucTimerUnitNumber]) - 1;
 
 	/*	create HW mutex (initially not available)	*/
 	pxHandle->xHWMutex = xSemaphoreCreateBinaryStatic(&(pxHandle->xHWStaticMutex));

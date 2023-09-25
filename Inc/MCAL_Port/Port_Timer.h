@@ -35,6 +35,7 @@
  *
  * It is a numeric value that actually expresses the prescaler, not an enumeration!
  */
+#define uiPORT_TIM_PRESCALER_FOR_1_KHZ			72000
 #define uiPORT_TIM_PRESCALER_FOR_10_KHZ			7200
 #define uiPORT_TIM_PRESCALER_FOR_100_KHZ		720
 #define uiPORT_TIM_PRESCALER_FOR_500_KHZ		144
@@ -46,6 +47,7 @@
  *
  * These near values must be user defined here (in Hz), as they are target dependent.
  */
+#define uiPORT_TIM_FREQ_ACTUAL_FOR_1_KHZ			1000
 #define uiPORT_TIM_FREQ_ACTUAL_FOR_10_KHZ			10000
 #define uiPORT_TIM_FREQ_ACTUAL_FOR_100_KHZ			100000
 #define uiPORT_TIM_FREQ_ACTUAL_FOR_500_KHZ			500000
@@ -61,7 +63,7 @@ extern TIM_TypeDef* const pxPortTimArr[];
  * Timer counter register size (in bits).
  * User must configure in "Port_Timer.c"
  */
-extern const uint32_t puiPortTimerCounterSizeInBits[];
+extern const uint8_t pucPortTimerCounterSizeInBits[];
 
 /*
  * ISR callbacks and their params.
@@ -69,19 +71,9 @@ extern const uint32_t puiPortTimerCounterSizeInBits[];
 extern void (*ppfPortTimerOvfCallbackArr[4])(void*);
 extern void* ppvPortTimerOvfCallbackParamsArr[4];
 
-/*******************************************************************************
- * Handlers:
- ******************************************************************************/
-/*
- * Overflow handlers:
- * (If timer unit does not have a dedicated OVF_Handler, its main handler may be
- * used, as upper layers' codes will always use flag checking for portability.
- * The same applies if more than one timer share the same handler.
- */
-#define port_TIM_OVF_HANDLER_0		TIM1_UP_IRQHandler
-#define port_TIM_OVF_HANDLER_1		TIM2_IRQHandler
-#define port_TIM_OVF_HANDLER_2		TIM3_IRQHandler
-#define port_TIM_OVF_HANDLER_3		TIM4_IRQHandler
+extern void (*ppfPortTimerCompareCallbackArr[4])(void*);
+extern void* ppvPortTimerCompareCallbackParamsArr[4];
+
 
 /*******************************************************************************
  * API functions:
@@ -115,16 +107,26 @@ static inline void vPort_TIM_setModeNormal(uint8_t ucUnitNumber)
 /*
  * Clears OVF flag
  */
-static inline void vPort_TIM_clearOverflowFlag(uint8_t ucUnitNumber)
-{
-	LL_TIM_ClearFlag_UPDATE(pxPortTimArr[ucUnitNumber]);
-}
+#define vPORT_TIM_CLEAR_OVF_FLAG(ucUnitNumber)	\
+	(LL_TIM_ClearFlag_UPDATE(pxPortTimArr[(ucUnitNumber)]))
 
 /*
- * Checks OVF flag of a timer unit
+ * Clears Capture/Compare flag
+ */
+#define vPORT_TIM_CLEAR_CC_FLAG(ucUnitNumber)	\
+	(LL_TIM_ClearFlag_CC1(pxPortTimArr[(ucUnitNumber)]))
+
+/*
+ * Reads OVF flag of a timer unit
  */
 #define ucPORT_TIM_GET_OVF_FLAG(ucUnitNumber)	\
 	(LL_TIM_IsActiveFlag_UPDATE(pxPortTimArr[(ucUnitNumber)]))
+
+/*
+ * Reads Capture/Compare flag of a timer unit
+ */
+#define ucPORT_TIM_GET_CC_FLAG(ucUnitNumber)	\
+	(LL_TIM_IsActiveFlag_CC1(pxPortTimArr[(ucUnitNumber)]))
 
 /*
  * Enables OVF interrupt
@@ -137,20 +139,57 @@ static inline void vPort_TIM_enableOverflowInterrupt(uint8_t ucUnitNumber)
 /*
  * Disables OVF interrupt
  */
-static inline void vPort_TIM_disableOverflowInterrupt(uint8_t ucUnitNumber)
+#define vPORT_TIM_DISABLE_OVF_INTERRUPT(ucUnitNumber)	\
+	(	LL_TIM_DisableIT_UPDATE(pxPortTimArr[(ucUnitNumber)])	)
+
+/*
+ * Checks if OVF interrupt is enabled
+ */
+#define ucPORT_TIM_IS_OVF_INTERRUPT_ENABLED(ucUnitNumber)	\
+	(	LL_TIM_IsEnabledIT_UPDATE(pxPortTimArr[(ucUnitNumber)])	)
+
+/*
+ * Enables Capture / Compare interrupt
+ */
+static inline void vPort_TIM_enableCcInterrupt(uint8_t ucUnitNumber)
 {
-	LL_TIM_DisableIT_UPDATE(pxPortTimArr[ucUnitNumber]);
+	LL_TIM_EnableIT_CC1(pxPortTimArr[ucUnitNumber]);
 }
+
+/*
+ * Disables Capture / Compare interrupt
+ */
+static inline void vPort_TIM_disableCcInterrupt(uint8_t ucUnitNumber)
+{
+	LL_TIM_DisableIT_CC1(pxPortTimArr[ucUnitNumber]);
+}
+
+/*
+ * Checks if Capture / Compare interrupt is enabled
+ */
+#define ucPORT_TIM_IS_CC_INTERRUPT_ENABLED(ucUnitNumber)	\
+	(	LL_TIM_IsEnabledIT_CC1(pxPortTimArr[(ucUnitNumber)])	)
 
 /*
  * Sets OVF interrupt callback
  */
-static inline void vPort_TIM_setCallback(	uint8_t ucUnitNumber,
-											void (*pfCallback)(void*),
-											void* pvParams	)
+static inline void vPort_TIM_setOvfCallback(	uint8_t ucUnitNumber,
+												void (*pfCallback)(void*),
+												void* pvParams	)
 {
 	ppfPortTimerOvfCallbackArr[ucUnitNumber] = pfCallback;
 	ppvPortTimerOvfCallbackParamsArr[ucUnitNumber] = pvParams;
+}
+
+/*
+ * Sets Capture/Compare interrupt callback
+ */
+static inline void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
+											void (*pfCallback)(void*),
+											void* pvParams	)
+{
+	ppfPortTimerCompareCallbackArr[ucUnitNumber] = pfCallback;
+	ppvPortTimerCompareCallbackParamsArr[ucUnitNumber] = pvParams;
 }
 
 /*
@@ -202,6 +241,13 @@ static inline void vPort_TIM_disableCounter(uint8_t ucUnitNumber)
 	LL_TIM_DisableCounter(pxPortTimArr[ucUnitNumber]);
 }
 
+/*
+ * Sets output compare register.
+ */
+static inline void vPort_TIM_writeOcRegister(uint8_t ucUnitNumber, uint32_t uiVal)
+{
+	LL_TIM_OC_SetCompareCH1(pxPortTimArr[ucUnitNumber], (uint16_t)uiVal);
+}
 
 
 

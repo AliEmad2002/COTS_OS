@@ -20,7 +20,7 @@
 #include "stm32f1xx_hal.h"
 #include <stdio.h>
 
-/*	TODO: ITM	*/
+
 #define vPort_Print(...)	printf(__VA_ARGS__)
 
 #endif /* HAL_OS_PORT_PORT_PRINT_H_ */

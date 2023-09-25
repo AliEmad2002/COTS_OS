@@ -266,7 +266,6 @@ static void vTask(void* pvParams)
 			uiStableCount++;
 			if (uiStableCount == 10)
 			{
-				/*	TODO: use look-up table	*/
 				iThetaXAccel = 90000000 - (float)acos((float)xMeasurement.iY / 1000.0f) * 180000000.0f / (float)M_PI;
 				iThetaYAccel = -90000000 + (float)acos((float)xMeasurement.iX / 1000.0f) * 180000000.0f / (float)M_PI;
 			}

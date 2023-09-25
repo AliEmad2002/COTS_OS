@@ -68,6 +68,15 @@ void vLIB_Heap_addElem(xLIB_Heap_t* pxHeap, xCONF_VECTOR_ELEM_TYPE* pxNewElem);
 	(	pxLIB_COMPLETE_BINARY_TREE_GET_ROOT_PTR(&(pxHeap)->xTree)	)
 
 /*
+ * Gets value of top of the heap.
+ *
+ * Notes:
+ * 		-	This macro is of complicity: O(1).
+ */
+#define pxLIB_HEAP_GET_TOP_VAL(pxHeap)	\
+	(	*pxLIB_HEAP_GET_TOP_PTR(pxHeap)	)
+
+/*
  * Removes top of the heap.
  *
  * Notes:

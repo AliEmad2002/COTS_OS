@@ -10,10 +10,13 @@
 
 TIM_TypeDef* const pxPortTimArr[] = {TIM1, TIM2, TIM3, TIM4};
 
-const uint32_t puiPortTimerCounterSizeInBits[] = {16, 16, 16, 16};
+const uint8_t pucPortTimerCounterSizeInBits[] = {16, 16, 16, 16};
 
 void (*ppfPortTimerOvfCallbackArr[4])(void*);
 void* ppvPortTimerOvfCallbackParamsArr[4];
+
+void (*ppfPortTimerCompareCallbackArr[4])(void*);
+void* ppvPortTimerCompareCallbackParamsArr[4];
 
 #include "MCAL_Port/Port_Timer.h"
 #include "MCAL_Port/Port_Interrupt.h"
@@ -29,35 +32,72 @@ void* ppvPortTimerOvfCallbackParamsArr[4];
 void TIM1_UP_IRQHandler(void)
 {
 	ppfPortTimerOvfCallbackArr[0](ppvPortTimerOvfCallbackParamsArr[0]);
-	vPort_TIM_clearOverflowFlag(0);
+	vPORT_TIM_CLEAR_OVF_FLAG(0);
+}
+
+void TIM1_CC_IRQHandler(void)
+{
+	ppfPortTimerCompareCallbackArr[0](ppvPortTimerCompareCallbackParamsArr[0]);
+	vPORT_TIM_CLEAR_CC_FLAG(0);
 }
 
 void TIM2_IRQHandler(void)
 {
-	if (!ucPORT_TIM_GET_OVF_FLAG(1))
-		return;
+#define UNIT_NUM	1
 
-	ppfPortTimerOvfCallbackArr[1](ppvPortTimerOvfCallbackParamsArr[1]);
-	vPort_TIM_clearOverflowFlag(1);
+	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM) && ucPORT_TIM_IS_OVF_INTERRUPT_ENABLED(UNIT_NUM))
+	{
+		ppfPortTimerOvfCallbackArr[UNIT_NUM](ppvPortTimerOvfCallbackParamsArr[UNIT_NUM]);
+		vPORT_TIM_CLEAR_OVF_FLAG(UNIT_NUM);
+	}
+
+	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM) && ucPORT_TIM_IS_CC_INTERRUPT_ENABLED(UNIT_NUM))
+	{
+		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
+		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
+	}
+
+#undef UNIT_NUM
 }
 
 void TIM3_IRQHandler(void)
 {
-	if (!ucPORT_TIM_GET_OVF_FLAG(2))
-		return;
+#define UNIT_NUM	2
 
-	ppfPortTimerOvfCallbackArr[2](ppvPortTimerOvfCallbackParamsArr[2]);
-	vPort_TIM_clearOverflowFlag(2);
+	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM))
+	{
+		ppfPortTimerOvfCallbackArr[UNIT_NUM](ppvPortTimerOvfCallbackParamsArr[UNIT_NUM]);
+		vPORT_TIM_CLEAR_OVF_FLAG(UNIT_NUM);
+	}
+
+	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM))
+	{
+		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
+		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
+	}
+
+#undef UNIT_NUM
 }
 
 void TIM4_IRQHandler(void)
 {
-	if (!ucPORT_TIM_GET_OVF_FLAG(3))
-		return;
+#define UNIT_NUM	3
 
-	ppfPortTimerOvfCallbackArr[3](ppvPortTimerOvfCallbackParamsArr[3]);
-	vPort_TIM_clearOverflowFlag(3);
+	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM))
+	{
+		ppfPortTimerOvfCallbackArr[UNIT_NUM](ppvPortTimerOvfCallbackParamsArr[UNIT_NUM]);
+		vPORT_TIM_CLEAR_OVF_FLAG(UNIT_NUM);
+	}
+
+	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM))
+	{
+		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
+		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
+	}
+
+#undef UNIT_NUM
 }
+
 #endif
 
 

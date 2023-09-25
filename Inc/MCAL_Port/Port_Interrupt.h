@@ -65,6 +65,8 @@ extern const IRQn_Type pxPortInterruptSpiRxneIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[];
 
+extern const IRQn_Type pxPortInterruptTimerCcIrqNumberArr[];
+
 extern const IRQn_Type pxPortInterruptExtiIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];

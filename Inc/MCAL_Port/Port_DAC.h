@@ -22,13 +22,50 @@
  * driver uses a PWM frequency of about 1MHz. (This should be taken into consideration
  * when designing a PCB!)
  *
- * When tested, an input PWM signal of 1MHz could maximumly result in a 1kHz noise-free
- * analog signal, which is acceptable for many applications.
+ * High frequency PWM would mostly be of high transient spikes due to load mis-match,
+ * to overcome this issue, connect a small capacitor between PWM pin and GND, also
+ * the capacitor has to be as close as possible to the pin.
+ *
+ * When tested, the following configuration resulted in a 10kHz noise-free analog
+ * signal, which is acceptable for many applications:
+ * 		-	Input PWM signal of 1MHz.
+ * 		-	Matching capacitor of 220pF.
+ * 		-	Simple RC LPF, where R = 1k-Ohms, C = 10nF.
  *
  * If higher speed analog signals were needed, PWM frequency could be increased. But
  * keep in mind, that duty cycle resolution (By extension: resulting voltage resolution)
  * would decrease as the PWM frequency increases.
+ *
+ * Each DAC unit uses a HW timer unit, such that DAC unit 0 uses Timer unit 0, and
+ * so on.
+ *
+ * Also, each DAC channel uses a HW timer channel, such that DAC channel 0 uses
+ * timer channel 0, and so on.
  */
+
+/*******************************************************************************
+ * Configuration:
+ ******************************************************************************/
+#define uiCONF_DAC_PWM_FREQ_HZ			1000000
+#define iCONF_DAC_MIN_VOLTAGE_MV		0
+#define iCONF_DAC_MAX_VOLTAGE_MV		3300
+
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
+void vPort_DAC_initUnit(uint8_t ucUnitNumber);
+
+void vPort_DAC_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber);
+
+void vPort_DAC_setChannelVoltage(	uint8_t ucUnitNumber,
+									uint8_t ucChannelNumber,
+									int32_t iVoltageMV	);
+
+
+
+
+
+
 
 
 

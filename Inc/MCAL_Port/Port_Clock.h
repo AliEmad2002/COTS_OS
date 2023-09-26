@@ -15,9 +15,9 @@
 #define uiPORT_CLOCK_MAIN_HZ		72000000//(SystemCoreClock)
 
 /*	Used with STM32 targets only	*/
-#define uiPORT_CLOCK_AHB_DIV	RCC_SYSCLK_DIV1
-#define uiPORT_CLOCK_APB1_DIV	RCC_HCLK_DIV2
-#define uiPORT_CLOCK_APB2_DIV	RCC_SYSCLK_DIV1
+#define uiPORT_CLOCK_AHB_DIV	1
+#define uiPORT_CLOCK_APB1_DIV	2
+#define uiPORT_CLOCK_APB2_DIV	1
 
 
 void vPort_Clock_initCpuClock(void);

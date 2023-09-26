@@ -53,11 +53,9 @@ static inline void vInitHWTimer(void)
 
 	vPORT_TIM_DISABLE_COUNTER(ucTimerUnitNumber);
 
-	vPort_TIM_useInternalClockSource(ucTimerUnitNumber);
+	vPORT_TIM_USE_INTERNAL_CLOCK_SOURCE(ucTimerUnitNumber);
 
 	VPORT_TIM_SET_PRESCALER(ucTimerUnitNumber, uiHOS_HWTIME_TIMER_PRESCALER);
-
-	vPort_TIM_setModeNormal(ucTimerUnitNumber);
 
 	vPORT_TIM_CLEAR_OVF_FLAG(ucTimerUnitNumber);
 

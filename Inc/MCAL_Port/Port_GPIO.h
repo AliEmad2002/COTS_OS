@@ -41,4 +41,11 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 								uint8_t ucInitTx,
 								uint8_t ucInitRx	);
 
+/*
+ * Initializes timer channel associated pin as output.
+ */
+void vPort_GPIO_initTimerChannelPinAsOutput(	uint8_t ucTimerUnitNumber,
+												uint8_t ucTimerChannelNumber,
+												uint8_t ucMapNumber	);
+
 #endif /* HAL_OS_PORT_PORT_GPIO_H_ */

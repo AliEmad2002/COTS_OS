@@ -45,6 +45,13 @@ typedef struct{
 	uint8_t ucRxPin : 4;
 }xPort_GPIO_UartMap_t;
 
+typedef struct{
+	uint8_t ucCh1PortAndPin;
+	uint8_t ucCh2PortAndPin;
+	uint8_t ucCh3PortAndPin;
+	uint8_t ucCh4PortAndPin;
+}xPort_GPIO_TimerChannelMap_t;
+
 /*******************************************************************************
  * Helping functions:
  ******************************************************************************/
@@ -165,7 +172,68 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 	}
 }
 
+void vPort_GPIO_initTimerChannelPinAsOutput(	uint8_t ucTimerUnitNumber,
+												uint8_t ucTimerChannelNumber,
+												uint8_t ucMapNumber	)
+{
+	const xPort_GPIO_TimerChannelMap_t pxTimer1ChannelsMapArr[1] = {
+		{
+			(0 << 4) | ( 8 & 0x0F), (0 << 4) | ( 9 & 0x0F),
+			(0 << 4) | (10 & 0x0F), (0 << 4) | (11 & 0x0F)
+		}
+	};
 
+	const xPort_GPIO_TimerChannelMap_t pxTimer2ChannelsMapArr[4] = {
+		{
+			(0 << 4) | ( 0 & 0x0F), (0 << 4) | ( 1 & 0x0F),
+			(0 << 4) | ( 2 & 0x0F), (0 << 4) | ( 3 & 0x0F)
+		},
+		{
+			(0 << 4) | (15 & 0x0F), (1 << 4) | ( 3 & 0x0F),
+			(0 << 4) | ( 2 & 0x0F), (0 << 4) | ( 3 & 0x0F)
+		},
+		{
+			(0 << 4) | ( 0 & 0x0F), (0 << 4) | ( 1 & 0x0F),
+			(1 << 4) | (10 & 0x0F), (1 << 4) | (11 & 0x0F)
+		},
+		{
+			(0 << 4) | (15 & 0x0F), (1 << 4) | ( 3 & 0x0F),
+			(1 << 4) | (10 & 0x0F), (1 << 4) | (11 & 0x0F)
+		}
+	};
+
+	const xPort_GPIO_TimerChannelMap_t pxTimer3ChannelsMapArr[2] = {
+		{
+			(0 << 4) | ( 6 & 0x0F), (0 << 4) | ( 7 & 0x0F),
+			(1 << 4) | ( 0 & 0x0F), (1 << 4) | ( 1 & 0x0F)
+		},
+		{
+			(1 << 4) | ( 4 & 0x0F), (1 << 4) | ( 5 & 0x0F),
+			(1 << 4) | ( 0 & 0x0F), (1 << 4) | ( 1 & 0x0F)
+		}
+	};
+
+	const xPort_GPIO_TimerChannelMap_t pxTimer4ChannelsMapArr[1] = {
+		{
+			(1 << 4) | ( 6 & 0x0F), (1 << 4) | ( 7 & 0x0F),
+			(1 << 4) | ( 8 & 0x0F), (1 << 4) | ( 9 & 0x0F)
+		}
+	};
+
+	const xPort_GPIO_TimerChannelMap_t* ppxTimeChannelsMapArr[4] = {
+		pxTimer1ChannelsMapArr,
+		pxTimer2ChannelsMapArr,
+		pxTimer3ChannelsMapArr,
+		pxTimer4ChannelsMapArr
+	};
+
+	uint8_t ucPortAndPin = ((uint8_t*)(&(ppxTimeChannelsMapArr[ucTimerUnitNumber][ucMapNumber].ucCh1PortAndPin)))[ucTimerChannelNumber];
+
+	uint8_t ucPort = ucPortAndPin >> 4;
+	uint8_t ucPin = ucPortAndPin & 0x0F;
+
+	vPort_GPIO_initPinAFPP(ucPort, ucPin);
+}
 
 
 

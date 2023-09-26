@@ -155,6 +155,77 @@ void vPort_TIM_setPwmDuty(	uint8_t  ucTimerNumber,
 	}
 }
 
+/*
+ * See header for info.
+ */
+void vPort_TIM_initOPM(uint8_t ucUnitNumber, uint32_t uiPrescaler)
+{
+	/*	Disable counter	*/
+	vPORT_TIM_DISABLE_COUNTER(ucUnitNumber);
+
+	/*	Select OPM	*/
+	LL_TIM_SetOnePulseMode(pxPortTimArr[ucUnitNumber], LL_TIM_ONEPULSEMODE_SINGLE);
+
+	/*	Set prescaler to the passed value	*/
+	LL_TIM_SetPrescaler(pxPortTimArr[ucUnitNumber], uiPrescaler - 1);
+
+	/*	select up-counting mode	*/
+	vPORT_TIM_SET_COUNTING_DIR_UP(ucUnitNumber);
+
+	/*	For every channel of the four	*/
+	for (uint32_t i = 0; i < 4; i++)
+	{
+		/*	enable output compare fast	*/
+		LL_TIM_OC_EnableFast(pxPortTimArr[ucUnitNumber], puiChannels[i]);
+
+		/*	enable output compare preload	*/
+		LL_TIM_OC_EnablePreload(pxPortTimArr[ucUnitNumber], puiChannels[i]);
+
+		/*	select output compare mode to PWM2	*/
+		LL_TIM_OC_SetMode(	pxPortTimArr[ucUnitNumber],
+							puiChannels[i],
+							LL_TIM_OCMODE_PWM2	);
+	}
+
+	/*	load CCR of all channels with one	*/
+	LL_TIM_OC_SetCompareCH1(pxPortTimArr[ucUnitNumber], 1);
+	LL_TIM_OC_SetCompareCH2(pxPortTimArr[ucUnitNumber], 1);
+	LL_TIM_OC_SetCompareCH3(pxPortTimArr[ucUnitNumber], 1);
+	LL_TIM_OC_SetCompareCH4(pxPortTimArr[ucUnitNumber], 1);
+
+	/*	load repetition counter with zero	*/
+	LL_TIM_SetRepetitionCounter(pxPortTimArr[ucUnitNumber], 0);
+
+	/*	if the selected timer unit is an advanced timer (not GP timer), enable outputs	*/
+	if (ucUnitNumber == 0)
+	{
+		LL_TIM_EnableAllOutputs(pxPortTimArr[ucUnitNumber]);
+	}
+}
+
+void vPort_TIM_generateOnePulse(	uint8_t ucUnitNumber,
+									uint8_t ucChannelNumber,
+									uint32_t uiTimeNanoSeconds)
+{
+	/*	get internal clock source frequency	*/
+	uint32_t uiClkInt = uiPORT_CLOCK_MAIN_HZ;
+
+	/*	get timer tick frequency	*/
+	uint64_t ulClkTick = uiClkInt / LL_TIM_GetPrescaler(pxPortTimArr[ucUnitNumber]);
+
+	/*	Calculate number of ticks (N = time * F)	*/
+	volatile uint16_t usNumberOfTicks = ((uint64_t)uiTimeNanoSeconds * ulClkTick) / 1000000000;
+
+	/*	Load ARR with this number of ticks	*/
+	LL_TIM_SetAutoReload(pxPortTimArr[ucUnitNumber], usNumberOfTicks);
+
+	/*	load TCNT with zero	*/
+	LL_TIM_SetCounter(pxPortTimArr[ucUnitNumber], 0);
+
+	/*	Enable counter	*/
+	vPORT_TIM_ENABLE_COUNTER(ucUnitNumber);
+}
+
 
 /*******************************************************************************
  * ISRs:

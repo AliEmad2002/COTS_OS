@@ -59,6 +59,8 @@
  */
 extern TIM_TypeDef* const pxPortTimArr[];
 
+extern const uint32_t puiChannels[];
+
 /*
  * Timer counter register size (in bits).
  * User must configure in "Port_Timer.c"
@@ -203,6 +205,18 @@ void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
 	(	LL_TIM_OC_SetCompareCH1(pxPortTimArr[(ucUnitNumber)], (uint16_t)(uiVal))	)
 
 /*
+ * Enables Capture / Compare channel.
+ */
+#define vPORT_TIM_ENABLE_CC_CHANNEL(ucUnitNumber, ucChannelNumber)	\
+	(	LL_TIM_CC_EnableChannel(pxPortTimArr[(ucUnitNumber)], puiChannels[(ucChannelNumber)])	)
+
+/*
+ * Disables Capture / Compare channel.
+ */
+#define vPORT_TIM_DISABLE_CC_CHANNEL(ucUnitNumber, ucChannelNumber)	\
+	(	LL_TIM_CC_DisableChannel(pxPortTimArr[(ucUnitNumber)], puiChannels[(ucChannelNumber)])	)
+
+/*
  * Sets overflow frequency as near as possible to the requested value by changing
  * prescaler and maximum value.
  *
@@ -220,10 +234,54 @@ void vPort_TIM_initChannelPwmOutput(uint8_t ucUnitNumber, uint8_t ucChannelNumbe
 
 /*
  * Sets PWM duty of a timer channel.
+ *
+ * Notes:
+ * 		-	Channels' GPIO configuration must be done separately (if needed).
  */
 void vPort_TIM_setPwmDuty(	uint8_t  ucUnitNumber,
 							uint8_t ucChannelNumber,
 							uint16_t usDuty	);
+
+/*
+ * Initializes a timer unit for OPM (One-Pulse Mode).
+ *
+ * Notes:
+ * 		-	"uiPrescaler" must be of of the "uiPORT_TIM_PRESCALER_FOR_xx_KHZ" macros.
+ *
+ * 		-	Once a timer unit is initialized for OPM, the unit and its channels
+ * 			can only be used for generating OPM signals.
+ *
+ * 		-	Channels' GPIO configuration must be done separately (if needed).
+ *
+ * 		-	In order for OPM to work properly, no timer functions AT ALL should
+ * 			be used after initializing, except for the "vPort_TIM_generateOnePulse()"
+ * 			function.
+ */
+void vPort_TIM_initOPM(uint8_t ucUnitNumber, uint32_t uiPrescaler);
+
+/*
+ * Generates OPM (One-Pulse Mode) positive pulse on a timer channel.
+ *
+ * Notes:
+ * 		-	"1 / uiTimeNanoSeconds" must be of a frequency less than timer's frequency
+ * 			(which is configured in "vPort_TIM_initOPM()").
+ *
+ *		-	Timer resolution may not be enough to achieve the requested
+ *			"uiTimeNanoSeconds" precisely. If so, use a higher timer frequency
+ *			when initializing (using "vPort_TIM_initOPM()").
+ *
+ *		-	Channel's capture / compare must be enabled first. (Notice that enabling
+ *			capture / compare of multiple of the same timer unit, results in generating
+ *			the pulse on all of them. Therefore, only one channel may be enabled at
+ *			a time. A higher level SW could handle this.
+ *
+ *		-	So far, this driver can only generate OPM pulse on a single channel
+ *			at a time. A mutex  may be used on the timer unit to assure it is used
+ *			by one channel at a time.
+ */
+void vPort_TIM_generateOnePulse(	uint8_t ucUnitNumber,
+									uint8_t ucChannelNumber,
+									uint32_t uiTimeNanoSeconds);
 
 
 

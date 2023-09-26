@@ -202,10 +202,28 @@ void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
 #define vPORT_TIM_WRITE_OC_REGISTER(ucUnitNumber, uiVal)	\
 	(	LL_TIM_OC_SetCompareCH1(pxPortTimArr[(ucUnitNumber)], (uint16_t)(uiVal))	)
 
+/*
+ * Sets overflow frequency as near as possible to the requested value by changing
+ * prescaler and maximum value.
+ *
+ * If succeeded, the function returns actual configured frequency in Hz. Otherwise,
+ * if failed, the function returns 0.
+ *
+ *
+ */
+uint32_t uiPort_TIM_setOvfFreq(uint8_t ucUnitNumber, uint32_t uiFreq);
 
+/*
+ * Initializes timer channel for PWM output.
+ */
+void vPort_TIM_initChannelPwmOutput(uint8_t ucUnitNumber, uint8_t ucChannelNumber);
 
-
-
+/*
+ * Sets PWM duty of a timer channel.
+ */
+void vPort_TIM_setPwmDuty(	uint8_t  ucUnitNumber,
+							uint8_t ucChannelNumber,
+							uint16_t usDuty	);
 
 
 

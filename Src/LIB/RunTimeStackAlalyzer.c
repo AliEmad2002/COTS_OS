@@ -25,7 +25,7 @@ typedef struct{
 	char* pcTaskName;
 	StackType_t* pxTaskStack;
 	uint32_t uiTaskStackSize;
-	uint32_t uiLastCheckStackUsageInWords;
+	uint32_t uiMaximumStackUsageInWords;
 }xLIB_RunTimeStackAlalyzer_t;
 
 /*******************************************************************************
@@ -56,7 +56,7 @@ void vUpdateStackUsage(xLIB_RunTimeStackAlalyzer_t* pxHandle)
 	vLib_ASSERT(uiCount <pxHandle->uiTaskStackSize, 1);
 
 	/*	Update	*/
-	pxHandle->uiLastCheckStackUsageInWords = pxHandle->uiTaskStackSize - uiCount;
+	pxHandle->uiMaximumStackUsageInWords = pxHandle->uiTaskStackSize - uiCount;
 }
 
 /*******************************************************************************
@@ -109,7 +109,7 @@ void vLIB_RunTimeStackAlalyzer_addTask(	char* pcTaskName,
 	pxHandle->pcTaskName = pcTaskName;
 	pxHandle->pxTaskStack = pxTaskStack;
 	pxHandle->uiTaskStackSize = uiStackSize;
-	pxHandle->uiLastCheckStackUsageInWords = 0;
+	pxHandle->uiMaximumStackUsageInWords = 0;
 
 	uiNumberOfAddedTasks++;
 }
@@ -127,7 +127,7 @@ int32_t iLIB_RunTimeStackAlalyzer_getTaskStackUsageInWords(char* pcTaskName)
 
 		if (strcmp(pcTaskName, pxHandle->pcTaskName) == 0)
 		{
-			return pxHandle->uiLastCheckStackUsageInWords;
+			return pxHandle->uiMaximumStackUsageInWords;
 		}
 	}
 

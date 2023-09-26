@@ -53,14 +53,17 @@ void vPort_Clock_initPeriphClock(void)
 	__HAL_RCC_BKP_CLK_ENABLE();
 
 	/*	Initialize timers clock	*/
+	__HAL_RCC_TIM1_CLK_ENABLE();
 	__HAL_RCC_TIM2_CLK_ENABLE();
+	__HAL_RCC_TIM3_CLK_ENABLE();
+	__HAL_RCC_TIM4_CLK_ENABLE();
 
-	/*	Initialize USB clock	*/
-	RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
-	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
-	vLib_ASSERT(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK, 0);
-	__HAL_RCC_USB_CLK_ENABLE();
+//	/*	Initialize USB clock	*/
+//	RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+//	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+//	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+//	vLib_ASSERT(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK, 0);
+//	__HAL_RCC_USB_CLK_ENABLE();
 }
 
 

@@ -11,7 +11,6 @@
 
 /*	MCAL	*/
 #include "MCAL_Port/Port_Timer.h"
-#include "MCAL_Port/Port_GPIO.h"
 
 /*	SELF	*/
 #include "MCAL_Port/Port_DAC.h"
@@ -21,16 +20,12 @@ void vPort_DAC_initUnit(uint8_t ucUnitNumber)
 {
 	/*	Set PWM frequency	*/
 	vLib_ASSERT(uiPort_TIM_setOvfFreq(ucUnitNumber, uiCONF_DAC_PWM_FREQ_HZ), 0);
-
-	/*	Initialize all channels of unit's associated timer unit as PWM outputs	*/
-	for (uint8_t i = 0; i < 4; i++)
-		vPort_TIM_initChannelPwmOutput(ucUnitNumber, i);
 }
 
 void vPort_DAC_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
 {
-	/*	Configure timer's channel connection to GPIO pins	*/
-	vPort_GPIO_initTimerChannelPinAsOutput(ucUnitNumber, ucChannelNumber, 0);
+	/*	Initialize PWM output	*/
+	vPort_TIM_initChannelPwmOutput(ucUnitNumber, ucChannelNumber);
 }
 
 void vPort_DAC_setChannelVoltage(	uint8_t ucUnitNumber,

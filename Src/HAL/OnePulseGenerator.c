@@ -23,7 +23,7 @@
 /*******************************************************************************
  * Callback:
  ******************************************************************************/
-void vOvfCallback(void* pvParams)
+static void vOvfCallback(void* pvParams)
 {
 	xHOS_OnePulseGenerator_t* pxHandle = (xHOS_OnePulseGenerator_t*)pvParams;
 

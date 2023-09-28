@@ -53,10 +53,22 @@
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
+/*
+ * Initializes DAC unit.
+ */
 void vPort_DAC_initUnit(uint8_t ucUnitNumber);
 
+/*
+ * Initializes DAC channel.
+ *
+ * Notes:
+ * 		-	Pin mapping must be done independently.
+ */
 void vPort_DAC_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber);
 
+/*
+ * Sets channel voltage.
+ */
 void vPort_DAC_setChannelVoltage(	uint8_t ucUnitNumber,
 									uint8_t ucChannelNumber,
 									int32_t iVoltageMV	);

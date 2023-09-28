@@ -48,4 +48,11 @@ void vPort_GPIO_initTimerChannelPinAsOutput(	uint8_t ucTimerUnitNumber,
 												uint8_t ucTimerChannelNumber,
 												uint8_t ucMapNumber	);
 
+/*
+ * Initializes DAC channel associated pin as output.
+ */
+void vPort_GPIO_initDacChannelPinAsOutput(	uint8_t ucDacUnitNumber,
+											uint8_t ucDacChannelNumber,
+											uint8_t ucMapNumber	);
+
 #endif /* HAL_OS_PORT_PORT_GPIO_H_ */

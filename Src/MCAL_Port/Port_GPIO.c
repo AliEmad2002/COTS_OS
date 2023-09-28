@@ -235,7 +235,12 @@ void vPort_GPIO_initTimerChannelPinAsOutput(	uint8_t ucTimerUnitNumber,
 	vPort_GPIO_initPinAFPP(ucPort, ucPin);
 }
 
-
+void vPort_GPIO_initDacChannelPinAsOutput(	uint8_t ucDacUnitNumber,
+											uint8_t ucDacChannelNumber,
+											uint8_t ucMapNumber	)
+{
+	vPort_GPIO_initTimerChannelPinAsOutput(ucDacUnitNumber, ucDacChannelNumber, ucMapNumber);
+}
 
 
 

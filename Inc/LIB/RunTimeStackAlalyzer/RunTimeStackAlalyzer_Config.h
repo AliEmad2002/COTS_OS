@@ -11,7 +11,7 @@
 /*
  * Driver enable state.
  */
-#define ucCONF_RUN_TIME_STACK_ALALYZER_ENABLE					1
+#define ucCONF_RUN_TIME_STACK_ALALYZER_ENABLE					0
 
 /*
  * Maximum number of tasks to be analyzed.

@@ -294,13 +294,13 @@ void TIM3_IRQHandler(void)
 {
 #define UNIT_NUM	2
 
-	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM))
+	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM) && ucPORT_TIM_IS_OVF_INTERRUPT_ENABLED(UNIT_NUM))
 	{
 		ppfPortTimerOvfCallbackArr[UNIT_NUM](ppvPortTimerOvfCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_OVF_FLAG(UNIT_NUM);
 	}
 
-	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM))
+	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM) && ucPORT_TIM_IS_CC_INTERRUPT_ENABLED(UNIT_NUM))
 	{
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
@@ -313,13 +313,13 @@ void TIM4_IRQHandler(void)
 {
 #define UNIT_NUM	3
 
-	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM))
+	if (ucPORT_TIM_GET_OVF_FLAG(UNIT_NUM) && ucPORT_TIM_IS_OVF_INTERRUPT_ENABLED(UNIT_NUM))
 	{
 		ppfPortTimerOvfCallbackArr[UNIT_NUM](ppvPortTimerOvfCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_OVF_FLAG(UNIT_NUM);
 	}
 
-	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM))
+	if (ucPORT_TIM_GET_CC_FLAG(UNIT_NUM) && ucPORT_TIM_IS_CC_INTERRUPT_ENABLED(UNIT_NUM))
 	{
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);

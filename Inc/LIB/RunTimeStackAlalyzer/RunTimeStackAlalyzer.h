@@ -6,6 +6,11 @@
  *
  * User may add "pxStackAnalysisArr" to the "expressions" or "live expressions"
  * debugging tool to monitor tasks usage at runtime.
+ *
+ * Note:
+ * 		-	Same functionality provided by this driver is already available in the
+ * 			"FreeRTOS task list" tool of STM32CubeIDE. Use this driver only if
+ * 			not using STM32CubeIDE.
  */
 
 #ifndef COTS_OS_INC_LIB_RUNTIMESTACKALALYZER_RUNTIMESTACKALALYZER_H_

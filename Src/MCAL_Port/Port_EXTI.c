@@ -10,6 +10,7 @@
 #include "cmsis_gcc.h"
 #include "stm32f1xx_ll_exti.h"
 #include "stm32f1xx_ll_gpio.h"
+#include "stm32f1xx_hal_gpio.h"
 
 #include "LIB/Assert.h"
 
@@ -54,6 +55,8 @@ const uint32_t puiPortExtiPinToExtiLineArr[16] = {
 };
 
 #include "MCAL_Port/Port_EXTI.h"
+
+extern GPIO_TypeDef* const pxPortDioPortArr[];
 
 /*******************************************************************************
  * API functions:
@@ -137,30 +140,40 @@ void EXTI0_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[0](ppvPortExtiCallbackParamsArr[0]);
 	LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[0]);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void EXTI1_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[1](ppvPortExtiCallbackParamsArr[1]);
 	LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[1]);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void EXTI2_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[2](ppvPortExtiCallbackParamsArr[2]);
 	LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[2]);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void EXTI3_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[3](ppvPortExtiCallbackParamsArr[3]);
 	LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[3]);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void EXTI4_IRQHandler(void)
 {
 	ppfPortExtiCallbackArr[4](ppvPortExtiCallbackParamsArr[4]);
 	LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[4]);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void EXTI9_5_IRQHandler(void)
@@ -173,6 +186,8 @@ void EXTI9_5_IRQHandler(void)
 			LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[i]);
 		}
 	}
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void EXTI15_10_IRQHandler(void)
@@ -185,6 +200,8 @@ void EXTI15_10_IRQHandler(void)
 			LL_EXTI_ClearFlag_0_31(puiPortExtiPinToExtiLineArr[i]);
 		}
 	}
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 #endif
 

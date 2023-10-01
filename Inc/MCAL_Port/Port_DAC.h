@@ -43,6 +43,8 @@
  * timer channel 0, and so on.
  */
 
+#include "MCAL_Port/Port_Timer.h"
+
 /*******************************************************************************
  * Configuration:
  ******************************************************************************/
@@ -51,7 +53,7 @@
 #define iCONF_DAC_MAX_VOLTAGE_MV		3300
 
 /*******************************************************************************
- * API functions:
+ * API functions / macros:
  ******************************************************************************/
 /*
  * Initializes DAC unit.
@@ -73,7 +75,14 @@ void vPort_DAC_setChannelVoltage(	uint8_t ucUnitNumber,
 									uint8_t ucChannelNumber,
 									int32_t iVoltageMV	);
 
-
+/*
+ * Gets DAC resolution.
+ *
+ * This macro evaluates to the number of steps that could be achieved between 0% and
+ * 100% of full analog swing on any DAC channel on the given DAC unit.
+ */
+#define uiPORT_DAC_GET_RESOLUTION(ucUnitNumber)		\
+	(	uiPORT_TIM_GET_PWM_RESOLUTION(ucUnitNumber)	)
 
 
 

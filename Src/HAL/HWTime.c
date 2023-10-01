@@ -109,6 +109,7 @@ uint64_t ulHOS_HWTime_getTimestamp(void)
 	register uint32_t uiOvfFlag;
 	register uint32_t uiOvfOccuredBeforeCnt;
 
+
 	taskENTER_CRITICAL();
 	{
 		/*	Read counter value and OVF flag	*/
@@ -181,8 +182,6 @@ uint64_t ulHOS_HWTime_getTimestampFromISR(void)
 			ulTimestamp = uiOvfCount * uiMaxCounterVal + uiCNT;
 	}
 	taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
-
-
 
 	return ulTimestamp;
 

@@ -16,10 +16,7 @@
  */
 
 
-#define vPORT_BREAKPOINT()		\
-{                               \
-	asm volatile("BKPT #0");    \
-}
+#define vPORT_BREAKPOINT()		asm volatile("BKPT #0")
 
 
 

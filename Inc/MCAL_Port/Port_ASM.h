@@ -47,7 +47,10 @@ static inline uint16_t uiPort_ASM_reverse16(uint16_t uiX)
   return (uint16_t)result;
 }
 
-
+/*
+ * Executes an "NOP" instruction.
+ */
+#define vPORT_ASM_NOP()		asm volatile("NOP")
 
 
 

@@ -216,6 +216,10 @@ void vPort_TIM_generateOnePulse(	uint8_t ucUnitNumber,
 	/*	Calculate number of ticks (N = time * F)	*/
 	volatile uint16_t usNumberOfTicks = ((uint64_t)uiTimeNanoSeconds * ulClkTick) / 1000000000;
 
+	/*	Number of ticks must be at least 1	*/
+	if (usNumberOfTicks == 0)
+		usNumberOfTicks = 1;
+
 	/*	Load ARR with this number of ticks	*/
 	LL_TIM_SetAutoReload(pxPortTimArr[ucUnitNumber], usNumberOfTicks);
 
@@ -263,12 +267,16 @@ void TIM1_UP_IRQHandler(void)
 {
 	ppfPortTimerOvfCallbackArr[0](ppvPortTimerOvfCallbackParamsArr[0]);
 	vPORT_TIM_CLEAR_OVF_FLAG(0);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void TIM1_CC_IRQHandler(void)
 {
 	ppfPortTimerCompareCallbackArr[0](ppvPortTimerCompareCallbackParamsArr[0]);
 	vPORT_TIM_CLEAR_CC_FLAG(0);
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 }
 
 void TIM2_IRQHandler(void)
@@ -286,7 +294,8 @@ void TIM2_IRQHandler(void)
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
 	}
-
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 #undef UNIT_NUM
 }
 
@@ -305,7 +314,8 @@ void TIM3_IRQHandler(void)
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
 	}
-
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 #undef UNIT_NUM
 }
 
@@ -324,7 +334,8 @@ void TIM4_IRQHandler(void)
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
 	}
-
+	__asm volatile( "dsb" ::: "memory" );
+	__asm volatile( "isb" );
 #undef UNIT_NUM
 }
 

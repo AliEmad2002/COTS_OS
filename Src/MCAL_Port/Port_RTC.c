@@ -43,7 +43,7 @@ const xMCAL_RTC_Time_t xPortRtcStartingTime = {
  */
 uint32_t uiPort_RTC_convertTimeToTotalSeconds(const xMCAL_RTC_Time_t* pxTime)
 {
-
+	return 0; // TODO
 }
 
 /*

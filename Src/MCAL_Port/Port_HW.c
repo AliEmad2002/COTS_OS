@@ -49,5 +49,5 @@ void vPort_HW_init(void)
 
 	/*	USB	*/
 	/*	PLEAE KEEP IN MIND: USB's SW is very much RAM, flash and execution time consuming	*/
-	//vPort_USB_initHardware();
+	vPort_USB_initHardware();
 }

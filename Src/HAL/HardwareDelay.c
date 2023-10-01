@@ -80,7 +80,7 @@ static inline void vInitInterruptController(uint8_t ucTimerUnitNumber)
 {
 	VPORT_INTERRUPT_SET_PRIORITY(
 		pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber],
-		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
 
 	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptTimerOvfIrqNumberArr[ucTimerUnitNumber]);
 }

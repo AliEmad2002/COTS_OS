@@ -10,7 +10,6 @@
 #include "LIB/Assert.h"
 
 /*	MCAL	*/
-#include "MCAL_Port/Port_Timer.h"
 
 /*	SELF	*/
 #include "MCAL_Port/Port_DAC.h"

@@ -169,7 +169,7 @@ void vHOS_PWMMeasure_init(xHOS_PWMDutyMeasure_t* pxHandle)
 	pxHandle->uiNumberOfIdlePeriods = 0;
 
 	/*	Initialize pin	*/
-	vPort_DIO_initPinInput(pxHandle->ucPort, pxHandle->ucPin, 0);
+	vPort_DIO_initPinInput(pxHandle->ucPort, pxHandle->ucPin, 1);
 
 	/*	Initialize EXTI	*/
 	vPort_EXTI_setEdge(pxHandle->ucPort, pxHandle->ucPin, 2);

@@ -22,7 +22,7 @@
 
 typedef struct{
 	/*		PUBLIC		*/
-	uint8_t ucDacUnitNumber;
+	uint8_t ucDacUnitNumber; // Unit must be previously initialized.
 	uint8_t ucDacChannelNumber;
 
 	void* pvGetNewSampleParams;

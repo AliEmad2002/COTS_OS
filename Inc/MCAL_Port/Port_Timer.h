@@ -217,13 +217,20 @@ void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
 	(	LL_TIM_CC_DisableChannel(pxPortTimArr[(ucUnitNumber)], puiChannels[(ucChannelNumber)])	)
 
 /*
+ * Gets PWM resolution.
+ *
+ * This macro evaluates to the number of steps that could be achieved between 0% and
+ * 100% duty cycle of any PWM channel on the given timer unit.
+ */
+#define uiPORT_TIM_GET_PWM_RESOLUTION(ucUnitNumber)		\
+	(	LL_TIM_GetAutoReload(pxPortTimArr[(ucUnitNumber)])	)
+
+/*
  * Sets overflow frequency as near as possible to the requested value by changing
  * prescaler and maximum value.
  *
  * If succeeded, the function returns actual configured frequency in Hz. Otherwise,
  * if failed, the function returns 0.
- *
- *
  */
 uint32_t uiPort_TIM_setOvfFreq(uint8_t ucUnitNumber, uint32_t uiFreq);
 

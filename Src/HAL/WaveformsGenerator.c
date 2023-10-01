@@ -86,6 +86,7 @@ static void vTask(void* pvParams)
 				iVoltage = pxWave->pfGetNewSample(ulCurrentTime, pxWave->pvGetNewSampleParams);
 
 				/*	Update DAC channel	*/
+				//if (pxWave->ucDacChannelNumber == 1)
 				vPort_DAC_setChannelVoltage(	pxWave->ucDacUnitNumber,
 												pxWave->ucDacChannelNumber,
 												iVoltage	);
@@ -114,9 +115,11 @@ static void vTask(void* pvParams)
 
 			if (ulDelayEndTime > ulCurrentTime)
 			{
-				vHOS_HardwareDelay_delayUs(
-					&pxGen->xHWDelay,
-					ulDelayEndTime - ulCurrentTime	);
+				//TODO:
+//				vHOS_HardwareDelay_delayUs(
+//					&pxGen->xHWDelay,
+//					ulDelayEndTime - ulCurrentTime	);
+				vTaskDelay(0);
 			}
 
 			else
@@ -158,7 +161,7 @@ void vHOS_WaveformsGenerator_init(	xHOS_WaveformsGenerator_t* pxHandle,
 											pcTaskName,
 											uiWAVEFORMSGENERATOR_STACK_SIZE,
 											(void*)pxHandle,
-											configHOS_HARD_REAL_TIME_TASK_PRI,
+											configHOS_SOFT_REAL_TIME_TASK_PRI,
 											pxHandle->xTaskStack,
 											&pxHandle->xTaskStatic	);
 

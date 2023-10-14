@@ -184,7 +184,7 @@ void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
  * reads counter register value.
  */
 #define uiPORT_TIM_READ_COUNTER(ucUnitNumber)	\
-	(LL_TIM_GetCounter(pxPortTimArr[(ucUnitNumber)]))
+	(pxPortTimArr[(ucUnitNumber)]->CNT)
 
 /*
  * Enables counter.

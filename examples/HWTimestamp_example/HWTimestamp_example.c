@@ -47,8 +47,10 @@
 /*******************************************************************************
  * Global variables/objects:
  ******************************************************************************/
-static volatile uint32_t uiTimestamp = 0;
-static volatile uint32_t uiTimestampPrev = 0;
+static volatile uint32_t uiTimestamp1 = 0;
+static volatile uint32_t uiTimestampPrev1 = 0;
+static volatile uint32_t uiTimestamp2 = 0;
+static volatile uint32_t uiTimestampPrev2 = 0;
 
 
 /*******************************************************************************
@@ -69,24 +71,30 @@ void vTask1(void* pvParams)
 {
 	while(1)
 	{
-		uiTimestampPrev = uiTimestamp;
-		uiTimestamp = ulHOS_HWTimestamp_getTimestamp();
+		uiTimestampPrev1 = uiTimestamp1;
+		uiTimestamp1 = ulHOS_HWTime_getTimestamp();
 
-		if (uiTimestamp < uiTimestampPrev)
+		if (uiTimestamp1 < uiTimestampPrev1)
 		{
 			while(1);	//	fault occurred.
 		}
+
+		vTaskDelay(pdMS_TO_TICKS(abs(rand())%100));
 	}
 }
 
 void vTask2(void* pvParams)
 {
-
 	while(1)
 	{
-		vTaskSuspend(xTask1Handle);
-		vTaskDelay(pdMS_TO_TICKS(abs(rand())%100));
-		vTaskResume(xTask1Handle);
+		uiTimestampPrev2 = uiTimestamp2;
+		uiTimestamp2 = ulHOS_HWTime_getTimestamp();
+
+		if (uiTimestamp2 < uiTimestampPrev2)
+		{
+			while(1);	//	fault occurred.
+		}
+
 		vTaskDelay(pdMS_TO_TICKS(abs(rand())%100));
 	}
 }
@@ -103,7 +111,10 @@ void vApplicationIdleHook( void )
 /*******************************************************************************
  * Callbacks:
  ******************************************************************************/
-
+void Error_Handler(void)
+{
+	while(1);
+}
 
 /*******************************************************************************
  * Tasks initialization:
@@ -134,7 +145,7 @@ void tasks_init(void)
  ******************************************************************************/
 void obj_init(void)
 {
-	vHOS_HWTimestamp_init();
+	vHOS_HWTime_init();
 }
 
 /*******************************************************************************

@@ -155,10 +155,17 @@ static void vTask(void* pvParams)
 			ulDeltaTicks = pxHandle->fallingEchoTimestamp - pxHandle->risingEchoTimestamp;
 			iNewDist = (1000 * (343/2) * ulDeltaTicks) / uiHOS_HWTIME_TIMER_FREQ_ACTUAL;
 
-			/*	Add new distance to the filter	*/
-			xSemaphoreTake(pxHandle->xFilter.xMutex, portMAX_DELAY);
-			vLIB_NAvgFilter_update(&pxHandle->xFilter, iNewDist);
-			xSemaphoreGive(pxHandle->xFilter.xMutex);
+			/*	Check for error reading (saturation check)	*/
+			if (iNewDist > pxHandle->iSaturationDistance)
+			{	/*	Do nothing	*/	}
+
+			else
+			{
+				/*	Add new distance to the filter	*/
+				xSemaphoreTake(pxHandle->xFilter.xMutex, portMAX_DELAY);
+				vLIB_NAvgFilter_update(&pxHandle->xFilter, iNewDist);
+				xSemaphoreGive(pxHandle->xFilter.xMutex);
+			}
 		}
 
 		/*	Disable EXTI interrupt	*/
@@ -225,11 +232,13 @@ void vHOS_UltraSonicDistance_init(	xHOS_UltraSonicDistance_t* pxHandle,
 							(void*)pxHandle	);
 
 	/*	Initialize interrupt controller	*/
+	uint32_t uiIrqNum = uiPort_EXTI_getIrqNum(pxHandle->ucEchoPort, pxHandle->ucEchoPin);
+
 	VPORT_INTERRUPT_SET_PRIORITY(
-		pxPortInterruptExtiIrqNumberArr[pxHandle->ucEchoPin],
+		uiIrqNum,
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1	);
 
-	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucEchoPin]);
+	vPORT_INTERRUPT_ENABLE_IRQ(uiIrqNum);
 }
 
 /*

@@ -50,6 +50,11 @@ typedef struct{
 	uint8_t ucSamplesPerseconds;	// maximumly: 40-sample per second.
 
 	uint8_t ucIsConnectedToSynchronizer;
+
+	/*
+	 * If the read sample is higher than this value, driver ignores it.
+	 */
+	int32_t iSaturationDistance;
 }xHOS_UltraSonicDistance_t;
 
 

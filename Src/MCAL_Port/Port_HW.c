@@ -16,6 +16,9 @@
 #include "MCAL_Port/Port_Interrupt.h"
 #include "MCAL_Port/Port_RTC.h"
 #include "MCAL_Port/Port_USB.h"
+#include "MCAL_Port/Port_UART.h"
+#include "MCAL_Port/Port_AFIO.h"
+#include "MCAL_Port/Port_GPIO.h"
 
 void vPort_HW_init(void)
 {
@@ -23,12 +26,28 @@ void vPort_HW_init(void)
 	vPort_Clock_initPeriphClock();
 
 	/*		UART1		*/
-//	vPort_UART_initHW(0);
-//	vPort_UART_setTransferDirection(0, 2);
-//	vPort_UART_setStopBitsLength(0, 1);
-//	vPort_UART_setBaudRate(0, 9600);
-//	vPort_AFIO_mapUart(0, 0);
-//	vPort_GPIO_initUartPins(0, 0, 0, 1);
+	vPort_UART_initHW(0);
+	vPort_UART_setTransferDirection(0, 2);
+	vPort_UART_setStopBitsLength(0, 1);
+	vPort_UART_setBaudRate(0, 9600);
+	vPort_AFIO_mapUart(0, 0);
+	vPort_GPIO_initUartPins(0, 0, 0, 1);
+
+	/*		UART2		*/
+	vPort_UART_initHW(1);
+	vPort_UART_setTransferDirection(1, 2);
+	vPort_UART_setStopBitsLength(1, 1);
+	vPort_UART_setBaudRate(1, 9600);
+	vPort_AFIO_mapUart(1, 0);
+	vPort_GPIO_initUartPins(1, 0, 0, 1);
+
+	/*		UART3		*/
+	vPort_UART_initHW(2);
+	vPort_UART_setTransferDirection(2, 2);
+	vPort_UART_setStopBitsLength(2, 1);
+	vPort_UART_setBaudRate(2, 9600);
+	vPort_AFIO_mapUart(2, 0);
+	vPort_GPIO_initUartPins(2, 0, 0, 1);
 
 	/*	PWR	*/
 //	vPort_PWR_init();
@@ -49,5 +68,5 @@ void vPort_HW_init(void)
 
 	/*	USB	*/
 	/*	PLEAE KEEP IN MIND: USB's SW is very much RAM, flash and execution time consuming	*/
-	vPort_USB_initHardware();
+//	vPort_USB_initHardware();
 }

@@ -9,6 +9,7 @@
 #define HAL_OS_INC_BUTTON_BUTTON_H_
 
 #include "FreeRTOS.h"
+#include "task.h"
 
 /*
  * "Button" structure.

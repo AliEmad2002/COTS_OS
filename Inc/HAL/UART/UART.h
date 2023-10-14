@@ -57,8 +57,6 @@ uint8_t ucHOS_UART_receive(		uint8_t ucUnitNumber,
  *
  * 		-	Unit's mutex must be taken (this function must be called) first
  * 			before using any of the above functions.
- *
- * 		-	This is an inline function.
  */
 uint8_t ucHOS_UART_takeMutex(uint8_t ucUnitNumber, TickType_t xTimeout);
 
@@ -70,16 +68,14 @@ uint8_t ucHOS_UART_takeMutex(uint8_t ucUnitNumber, TickType_t xTimeout);
  *
  * 		-	Can only be called from inside a task which has previously taken
  * 			this mutex, and is currently holding it.
- *
- * 		-	This is an inline function.
  */
 void vHOS_UART_releaseMutex(uint8_t ucUnitNumber);
 
 /*
- * Blocks calling task until transfer is complete or timeout passes.
+ * Blocks calling task until transmission (send operation) is completed or timeout passes.
  *
  * Notes:
- * 		-	Returns 1 if transfer completed while timeout hasn't passed, otherwise
+ * 		-	Returns 1 if transmission completed while timeout hasn't passed, otherwise
  * 			returns 0.
  *
  * 		-	Can't be used twice in a row. It's like a flag that gets set when
@@ -88,10 +84,8 @@ void vHOS_UART_releaseMutex(uint8_t ucUnitNumber);
  *		-	As UART is asynchronous, it is recommended to delay (for an experimental
  *			amount of time that depends on transmission delay) after each "send"
  *			operation.
- *
- * 		-	This is an inline function.
  */
-uint8_t ucHOS_UART_blockUntilTransferComplete(uint8_t ucUnitNumber, TickType_t xTimeout);
+uint8_t ucHOS_UART_blockUntilTransmissionComplete(uint8_t ucUnitNumber, TickType_t xTimeout);
 
 
 

@@ -27,10 +27,11 @@
 #include "HAL/UltraSonicDistance/UltraSonicDistanceSynchronizer.h"
 #include "HAL/USBVirtualCOM/USBVirtualCOM.h"
 #include "HAL/UART/UART.h"
-#include "HAL/RDM6300/RDM6300.h"
+#include "HAL/RFID/RFID.h"
 #include "HAL/PWMMeasure/PWMMeasure.h"
 #include "HAL/OnePulseGenerator/OnePulseGenerator.h"
 #include "HAL/WaveformsGenerator/WaveformsGenerator.h"
-
+#include "HAL/DCMotor/DCMotor.h"
+#include "HAL/IREncoder/IREncoder.h"
 
 #endif /* HAL_OS_INC_HAL_OS_H_ */

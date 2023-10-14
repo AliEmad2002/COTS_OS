@@ -8,6 +8,8 @@
 #ifndef COTS_OS_INC_HAL_USBVIRTUALCOM_USB_VIRTUALCOM_H_
 #define COTS_OS_INC_HAL_USBVIRTUALCOM_USB_VIRTUALCOM_H_
 
+#include "FreeRTOS.h"
+
 
 /*
  * Initializes USB virtual COM port.

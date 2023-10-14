@@ -1,10 +1,10 @@
 /*
- * UART_V1.c
+ * UART_HW_V1.c
  *
  *  Created on: Sep 14, 2023
  *      Author: Ali Emad
  *
- * This is the SPI source code used for targets which do not have DMA.
+ * This is the UART source code used for targets which do not have DMA.
  */
 
 /*	LIB	*/
@@ -26,7 +26,7 @@
 #include "HAL/DMA/DMA.h"
 
 /*	SELF	*/
-#include "HAL/UART/UART.h"
+#include "HAL/UART/UART_Config.h"
 
 #if portDMA_IS_AVAILABLE == 0
 
@@ -100,17 +100,26 @@ typedef struct{
 	xRxInfo_t xRxInfo;
 }xHOS_UART_Unit_t;
 
+
+/*******************************************************************************
+ * Helping functions/macros:
+ ******************************************************************************/
+/*
+ * Number of units to be created.
+ */
+#if uiCONF_UART_NUMBER_OF_NEEDED_UNITS > portUART_NUMBER_OF_UNITS
+#define uiNUMBER_OF_UNITS			portUART_NUMBER_OF_UNITS
+#else
+#define uiNUMBER_OF_UNITS			uiCONF_UART_NUMBER_OF_NEEDED_UNITS
+#endif
+
 /*******************************************************************************
  * Global and static variables:
  ******************************************************************************/
 /*
  * Array of units.
  */
-static xHOS_UART_Unit_t pxUnitArr[portUART_NUMBER_OF_UNITS];
-
-/*******************************************************************************
- * Helping functions/macros:
- ******************************************************************************/
+static xHOS_UART_Unit_t pxUnitArr[uiNUMBER_OF_UNITS];
 
 
 /*******************************************************************************
@@ -165,16 +174,16 @@ static void vTcCallback(void* pvParams)
 }
 
 /*******************************************************************************
- * API functions:
+ * Driver functions:
  ******************************************************************************/
 /*
- * See header for info.
+ * Initializes all HW based UART units.
  */
-void vHOS_UART_init(void)
+void vHOS_UART_HW_init(void)
 {
 	xHOS_UART_Unit_t* pxUnit;
 
-	for (uint8_t i = 0; i < portUART_NUMBER_OF_UNITS; i++)
+	for (uint8_t i = 0; i < uiNUMBER_OF_UNITS; i++)
 	{
 		pxUnit = &pxUnitArr[i];
 
@@ -237,9 +246,9 @@ void vHOS_UART_init(void)
 }
 
 /*
- * See header for info.
+ * Sends data using a HW unit.
  */
-void vHOS_UART_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
+void vHOS_UART_HW_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 {
 	xHOS_UART_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
 
@@ -275,9 +284,9 @@ void vHOS_UART_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 }
 
 /*
- * See header for info.
+ * Receives data using a HW unit.
  */
-uint8_t ucHOS_UART_receive(		uint8_t ucUnitNumber,
+uint8_t ucHOS_UART_HW_receive(		uint8_t ucUnitNumber,
 								int8_t* pcInArr,
 								uint32_t uiSize,
 								TickType_t xTimeout	)
@@ -285,8 +294,8 @@ uint8_t ucHOS_UART_receive(		uint8_t ucUnitNumber,
 	xHOS_UART_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
 	uint8_t ucState = 0;
 
-	/*	Flush	*/
-	(volatile void)ucPort_UART_readByte(ucUnitNumber);
+//	/*	Flush	*/
+//	(volatile void)ucPort_UART_readByte(ucUnitNumber);
 
 	/*	Configure Rx info	*/
 	pxUnit->xRxInfo.pcRxBuffer = pcInArr;
@@ -307,32 +316,29 @@ uint8_t ucHOS_UART_receive(		uint8_t ucUnitNumber,
 }
 
 /*
- * See header for info.
+ * Locks a HW unit.
  */
-inline __attribute__((always_inline))
-uint8_t inline ucHOS_UART_takeMutex(uint8_t ucUnitNumber, TickType_t xTimeout)
+uint8_t ucHOS_UART_HW_takeMutex(uint8_t ucUnitNumber, TickType_t xTimeout)
 {
 	return xSemaphoreTake(pxUnitArr[ucUnitNumber].xUnitMutex, xTimeout);
 }
 
 /*
- * See header for info.
+ * Unlocks a HW unit.
  */
-inline __attribute__((always_inline))
-void inline vHOS_UART_releaseMutex(uint8_t ucUnitNumber)
+void vHOS_UART_HW_releaseMutex(uint8_t ucUnitNumber)
 {
 	xSemaphoreGive(pxUnitArr[ucUnitNumber].xUnitMutex);
 }
 
 /*
- * See header for info.
+ * Blocks untill end of current transmission.
  */
-inline __attribute__((always_inline))
-uint8_t inline ucHOS_UART_blockUntilTransferComplete(uint8_t ucUnitNumber, TickType_t xTimeout)
+uint8_t ucHOS_UART_HW_blockUntilTransmissionComplete(uint8_t ucUnitNumber, TickType_t xTimeout)
 {
 	return xSemaphoreTake(pxUnitArr[ucUnitNumber].xTransferCompleteSemaphore, xTimeout);
 }
 
 
-#endif		/*		portDMA_IS_AVAILABLE		*/
+#endif		/*		portDMA_IS_AVAILABLE == 0		*/
 

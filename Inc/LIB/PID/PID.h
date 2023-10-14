@@ -9,12 +9,15 @@
 #define HAL_OS_INC_PID_PID_H_
 
 #include "FreeRTOS.h"
+#include "task.h"
 
 typedef struct{
 	/*		PRIVATE		*/
 	float fE;
 	float fI;
 	float fD;
+
+	uint8_t ucIsEnabled;
 
 	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
 	StaticTask_t xTaskStatic;

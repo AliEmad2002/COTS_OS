@@ -18,7 +18,7 @@
 		/*vLIB_PRINT("Assertion failed. Error code: %d\n.", (errCode));*/     \
 		volatile uint8_t cont = 0;                                        \
 		while(cont == 0)                                                  \
-			vPORT_BREAKPOINT();                                           \
+			/*vPORT_BREAKPOINT()*/;                                           \
 	}                                                                     \
 }
 

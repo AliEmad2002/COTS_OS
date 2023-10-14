@@ -36,7 +36,6 @@
 static void vTask(void* pvParams)
 {
 	xHOS_PID_t* pxHandle = (xHOS_PID_t*)pvParams;
-	vTaskSuspend(pxHandle->xTask);
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	float fENew;
@@ -45,6 +44,13 @@ static void vTask(void* pvParams)
 	float fC0, fC1;
 	while(1)
 	{
+		if (!pxHandle->ucIsEnabled)
+		{
+			pxHandle->fI = 0.0f;
+			pxHandle->fD = 0.0f;
+			vTaskSuspend(pxHandle->xTask);
+		}
+
 		/*	Get new error value	*/
 		fENew = pxHandle->fSetPoint - pxHandle->pfGetSample();
 
@@ -89,6 +95,8 @@ void vHOS_PID_init(xHOS_PID_t* pxHandle)
 	pxHandle->fI = 0.0f;
 	pxHandle->fE = 0.0f;
 
+	pxHandle->ucIsEnabled = 0;
+
 	/*	Create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;
 	char pcTaskName[configMAX_TASK_NAME_LEN];
@@ -109,6 +117,7 @@ void vHOS_PID_init(xHOS_PID_t* pxHandle)
 __attribute__((always_inline)) inline
 void vHOS_PID_enable(xHOS_PID_t* pxHandle)
 {
+	pxHandle->ucIsEnabled = 1;
 	vTaskResume(pxHandle->xTask);
 }
 
@@ -118,5 +127,5 @@ void vHOS_PID_enable(xHOS_PID_t* pxHandle)
 __attribute__((always_inline)) inline
 void vHOS_PID_disable(xHOS_PID_t* pxHandle)
 {
-	vTaskSuspend(pxHandle->xTask);
+	pxHandle->ucIsEnabled = 0;
 }

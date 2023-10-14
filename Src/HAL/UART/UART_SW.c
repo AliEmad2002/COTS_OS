@@ -48,7 +48,7 @@ typedef struct{
 
 	QueueHandle_t xBitQueue;
 	StaticQueue_t xBitQueueStatic;
-	uint8_t pucBitQueueMemory[20 * sizeof(Rx_Transition_t)];
+	uint8_t pucBitQueueMemory[16 * sizeof(Rx_Transition_t)];
 
 	uint64_t ulPrevDequeuedBitTimestamp;
 
@@ -236,7 +236,7 @@ static void vRxExtiCallback(void* pvParams)
 {
 	uint8_t ucUnitNumber = (uint32_t)pvParams;
 	xHOS_UART_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
-	Rx_Transition_t xTrans;
+	Rx_Transition_t xTrans, xFooTrans;
 
 	/*	Get timestamp	*/
 	xTrans.ulTimestamp = ulHOS_HWTime_getTimestampFromISR();
@@ -248,9 +248,13 @@ static void vRxExtiCallback(void* pvParams)
 	/*	Enqueue transition	*/
 	if (!xQueueSendFromISR(pxUnit->xBitQueue, (void*)&xTrans, NULL))
 	{
-		/*	If bit queue is full, raise overrun error flag, and flush the whole queue	*/
+		/*
+		 * If bit queue is full, raise overrun error flag, delete first of the
+		 * queue, and queue new transition.
+		 */
 		pxUnit->ucOverrunErrorFlag = 1;
-		xQueueReset(pxUnit->xBitQueue);
+		xQueueReceiveFromISR(pxUnit->xBitQueue, (void*)&xFooTrans, NULL);
+		xQueueSendFromISR(pxUnit->xBitQueue, (void*)&xTrans, NULL);
 	}
 }
 
@@ -277,7 +281,7 @@ void vHOS_UART_SW_init(void)
 		xSemaphoreGive(pxUnit->xUnitMutex);
 
 		/*	Create Bit queue	*/
-		pxUnit->xBitQueue = xQueueCreateStatic(	20,
+		pxUnit->xBitQueue = xQueueCreateStatic(	16,
 												sizeof(Rx_Transition_t),
 												pxUnit->pucBitQueueMemory,
 												&pxUnit->xBitQueueStatic	);
@@ -319,6 +323,12 @@ void vHOS_UART_SW_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 
 /*
  * Receives data using a SW unit.
+ *
+ * Notes:
+ * 		-	In order for the receive operation to be performed properly (i.e.:
+ * 			without overrun error), this function should be called in a high
+ * 			priority task. If the application task must be of low priority, then
+ * 			a seperate task should be created for receiving.
  */
 uint8_t ucHOS_UART_SW_receive(		uint8_t ucUnitNumber,
 									int8_t* pcInArr,

@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <time.h>
 
 #include "stm32f1xx.h"
 #include "stm32f1xx_ll_pwr.h"
@@ -13,6 +14,8 @@
 #include "MCAL_Port/Port_BKP.h"
 #include "MCAL_Port/Port_RTC.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
 
 /*******************************************************************************
  * Helping functions / macros:
@@ -58,7 +61,7 @@ void vPort_RTC_convertTotalSecondsToTime(	uint32_t uiTotalSeconds,
 /*
  * See header for info.
  */
-void inline vPort_init(void)
+void inline vPort_RTC_init(void)
 {
 	/*	Unlock backup domain	*/
 	LL_PWR_EnableBkUpAccess();
@@ -107,9 +110,13 @@ void inline vPort_init(void)
 /*
  * See header for info.
  */
-void vPort_setTime(uint32_t uiCurrentTotalSeconds)
+void vPort_RTC_setTime(uint32_t uiCurrentTotalSeconds)
 {
 	/*	Following the configuration procedure described in RM0008 page485	*/
+	taskENTER_CRITICAL();
+
+	/*	Unlock backup domain	*/
+	LL_PWR_EnableBkUpAccess();
 
 	/*	Poll RTOFF, ait until its value goes to 1	*/
 	while(!LL_RTC_IsActiveFlag_RTOF(RTC));
@@ -125,6 +132,11 @@ void vPort_setTime(uint32_t uiCurrentTotalSeconds)
 
 	/*	Poll RTOFF, wait until its value goes to ‘1’ to check the end of the write operation.	*/
 	while(!LL_RTC_IsActiveFlag_RTOF(RTC));
+
+	/*	Lock backup domain	*/
+	LL_PWR_DisableBkUpAccess();
+
+	taskEXIT_CRITICAL();
 }
 
 /*
@@ -164,6 +176,33 @@ void vPort_RTC_getTimestamp(xMCAL_RTC_TimeAccurate_t* pxTime)
 {
 	pxTime->uiTime = LL_RTC_TIME_Get(RTC);
 	pxTime->uiMicroSeconds = (LL_RTC_GetDivider(RTC) * 1000000) / uiRTCCLK;
+}
+
+/*
+ * See header for info.
+ */
+void vPort_RTC_getTimestampStr(char* pcStr)
+{
+	struct tm xTimeDetailed;
+
+	/*	Get RTC timestamp	*/
+	time_t xTime = LL_RTC_TIME_Get(RTC);
+	int32_t iMs = (LL_RTC_GetDivider(RTC) * 1000) / uiRTCCLK;
+
+	/*	Convert it to detailed data	*/
+	gmtime_r(&xTime, &xTimeDetailed);
+
+	/*	Print data on the string	*/
+	sprintf(
+		pcStr,
+		"%d/%d/%d %d:%d:%d:%d",
+		xTimeDetailed.tm_year + 1900,
+		xTimeDetailed.tm_mon + 1,
+		xTimeDetailed.tm_mday,
+		xTimeDetailed.tm_hour,
+		xTimeDetailed.tm_min,
+		xTimeDetailed.tm_sec,
+		iMs	);
 }
 
 /*

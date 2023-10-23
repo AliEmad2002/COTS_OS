@@ -52,12 +52,12 @@ void vPort_RTC_convertTotalSecondsToTime(	uint32_t uiTotalSeconds,
 /*
  * Initializes RTC.
  */
-void vPort_init(void);
+void vPort_RTC_init(void);
 
 /*
  * Changes RTC time count.
  */
-void vPort_setTime(uint32_t uiCurrentTotalSeconds);
+void vPort_RTC_setTime(uint32_t uiCurrentTotalSeconds);
 
 /*
  * Enables (Runs) RTC.
@@ -70,9 +70,20 @@ void vPort_RTC_enable(void);
 void vPort_RTC_disable(void);
 
 /*
- * Gets current timestamp.
+ * Gets current timestamp (Seconds since 1900, microseconds).
  */
 void vPort_RTC_getTimestamp(xMCAL_RTC_TimeAccurate_t* pxTime);
+
+/*
+ * Gets current timestamp in a string.
+ *
+ * Notes:
+ * 		-	Format: yyyy/mm/dd hr:min:sec:ms
+ * 			(e.g: 2002/3/21 18:59:55:82).
+ *
+ * 		-	Hence "pcStr" must be of at least 24 byte.
+ */
+void vPort_RTC_getTimestampStr(char* pcStr);
 
 /*
  * Gets difference between two timestamps.

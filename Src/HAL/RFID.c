@@ -134,8 +134,10 @@ static void vTask(void* pvParams)
 			 * If frame is successfully received, dequeue the ID field into a char
 			 * array (as orientation in the queue is not always constant).
 			 */
+
+			xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[0], portMAX_DELAY);
 			for (uint8_t i = 0; i < 10; i++)
-				xQueueReceive(pxHandle->xTempFrameQueue, (void*)pcIDStr, portMAX_DELAY);
+				xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[i], portMAX_DELAY);
 
 			/*	Parse this char array into a byte array	*/
 			vLIB_String_str2hex(pcIDStr, pxHandle->xTempID.pucData, 5);

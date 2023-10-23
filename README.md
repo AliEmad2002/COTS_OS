@@ -15,7 +15,7 @@ FreeRTOS based HAL, LIB layers library.
   * USB (Based on ST's USB_DEVICE library).
   * Colored-LCD (Uses DMA if available).
   * Binary consecutive N-samples filter (Useful with input digital signals).
-  * Push buttons.
+  * Push buttons (Uses the above mentioned filter).
   * Seven-segment multiplexer.
   * Rotary encoder.
   * MPU6050 (gyroscope and acceleromter).

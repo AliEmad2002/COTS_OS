@@ -23,5 +23,17 @@
  */
 void vLIB_String_str2hex(char* pcStr, uint8_t* pucHex, uint32_t uiNumberOfBytes);
 
+/*
+ * Converts an array of bytes to a printable string format (in hexadecimal).
+ *
+ * Notes:
+ * 		-	"pucHex": is the byte array to be converted.
+ *
+ * 		-	"pcStr": is the string where the resultant hex-printable value would be stored.
+ *
+ * 		-	"uiNumberOfBytes": is the number of bytes to be processed (length of
+ * 			"pucHex"). It also equal to length of "pcStr" / 2.
+ */
+void vLIB_String_hex2str(uint8_t* pucHex, char* pcStr, uint32_t uiNumberOfBytes);
 
 #endif /* COTS_OS_INC_LIB_STRING_H_ */

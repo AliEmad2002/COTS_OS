@@ -32,9 +32,25 @@ static inline uint8_t ucCharToHex(char c)
 	return 0;
 }
 
+static inline char ucHexToChar(uint8_t halfByte)
+{
+	if (0 <= halfByte && halfByte <= 9)
+		return (char)(halfByte + '0');
+
+	if (10 <= halfByte && halfByte <= 15)
+		return (char)((halfByte - 10) + 'A');
+
+	/*	Otherwise, "halfByte" is not valid	*/
+	vLib_ASSERT(0, 1);
+	return 0;
+}
+
 /*******************************************************************************
  * API functions:
  ******************************************************************************/
+/*
+ * See header for info.
+ */
 void vLIB_String_str2hex(char* pcStr, uint8_t* pucHex, uint32_t uiNumberOfBytes)
 {
 	for (uint32_t i = 0; i < uiNumberOfBytes; i++)
@@ -42,3 +58,27 @@ void vLIB_String_str2hex(char* pcStr, uint8_t* pucHex, uint32_t uiNumberOfBytes)
 		pucHex[i] = (ucCharToHex(pcStr[2*i]) << 4) | ucCharToHex(pcStr[2*i+1]);
 	}
 }
+
+/*
+ * See header for info.
+ */
+void vLIB_String_hex2str(uint8_t* pucHex, char* pcStr, uint32_t uiNumberOfBytes)
+{
+	for (uint32_t i = 0; i < uiNumberOfBytes; i++)
+	{
+		pcStr[2*i] = ucHexToChar(pucHex[i] >> 4);
+		pcStr[2*i+1] = ucHexToChar(pucHex[i] & 0x0F);
+	}
+
+	pcStr[2*uiNumberOfBytes] = '\0';
+}
+
+
+
+
+
+
+
+
+
+

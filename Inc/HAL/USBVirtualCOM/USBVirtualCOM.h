@@ -17,26 +17,48 @@
 void vHOS_USBVirtualCOM_init(void);
 
 /*
- * Locks USB driver.
+ * Locks USB transmission for the caller task.
  *
  * Notes:
- * 		-	This function must be called before performing any USB operations.
+ * 		-	This function must be called before performing any USB transmit.
  *
- * 		-	This function waits for the USB driver to be available for a timeout
+ * 		-	This function waits for the USB transmission to be available for a timeout
  * 			of "xTimeout".
  *
  * 		-	If successfully locked, this function returns 1, otherwise it returns 0.
  */
-uint8_t ucHOS_USBVirtualCOM_lockDriver(TickType_t xTimeout);
+uint8_t ucHOS_USBVirtualCOM_lockTransmission(TickType_t xTimeout);
 
 /*
- * Releases USB driver.
+ * Releases USB transmission.
  *
  * Notes:
- * 		-	This function must be called after the locking task is done using the
- * 			USB driver.
+ * 		-	This function must be called from withing the same task which have locked
+ * 			it (Mutex based method).
  */
-void vHOS_USBVirtualCOM_releaseDriver(void);
+void vHOS_USBVirtualCOM_releaseTransmission(void);
+
+/*
+ * Locks USB reception for the caller task.
+ *
+ * Notes:
+ * 		-	This function must be called before performing any USB reception.
+ *
+ * 		-	This function waits for the USB reception to be available for a timeout
+ * 			of "xTimeout".
+ *
+ * 		-	If successfully locked, this function returns 1, otherwise it returns 0.
+ */
+uint8_t ucHOS_USBVirtualCOM_lockReception(TickType_t xTimeout);
+
+/*
+ * Releases USB reception.
+ *
+ * Notes:
+ * 		-	This function must be called from withing the same task which have locked
+ * 			it (Mutex based method).
+ */
+void vHOS_USBVirtualCOM_releaseReception(void);
 
 /*
  * Blocks until the ongoing send operation is done.
@@ -64,6 +86,16 @@ uint8_t ucHOS_USBVirtualCOM_readRxBuffer(	uint8_t* pucBuffer,
 											uint32_t* puiLen,
 											TickType_t xTimeout	);
 
+/*
+ * Receives N bytes with a a timeout.
+ *
+ * Notes:
+ * 		-	If N bytes were not received in the given timeout, function returns 0.
+ * 			Otherwise, it returns 1.
+ */
+uint8_t ucHOS_USBVirtualCOM_receive(	uint8_t* pucBuffer,
+										uint32_t uiLen,
+										TickType_t xTimeout	);
 
 
 

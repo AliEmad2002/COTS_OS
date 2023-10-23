@@ -36,8 +36,11 @@ typedef struct{
 /*******************************************************************************
  * Driver's static variables:
  ******************************************************************************/
-static SemaphoreHandle_t xUsbMutex;
-static StaticSemaphore_t xUsbMutexStatic;
+static SemaphoreHandle_t xUsbTransmissionMutex;
+static StaticSemaphore_t xUsbTransmissionMutexStatic;
+
+static SemaphoreHandle_t xUsbReceptionMutex;
+static StaticSemaphore_t xUsbReceptionMutexStatic;
 
 static SemaphoreHandle_t xTxPendSemaphore;
 static StaticSemaphore_t xTxPendSemaphoreStatic;
@@ -103,9 +106,15 @@ static void vTask(void* pvParams)
  */
 void vHOS_USBVirtualCOM_init(void)
 {
-	/*	Initialize USB mutex	*/
-	xUsbMutex = xSemaphoreCreateMutexStatic(&xUsbMutexStatic);
-	xSemaphoreGive(xUsbMutex);
+	/*	Initialize USB transmission mutex	*/
+	xUsbTransmissionMutex = xSemaphoreCreateMutexStatic(&xUsbTransmissionMutexStatic);
+	xSemaphoreGive(xUsbTransmissionMutex);
+	xSemaphoreGive(xUsbTransmissionMutex);
+
+	/*	Initialize USB reception mutex	*/
+	xUsbReceptionMutex = xSemaphoreCreateMutexStatic(&xUsbReceptionMutexStatic);
+	xSemaphoreGive(xUsbReceptionMutex);
+	xSemaphoreGive(xUsbReceptionMutex);
 
 	/*	Initialize TxPend semaphore	*/
 	xTxPendSemaphore = xSemaphoreCreateBinaryStatic(&xTxPendSemaphoreStatic);
@@ -128,17 +137,33 @@ void vHOS_USBVirtualCOM_init(void)
 /*
  * See header for info.
  */
-uint8_t ucHOS_USBVirtualCOM_lockDriver(TickType_t xTimeout)
+uint8_t ucHOS_USBVirtualCOM_lockTransmission(TickType_t xTimeout)
 {
-	return xSemaphoreTake(xUsbMutex, xTimeout);
+	return xSemaphoreTake(xUsbTransmissionMutex, xTimeout);
 }
 
 /*
  * See header for info.
  */
-void vHOS_USBVirtualCOM_releaseDriver(void)
+void vHOS_USBVirtualCOM_releaseTransmission(void)
 {
-	xSemaphoreGive(xUsbMutex);
+	xSemaphoreGive(xUsbTransmissionMutex);
+}
+
+/*
+ * See header for info.
+ */
+uint8_t ucHOS_USBVirtualCOM_lockReception(TickType_t xTimeout)
+{
+	return xSemaphoreTake(xUsbReceptionMutex, xTimeout);
+}
+
+/*
+ * See header for info.
+ */
+void vHOS_USBVirtualCOM_releaseReception(void)
+{
+	xSemaphoreGive(xUsbReceptionMutex);
 }
 
 /*
@@ -188,7 +213,38 @@ uint8_t ucHOS_USBVirtualCOM_readRxBuffer(	uint8_t* pucBuffer,
 	return 1;
 }
 
+/*
+ * See header for info.
+ */
+uint8_t ucHOS_USBVirtualCOM_receive(	uint8_t* pucBuffer,
+										uint32_t uiLen,
+										TickType_t xTimeout	)
+{
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xTimeout + xCurrentTime;
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
 
+	uint32_t uiCount = 0;
+	uint32_t uiLenTemp;
+
+	while(1)
+	{
+		if (!ucHOS_USBVirtualCOM_readRxBuffer(	&pucBuffer[uiCount],
+												&uiLenTemp,
+												xEndTime - xCurrentTime	))
+			return 0;
+
+		uiCount += uiLenTemp;
+
+		if (uiCount >= uiLen)
+			return 1;
+
+		xCurrentTime = xTaskGetTickCount();
+		if (xCurrentTime > xEndTime)
+			return 0;
+	}
+}
 
 
 

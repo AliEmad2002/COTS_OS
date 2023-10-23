@@ -20,53 +20,39 @@
 #include "MCAL_Port/Port_AFIO.h"
 #include "MCAL_Port/Port_GPIO.h"
 
+static void vInitUartUnit(uint8_t i)
+{
+	static const uint8_t pucMapArr[] = {1, 0, 0};
+	vPort_UART_initHW(i);
+	vPort_UART_setTransferDirection(i, 2);
+	vPort_UART_setStopBitsLength(i, 1);
+	vPort_UART_setBaudRate(i, 9600);
+	vPort_AFIO_mapUart(i, pucMapArr[i]);
+	vPort_GPIO_initUartPins(i, pucMapArr[i], 0, 1);
+
+}
+
 void vPort_HW_init(void)
 {
 	/*	Initialize peripherals' clocks	*/
 	vPort_Clock_initPeriphClock();
 
-	/*		UART1		*/
-	vPort_UART_initHW(0);
-	vPort_UART_setTransferDirection(0, 2);
-	vPort_UART_setStopBitsLength(0, 1);
-	vPort_UART_setBaudRate(0, 9600);
-	vPort_AFIO_mapUart(0, 0);
-	vPort_GPIO_initUartPins(0, 0, 0, 1);
-
-	/*		UART2		*/
-	vPort_UART_initHW(1);
-	vPort_UART_setTransferDirection(1, 2);
-	vPort_UART_setStopBitsLength(1, 1);
-	vPort_UART_setBaudRate(1, 9600);
-	vPort_AFIO_mapUart(1, 0);
-	vPort_GPIO_initUartPins(1, 0, 0, 1);
-
-	/*		UART3		*/
-	vPort_UART_initHW(2);
-	vPort_UART_setTransferDirection(2, 2);
-	vPort_UART_setStopBitsLength(2, 1);
-	vPort_UART_setBaudRate(2, 9600);
-	vPort_AFIO_mapUart(2, 0);
-	vPort_GPIO_initUartPins(2, 0, 0, 1);
+	/*		UART		*/
+	vInitUartUnit(0);
+	vInitUartUnit(1);
+	vInitUartUnit(2);
 
 	/*	PWR	*/
-//	vPort_PWR_init();
-//	vPort_PWR_setPvdThreshold(2900);
-//	vPort_PWR_enablePvd();
-//	vPort_PWR_setPvdCallback(vShutdownHandler, NULL);
-//	VPORT_INTERRUPT_SET_PRIORITY(
-//		xPortInterruptPwrPvdIrqNumber,
-//		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	);
-//	vPORT_INTERRUPT_ENABLE_IRQ(xPortInterruptPwrPvdIrqNumber);
+	vPort_PWR_init();
 
-//	/*	BKP	*/
-//	vPort_BKP_init();
-//
-//	/*	RTC	*/
-//	vPort_init();
-//	vPort_RTC_enable();
+	/*	BKP	*/
+	vPort_BKP_init();
+
+	/*	RTC	*/
+	vPort_RTC_init();
+	vPort_RTC_enable();
 
 	/*	USB	*/
 	/*	PLEAE KEEP IN MIND: USB's SW is very much RAM, flash and execution time consuming	*/
-//	vPort_USB_initHardware();
+	vPort_USB_initHardware();
 }

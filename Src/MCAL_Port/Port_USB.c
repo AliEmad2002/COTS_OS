@@ -25,8 +25,12 @@ uint32_t* puiPortUsbRxBufferLen = &UserRxBufferFSLen;
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_USB
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
+	/*	USB driver ISR	*/
 	extern PCD_HandleTypeDef hpcd_USB_FS;
 	HAL_PCD_IRQHandler(&hpcd_USB_FS);
+
+	/*	COTS-OS ISR:	*/
+
 }
 #endif
 

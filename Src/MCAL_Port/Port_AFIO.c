@@ -28,7 +28,7 @@ void vPort_AFIO_mapI2C(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 
 void vPort_AFIO_mapUart(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 {
-	if (ucUnitNumber == 1)	/*	USART2 & USART3 in STM32F103 has one map only	*/
+	if (ucUnitNumber == 0)	/*	USART2 & USART3 in STM32F103 has one map only	*/
 	{
 		if (ucMapNumber == 0)
 			__HAL_AFIO_REMAP_USART1_DISABLE();

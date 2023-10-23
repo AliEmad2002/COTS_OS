@@ -12,17 +12,17 @@
 /*
  * Total number of UART units required for the application.
  */
-#define uiCONF_UART_NUMBER_OF_NEEDED_UNITS			4
+#define uiCONF_UART_NUMBER_OF_NEEDED_UNITS			3
 
 /*
  * SW units' pins.
  */
 static const uint8_t pucCONF_UART_SW_UNIT_RX_PORT_ARR[] = {
-	0
+	1
 };
 
 static const uint8_t pucCONF_UART_SW_UNIT_RX_PIN_ARR[] = {
-	1
+	9
 };
 
 /*

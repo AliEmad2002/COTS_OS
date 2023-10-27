@@ -66,6 +66,17 @@ void inline vPort_RTC_init(void)
 	/*	Unlock backup domain	*/
 	LL_PWR_EnableBkUpAccess();
 
+	/*	If RTC was previously initialized, return	*/
+	if (usPORT_BKP_READ_DATA_REGISTER(0) == 0x5678)
+	{
+		/*	Lock backup domain	*/
+		LL_PWR_DisableBkUpAccess();
+		return;
+	}
+
+	/*	Otherwise, log that RTC was initialized	*/
+	vPORT_BKP_WRITE_DATA_REGISTER(0, 0x5678);
+
 	/*	Configure RTC clock	*/
 	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;

@@ -55,26 +55,36 @@ static inline uint8_t ucGetReceivedChecksum(xHOS_RFID_t* pxHandle)
 	uint8_t ucCheckSumReceived;
 
 	/*	Dequeue received checksum	*/
-#ifdef uiCONF_RFID_TYPE_RDM6300
-	/*	TODO: dequeue two chars, parse them into one byte, this is the received checksum	*/
-#endif
+	if (pxHandle->ucType == 0) // RDM6300:
+	{
+		char pcChecksumReceivedStr[2];
+		xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcChecksumReceivedStr[0], 0);
+		xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcChecksumReceivedStr[1], 0);
+		vLIB_String_str2hex(pcChecksumReceivedStr, &ucCheckSumReceived, 1);
+	}
 
-#ifdef uiCONF_RFID_TYPE_UNKNOWN_125KHZ
-	xQueueReceive(pxHandle->xTempFrameQueue, (void*)&ucCheckSumReceived, portMAX_DELAY);
-#endif
+	else if (pxHandle->ucType == 1) // RF125PS:
+		xQueueReceive(pxHandle->xTempFrameQueue, (void*)&ucCheckSumReceived, 0);
 
 	return ucCheckSumReceived;
 }
 
-static inline void vEnqueueNewID(xHOS_RFID_t* pxHandle)
+static inline uint8_t ucIsPrevIdEqualToTempId(xHOS_RFID_t* pxHandle)
 {
+	for (uint8_t i = 0; i < sizeof(xHOS_RFID_ID_t); i++)
+	{
+		if (pxHandle->xTempID.pucData[i] != pxHandle->xPrevID.pucData[i])
+			return 0;
+	}
 
+	return 1;
 }
 
-/*******************************************************************************
- * ISR callback:
- ******************************************************************************/
-
+static inline void vCpyTempIdToPrevId(xHOS_RFID_t* pxHandle)
+{
+	for (uint8_t i = 0; i < sizeof(xHOS_RFID_ID_t); i++)
+		pxHandle->xPrevID.pucData[i] = pxHandle->xTempID.pucData[i];
+}
 
 /*******************************************************************************
  * RTOS Task code:
@@ -84,6 +94,7 @@ static void vTask(void* pvParams)
 	xHOS_RFID_t* pxHandle = (xHOS_RFID_t*)pvParams;
 
 	TickType_t xSofLastTimestamp = xTaskGetTickCount();
+	TickType_t xReadLastTimestamp = 0, xCurrentTimestamp;
 
 	int8_t cNewByte, cFooByte;
 
@@ -131,13 +142,16 @@ static void vTask(void* pvParams)
 				continue;
 
 			/*
-			 * If frame is successfully received, dequeue the ID field into a char
-			 * array (as orientation in the queue is not always constant).
+			 * If frame is successfully received, dequeue SOF.
 			 */
+			xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[0], 0);
 
-			xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[0], portMAX_DELAY);
+			/*
+			 * Dequeue the ID field into a char array (as orientation in the
+			 * queue is not always constant).
+			 */
 			for (uint8_t i = 0; i < 10; i++)
-				xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[i], portMAX_DELAY);
+				xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[i], 0);
 
 			/*	Parse this char array into a byte array	*/
 			vLIB_String_str2hex(pcIDStr, pxHandle->xTempID.pucData, 5);
@@ -149,6 +163,11 @@ static void vTask(void* pvParams)
 			ucCheckSumReceived = ucGetReceivedChecksum(pxHandle);
 
 			/*
+			 * Dequeue EOF.
+			 */
+			xQueueReceive(pxHandle->xTempFrameQueue, (void*)&pcIDStr[0], 0);
+
+			/*
 			 * If checksum is not valid, continue in the loop waiting for next byte.
 			 */
 			if (ucCheckSumReceived != ucCheckSumCalculated)
@@ -157,6 +176,28 @@ static void vTask(void* pvParams)
 			/*
 			 * Otherwise, if checksum is valid, enqueue new ID to IDs queue.
 			 */
+
+			/*
+			 * RDM6300 exception: when a tag is left on the coil, module keeps sending
+			 * its ID over and over. This behavior is unwanted. Hence, if the new ID
+			 * is same as the last read ID, and time interval between them is less
+			 * than the configured timeout, the new read is ignored.
+			 */
+			xCurrentTimestamp = xTaskGetTickCount();
+			if (pxHandle->ucType == 0)
+
+			{
+				if (	xCurrentTimestamp - xReadLastTimestamp <= pdMS_TO_TICKS(uiCONF_RFID_RDM6300_TIMEOUT_MS)	&&
+						ucIsPrevIdEqualToTempId(pxHandle)	)
+				{
+					xReadLastTimestamp = xCurrentTimestamp;
+					continue;
+				}
+
+				xReadLastTimestamp = xCurrentTimestamp;
+
+				vCpyTempIdToPrevId(pxHandle);
+			}
 
 			/*	If no space is available, dequeue first item into a non used location	*/
 			if (uxQueueSpacesAvailable(pxHandle->xReadQueue) == 0)
@@ -204,7 +245,7 @@ void vHOS_RFID_init(xHOS_RFID_t* pxHandle)
 
 	/*	Create temporary frame queue handle	*/
 	pxHandle->xTempFrameQueue = xQueueCreateStatic(
-		sizeof(xHOS_RFID_Frame_t),
+		sizeof(xHOS_RFID_LARGER_FRAME_SZ),
 		1,
 		(uint8_t*)pxHandle->pucTempFrameQueueMemory,
 		&pxHandle->xTempFrameQueueStatic	);

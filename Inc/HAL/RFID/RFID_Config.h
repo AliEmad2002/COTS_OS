@@ -13,12 +13,11 @@
  * If driver received one more reading hen the queue is full, it automatically
  * deletes front of the queue (first-in element) and adds the new ID.
  */
-#define uiCONF_RFID_READ_QUEUE_LEN		10
+#define uiCONF_RFID_READ_QUEUE_LEN			10
 
 /*
- * Un-comment only one of the following lines based on the module being used.
+ * Timeout between two consecutive reads on the RDM6300 module.
  */
-//#define uiCONF_RFID_TYPE_RDM6300
-#define uiCONF_RFID_TYPE_UNKNOWN_125KHZ
+#define uiCONF_RFID_RDM6300_TIMEOUT_MS		200
 
 #endif /* COTS_OS_INC_HAL_RFID_RFID_CONFIG_H_ */

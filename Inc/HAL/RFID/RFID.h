@@ -15,6 +15,7 @@
 #include "semphr.h"
 
 #include "HAL/RFID/RFID_Config.h"
+#include "HAL/RFID/RFID_Private.h"
 
 typedef struct{
 	/*	PUBLIC	*/
@@ -22,22 +23,15 @@ typedef struct{
 }xHOS_RFID_ID_t;
 
 typedef struct{
-	/*	PRIVATE	*/
-	uint8_t ucSOF;
-	char pcIDStr[10];
-
-#ifdef uiCONF_RFID_TYPE_RDM6300
-	char pcCheckSumStr[2];
-#endif
-#ifdef uiCONF_RFID_TYPE_UNKNOWN_125KHZ
-	char pcCheckSumStr[1];
-#endif
-	uint8_t ucEOF;
-}xHOS_RFID_Frame_t;
-
-typedef struct{
 	/*	PUBLIC	*/
 	uint8_t ucUartUnitNumber;
+
+	/*
+	 * Type of the used module:
+	 * 0: RDM6300.
+	 * 1: RF125PS.
+	 */
+	uint8_t ucType;
 
 	/*	PRIVATE	*/
 	StackType_t pxTaskStack[configMINIMAL_STACK_SIZE];
@@ -51,11 +45,13 @@ typedef struct{
 	StaticQueue_t xReadQueueStatic;
 	QueueHandle_t xReadQueue;
 
-	uint8_t pucTempFrameQueueMemory[sizeof(xHOS_RFID_Frame_t)];
+	uint8_t pucTempFrameQueueMemory[sizeof(xHOS_RFID_LARGER_FRAME_SZ)];
 	StaticQueue_t xTempFrameQueueStatic;
 	QueueHandle_t xTempFrameQueue;
 
 	xHOS_RFID_ID_t xTempID;
+
+	xHOS_RFID_ID_t xPrevID; // used with RDM6300 only.
 }xHOS_RFID_t;
 
 
@@ -76,8 +72,8 @@ void vHOS_RFID_init(xHOS_RFID_t* pxHandle);
  * 			Otherwise, it returns 0.
  */
 uint8_t ucHOS_RFID_getNewReading(	xHOS_RFID_t* pxHandle,
-										xHOS_RFID_ID_t* pxID,
-										TickType_t xTimeout);
+									xHOS_RFID_ID_t* pxID,
+									TickType_t xTimeout);
 
 
 #endif /* COTS_OS_INC_HAL_RFID_RFID_H_ */

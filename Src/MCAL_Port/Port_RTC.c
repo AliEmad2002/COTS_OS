@@ -213,7 +213,7 @@ void vPort_RTC_getTimestampStr(char* pcStr)
 		xTimeDetailed.tm_hour,
 		xTimeDetailed.tm_min,
 		xTimeDetailed.tm_sec,
-		iMs	);
+		(int)iMs	);
 }
 
 /*

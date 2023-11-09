@@ -16,8 +16,8 @@
 #define uiCONF_RFID_READ_QUEUE_LEN			10
 
 /*
- * Timeout between two consecutive reads on the RDM6300 module.
+ * Timeout between two consecutive reads.
  */
-#define uiCONF_RFID_RDM6300_TIMEOUT_MS		200
+#define uiCONF_RFID_READ_TIMEOUT_MS		200
 
 #endif /* COTS_OS_INC_HAL_RFID_RFID_CONFIG_H_ */

@@ -86,6 +86,14 @@ static inline void vCpyTempIdToPrevId(xHOS_RFID_t* pxHandle)
 		pxHandle->xPrevID.pucData[i] = pxHandle->xTempID.pucData[i];
 }
 
+static inline void vFlushTempFrameQueue(xHOS_RFID_t* pxHandle)
+{
+	uint8_t ucTempByte;
+
+	/*	While queue is still got data	*/
+	while(xQueueReceive(pxHandle->xTempFrameQueue, (void*)&ucTempByte, 0));
+}
+
 /*******************************************************************************
  * RTOS Task code:
  ******************************************************************************/
@@ -115,9 +123,20 @@ static void vTask(void* pvParams)
 			xQueueReceive(pxHandle->xTempFrameQueue, (void*)&cFooByte, 0);
 		xQueueSend(pxHandle->xTempFrameQueue, (void*)&cNewByte, 0);
 
-		/*	If byte is equal to SOF, update SOF timestamp	*/
+		/*
+		 * If byte is equal to SOF, and if previously received SOF was before
+		 * a configured timeout, flush the temporary queue.
+		 */
 		if (cNewByte == _SOF)
-			xSofLastTimestamp = xTaskGetTickCount();
+		{
+			xCurrentTimestamp = xTaskGetTickCount();
+			if (xCurrentTimestamp - xSofLastTimestamp >= pdMS_TO_TICKS(uiCONF_RFID_READ_TIMEOUT_MS))
+			{
+				vFlushTempFrameQueue(pxHandle);
+				xQueueSend(pxHandle->xTempFrameQueue, (void*)&cNewByte, 0);
+			}
+			xSofLastTimestamp = xCurrentTimestamp;
+		}
 
 		/*
 		 * Otherwise, if byte is equal to to EOF, ther's a chance of having a completed
@@ -183,11 +202,11 @@ static void vTask(void* pvParams)
 			 * is same as the last read ID, and time interval between them is less
 			 * than the configured timeout, the new read is ignored.
 			 */
-			xCurrentTimestamp = xTaskGetTickCount();
 			if (pxHandle->ucType == 0)
-
 			{
-				if (	xCurrentTimestamp - xReadLastTimestamp <= pdMS_TO_TICKS(uiCONF_RFID_RDM6300_TIMEOUT_MS)	&&
+				xCurrentTimestamp = xTaskGetTickCount();
+
+				if (	xCurrentTimestamp - xReadLastTimestamp <= pdMS_TO_TICKS(uiCONF_RFID_READ_TIMEOUT_MS)	&&
 						ucIsPrevIdEqualToTempId(pxHandle)	)
 				{
 					xReadLastTimestamp = xCurrentTimestamp;

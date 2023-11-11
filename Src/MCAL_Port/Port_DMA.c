@@ -5,11 +5,12 @@
  *      Author: Ali Emad
  */
 
+
+#if portDMA_IS_AVAILABLE
+
 #include "stm32f1xx.h"
 #include "MCAL_Port/Port_DMA.h"
 #include "MCAL_Port/Port_Interrupt.h"
-
-#if portDMA_IS_AVAILABLE
 
 /*
  * This is a multidimensional array of pointers to DMA channels.

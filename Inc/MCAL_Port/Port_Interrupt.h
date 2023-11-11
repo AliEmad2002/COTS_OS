@@ -21,8 +21,8 @@
  * If certain functionality is not even available in the target HW, its wrapper
  * is left empty. (for example: interrupt priority is not available in AVR MCUs)
  */
-#include "stm32f103xb.h"
-#include "stm32f1xx_hal.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_hal.h"
 #include "cmsis_gcc.h"
 
 #define vPORT_INTERRUPT_ENABLE_GLOBAL_INTERRUPT()	\
@@ -57,19 +57,8 @@ extern const IRQn_Type pxPortInterruptTimerOvfIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptTimerCcIrqNumberArr[];
 
-extern const IRQn_Type pxPortInterruptExtiIrqNumberArr[];
-
 extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];
 
-extern const IRQn_Type xPortInterruptUsbIrqNumber;
-
-extern const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[];
-
-extern const IRQn_Type pxPortInterruptUartRxneIrqNumberArr[];
-
-extern const IRQn_Type pxPortInterruptUartTcIrqNumberArr[];
-
-extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
 
 /*******************************************************************************
  * IRQ handler code enable.
@@ -80,13 +69,9 @@ extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
  * 	application writer should comment their corresponding "ucPORT_INTERRUPT_IRQ_DEF_x"
  * 	to maintain reasonable flash usage.
  ******************************************************************************/
-#define ucPORT_INTERRUPT_IRQ_DEF_USB
 #define ucPORT_INTERRUPT_IRQ_DEF_TIM
-#define ucPORT_INTERRUPT_IRQ_DEF_EXTI
-//#define ucPORT_INTERRUPT_IRQ_DEF_SPI
+#define ucPORT_INTERRUPT_IRQ_DEF_SPI
 //#define ucPORT_INTERRUPT_IRQ_DEF_DMA
-#define ucPORT_INTERRUPT_IRQ_DEF_UART
-//#define ucPORT_INTERRUPT_IRQ_DEF_PWR_PVD
 
 
 

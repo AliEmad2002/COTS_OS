@@ -6,10 +6,12 @@
  */
 
 
-#include "stm32f1xx.h"
-#include "stm32f1xx_ll_tim.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_ll_tim.h"
 
-TIM_TypeDef* const pxPortTimArr[] = {TIM1, TIM2, TIM3, TIM4};
+TIM_TypeDef* const pxPortTimArr[] = {
+	TIM1, TIM2, TIM3, TIM4, TIM5, TIM9, TIM10, TIM11
+};
 
 const uint32_t puiChannels[] = {
 	LL_TIM_CHANNEL_CH1, LL_TIM_CHANNEL_CH2, LL_TIM_CHANNEL_CH3, LL_TIM_CHANNEL_CH4};
@@ -263,20 +265,16 @@ void vPort_TIM_setCcCallback(	uint8_t ucUnitNumber,
 	ppvPortTimerCompareCallbackParamsArr[ucUnitNumber] = pvParams;
 }
 
-void TIM1_UP_IRQHandler(void)
+void TIM1_UP_TIM10_IRQHandler(void)
 {
 	ppfPortTimerOvfCallbackArr[0](ppvPortTimerOvfCallbackParamsArr[0]);
 	vPORT_TIM_CLEAR_OVF_FLAG(0);
-	__asm volatile( "dsb" ::: "memory" );
-	__asm volatile( "isb" );
 }
 
 void TIM1_CC_IRQHandler(void)
 {
 	ppfPortTimerCompareCallbackArr[0](ppvPortTimerCompareCallbackParamsArr[0]);
 	vPORT_TIM_CLEAR_CC_FLAG(0);
-	__asm volatile( "dsb" ::: "memory" );
-	__asm volatile( "isb" );
 }
 
 void TIM2_IRQHandler(void)
@@ -294,8 +292,6 @@ void TIM2_IRQHandler(void)
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
 	}
-	__asm volatile( "dsb" ::: "memory" );
-	__asm volatile( "isb" );
 #undef UNIT_NUM
 }
 
@@ -314,8 +310,6 @@ void TIM3_IRQHandler(void)
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
 	}
-	__asm volatile( "dsb" ::: "memory" );
-	__asm volatile( "isb" );
 #undef UNIT_NUM
 }
 
@@ -334,8 +328,6 @@ void TIM4_IRQHandler(void)
 		ppfPortTimerCompareCallbackArr[UNIT_NUM](ppvPortTimerCompareCallbackParamsArr[UNIT_NUM]);
 		vPORT_TIM_CLEAR_CC_FLAG(UNIT_NUM);
 	}
-	__asm volatile( "dsb" ::: "memory" );
-	__asm volatile( "isb" );
 #undef UNIT_NUM
 }
 

@@ -45,6 +45,13 @@ typedef struct{
 
 	/*	LBA of the sector currently available in the buffer.	*/
 	uint32_t uiLbaRead;
+
+	/*
+	 * "ucIsModified" expresses whether the buffer was modified when it was cached
+	 * in RAM or not. This flag is used to determine whether buffer would be written
+	 * back to the SDC (only if modified) or not.
+	 */
+	uint8_t ucIsModified;
 }xHOS_SDC_Block_Buffer_t;
 
 

@@ -23,9 +23,8 @@
  *
  * For standardization, port SPI driver will only work on 8-bit transmissions.
  */
-#include "stm32f1xx.h"
-#include "stm32f1xx_ll_spi.h"
-#include "MCAL_Port/Port_AFIO.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_ll_spi.h"
 #include "MCAL_Port/Port_GPIO.h"
 #include "LIB/Assert.h"
 
@@ -33,9 +32,9 @@
  * Macros:
  ******************************************************************************/
 /*
- * Total number of SPI units in the used target.
+ * Total number of available HW SPI units.
  */
-#define portSPI_NUMBER_OF_UNITS				2
+#define portSPI_NUMBER_OF_UNITS				3
 
 /*
  * Mapping state between SPI units and DMA (if there's a DMA).
@@ -45,6 +44,7 @@
  * "ppucPortSpiRxneDmaMapping[]")
  */
 #define portSPI_IS_DMA_STATIC_CONNECTED		1
+
 
 /*******************************************************************************
  * Externs:
@@ -69,7 +69,6 @@ typedef struct{
 	uint8_t ucMOSIEn           : 1;
 	uint8_t ucMISOEn           : 1;
 	uint8_t ucNssEn            : 1;
-	uint8_t ucAFIOMapNumber;
 	uint8_t ucComMode;
 	uint16_t usBaudratePrescaler;
 }xPort_SPI_HW_Conf_t;
@@ -386,10 +385,7 @@ static inline void vPort_SPI_initHardware(uint8_t ucUnitNumber, xPort_SPI_HW_Con
 
 	vPort_SPI_enable(ucUnitNumber);
 
-	vPort_AFIO_mapSpi(ucUnitNumber, pxHWConf->ucAFIOMapNumber);
-
 	vPort_GPIO_initSpiPins(	ucUnitNumber,
-							pxHWConf->ucAFIOMapNumber,
 							pxHWConf->ucNssEn,
 							pxHWConf->ucMISOEn,
 							pxHWConf->ucMOSIEn	);

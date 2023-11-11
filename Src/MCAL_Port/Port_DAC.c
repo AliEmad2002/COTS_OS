@@ -10,6 +10,7 @@
 #include "LIB/Assert.h"
 
 /*	MCAL	*/
+#include "MCAL_Port/Port_DIO.h"
 
 /*	SELF	*/
 #include "MCAL_Port/Port_DAC.h"
@@ -17,24 +18,20 @@
 
 void vPort_DAC_initUnit(uint8_t ucUnitNumber)
 {
-	/*	Set PWM frequency	*/
-	vLib_ASSERT(uiPort_TIM_setOvfFreq(ucUnitNumber, uiCONF_DAC_PWM_FREQ_HZ), 0);
+
 }
 
 void vPort_DAC_initChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
 {
-	/*	Initialize PWM output	*/
-	vPort_TIM_initChannelPwmOutput(ucUnitNumber, ucChannelNumber);
+	for (uint8_t i = 0; i < 8; i++)
+		vPort_DIO_initPinOutput(0, i);
 }
 
 void vPort_DAC_setChannelVoltage(	uint8_t ucUnitNumber,
 									uint8_t ucChannelNumber,
 									int32_t iVoltageMV	)
 {
-	uint16_t usDuty =
-		(65535l * (iVoltageMV - iCONF_DAC_MIN_VOLTAGE_MV)) /
-		(iCONF_DAC_MAX_VOLTAGE_MV - iCONF_DAC_MIN_VOLTAGE_MV);
+	uint8_t ucVal = (iVoltageMV * 255) / 3300;
 
-
-	vPort_TIM_setPwmDuty(ucUnitNumber, ucChannelNumber, usDuty);
+	vPORT_DIO_WRITE_PORT(0, 0xFF, ucVal);
 }

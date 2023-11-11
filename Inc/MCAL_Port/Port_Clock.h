@@ -8,17 +8,11 @@
 #ifndef HAL_OS_PORT_PORT_CLOCK_H_
 #define HAL_OS_PORT_PORT_CLOCK_H_
 
-#include "stm32f103xb.h"
-#include "stm32f1xx_hal.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_hal.h"
 #include "LIB/Assert.h"
 
-#define uiPORT_CLOCK_MAIN_HZ		72000000//(SystemCoreClock)
-
-/*	Used with STM32 targets only	*/
-#define uiPORT_CLOCK_AHB_DIV	1
-#define uiPORT_CLOCK_APB1_DIV	2
-#define uiPORT_CLOCK_APB2_DIV	1
-
+#define uiPORT_CLOCK_MAIN_HZ		84000000//(SystemCoreClock)
 
 void vPort_Clock_initCpuClock(void);
 

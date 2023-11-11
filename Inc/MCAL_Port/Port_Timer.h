@@ -8,8 +8,8 @@
 #ifndef HAL_OS_PORT_PORT_TIMER_H_
 #define HAL_OS_PORT_PORT_TIMER_H_
 
-#include "stm32f1xx.h"
-#include "stm32f1xx_ll_tim.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_ll_tim.h"
 
 /*******************************************************************************
  * Forced features for portability:

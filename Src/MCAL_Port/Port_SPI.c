@@ -5,8 +5,8 @@
  *      Author: Ali Emad
  */
 
-#include "stm32f103xb.h"
-#include "stm32f1xx_hal.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_hal.h"
 
 #include "MCAL_Port/Port_SPI.h"
 #include "MCAL_Port/Port_Interrupt.h"
@@ -14,7 +14,7 @@
 /*******************************************************************************
  * Units.
  ******************************************************************************/
-SPI_TypeDef* const pxPortSpiArr[portSPI_NUMBER_OF_UNITS] = {SPI1, SPI2};
+SPI_TypeDef* const pxPortSpiArr[portSPI_NUMBER_OF_UNITS] = {SPI1, SPI2, SPI3};
 
 /*******************************************************************************
  * Callbacks.

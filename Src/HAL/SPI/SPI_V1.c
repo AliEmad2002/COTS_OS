@@ -19,7 +19,6 @@
 #include "MCAL_Port/Port_SPI.h"
 #include "MCAL_Port/Port_Interrupt.h"
 #include "MCAL_Port/Port_GPIO.h"
-#include "MCAL_Port/Port_AFIO.h"
 
 /*	HAL (OS)	*/
 #include "HAL/DMA/DMA.h"
@@ -247,6 +246,8 @@ void inline vHOS_SPI_setByteDirection(uint8_t ucUnitNumber, uint8_t ucByteDirect
  */
 void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 {
+	while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
+
 	xHOS_SPI_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
 
 	/*	Assure Transfer complete semaphore is not available (force it)	*/
@@ -269,6 +270,8 @@ void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 
 		/*	Block until there's free byte/s in unit's data buffer	*/
 		xSemaphoreTake(pxUnit->xTxeSemaphore, portMAX_DELAY);
+
+		while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
 	}
 
 	/*	Block until last byte is completely transmitted on the bus	*/
@@ -286,6 +289,8 @@ void vHOS_SPI_transceive(	uint8_t ucUnitNumber,
 							int8_t* pcInArr,
 							uint32_t uiSize	)
 {
+	while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
+
 	xHOS_SPI_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
 
 	/*	Assure Transfer complete semaphore is not available (force it)	*/
@@ -318,6 +323,8 @@ void vHOS_SPI_transceive(	uint8_t ucUnitNumber,
 		/*	Block until there's free byte/s in unit's data buffer	*/
 		xSemaphoreTake(pxUnit->xTxeSemaphore, portMAX_DELAY);
 
+		while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
+
 		/*	If there's an unread byte in the Rx buffer, read it	*/
 		if (xSemaphoreTake(pxUnit->xRxneSemaphore, 0))
 		{
@@ -336,7 +343,77 @@ void vHOS_SPI_transceive(	uint8_t ucUnitNumber,
 		 * Block until the Rx buffer is not empty (i.e: a byte has completely been
 		 * transmitted on the bus).
 		 */
-		xSemaphoreTake(pxUnit->xRxneSemaphore, portMAX_DELAY);
+		xSemaphoreTake(pxUnit->xRxneSemaphore, 0);
+
+		pcInArr[iReader] = ucPort_SPI_readDataNoWait(ucUnitNumber);
+	}
+
+	/*	Acknowledge end of transfer	*/
+	xSemaphoreGive(pxUnit->xTransferCompleteSemaphore);
+}
+
+/*
+ * See header for info.
+ */
+void vHOS_SPI_receive(		uint8_t ucUnitNumber,
+							int8_t* pcInArr,
+							uint32_t uiSize	)
+{
+	while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
+
+	xHOS_SPI_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
+
+	/*	Assure Transfer complete semaphore is not available (force it)	*/
+	xSemaphoreTake(pxUnit->xTransferCompleteSemaphore, 0);
+
+	/*	Assure TxE semaphore is not available (force it)	*/
+	xSemaphoreTake(pxUnit->xTxeSemaphore, 0);
+
+	/*	Clear RxNE flag to avoid parasitic effect from previous transceive operation	*/
+	vPORT_SPI_clearRxneFlag(ucUnitNumber);
+
+	/*	Assure RxNE semaphore is not available (force it)	*/
+	xSemaphoreTake(pxUnit->xRxneSemaphore, 0);
+
+	/*	Configure loop counter based on the previously configured byte direction	*/
+	int32_t i, iIncrementer, iEnd;
+	vCONF_ITERATOR(pxUnit->ucByteDir, uiSize, i, iIncrementer, iEnd);
+
+	int32_t iReader = i;
+
+	for (; i != iEnd; i += iIncrementer)
+	{
+		/*	Write foo byte to uint's data buffer (data register in most cases)	*/
+		vPort_SPI_writeDataNoWait(ucUnitNumber, 0xFF);
+
+		/*	Enable TxE & RxNE interrupts (disabled in the ISR)	*/
+		vPORT_SPI_enableTxeInterrupt(ucUnitNumber);
+		vPORT_SPI_enableRxneInterrupt(ucUnitNumber);
+
+		/*	Block until there's free byte/s in unit's data buffer	*/
+		xSemaphoreTake(pxUnit->xTxeSemaphore, portMAX_DELAY);
+
+		while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
+
+		/*	If there's an unread byte in the Rx buffer, read it	*/
+		if (xSemaphoreTake(pxUnit->xRxneSemaphore, 0))
+		{
+			pcInArr[iReader] = ucPort_SPI_readDataNoWait(ucUnitNumber);
+			iReader += iIncrementer;
+		}
+	}
+
+	/*	Empty the Rx buffer (Keep reading into "pcInArr[]").	*/
+	for (; iReader != iEnd; iReader += iIncrementer)
+	{
+		/*	Enable RxNE interrupt	*/
+		vPORT_SPI_enableRxneInterrupt(pxUnit->ucUnitNumber);
+
+		/*
+		 * Block until the Rx buffer is not empty (i.e: a byte has completely been
+		 * transmitted on the bus).
+		 */
+		xSemaphoreTake(pxUnit->xRxneSemaphore, 0);
 
 		pcInArr[iReader] = ucPort_SPI_readDataNoWait(ucUnitNumber);
 	}
@@ -353,6 +430,8 @@ void vHOS_SPI_sendMultiple(	uint8_t ucUnitNumber,
 							uint32_t uiSize,
 							uint32_t uiN	)
 {
+	while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
+
 	xHOS_SPI_Unit_t* pxUnit = &pxUnitArr[ucUnitNumber];
 
 	/*	Assure Transfer complete semaphore is not available (force it)	*/
@@ -379,6 +458,8 @@ void vHOS_SPI_sendMultiple(	uint8_t ucUnitNumber,
 
 			/*	Block until there's free byte/s in unit's data buffer	*/
 			xSemaphoreTake(pxUnit->xTxeSemaphore, portMAX_DELAY);
+
+			while(ucPort_SPI_isBusy(ucUnitNumber)); // todo
 		}
 	}
 
@@ -395,7 +476,7 @@ void vHOS_SPI_sendMultiple(	uint8_t ucUnitNumber,
 inline __attribute__((always_inline))
 uint8_t inline ucHOS_SPI_takeMutex(uint8_t ucUnitNumber, TickType_t xTimeout)
 {
-	return xSemaphoreTake(pxUnitArr[ucUnitNumber].xUnitMutex, xTimeout);
+	return 1;//xSemaphoreTake(pxUnitArr[ucUnitNumber].xUnitMutex, xTimeout);
 }
 
 /*

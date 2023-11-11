@@ -27,6 +27,8 @@
  */
 void vHOS_SDC_sendCommand(xHOS_SDC_t* pxSdc, uint8_t ucIndex, uint32_t uiArg)
 {
+	uint8_t ucCrc;
+
 	// create command frame:
 	uint8_t* pucArg = (uint8_t*)&uiArg;
 	uint8_t pucCmdFrame[6] = {
@@ -38,8 +40,8 @@ void vHOS_SDC_sendCommand(xHOS_SDC_t* pxSdc, uint8_t ucIndex, uint32_t uiArg)
 		0b01000000 | ucIndex	// index and start bits.
 	};
 
-	// calculate CRC and copy it to he frame:
-	uint8_t ucCrc = ucLIB_CRC_getCrc7(&pucCmdFrame[1], 5);
+	// calculate CRC and copy it to the frame:
+	ucCrc = ucLIB_CRC_getCrc7(&pucCmdFrame[1], 5);
 	pucCmdFrame[0] |= (ucCrc << 1);
 
 	// send it over SPI:
@@ -91,11 +93,7 @@ uint8_t ucHOS_SDC_getR1(xHOS_SDC_t* pxSdc, SDC_R1_t* pxResponse)
 		vHOS_SPI_receive(pxSdc->ucSpiUnitNumber, (int8_t*)&ucData, 1);
 		if (ucData != 0xFF)	// response start bit is received
 		{
-			if (ucData != 0xFF)	// response start bit is received
-			{
-				*((uint8_t*)pxResponse) = ucData;
-				break;
-			}
+			*((uint8_t*)pxResponse) = ucData;
 
 			/*	check start bit	*/
 			if (pxResponse->ucStartBit == 0)

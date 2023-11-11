@@ -16,8 +16,8 @@
  * inside the wrapper function (if too long to be inlined, remove the "inline"
  * identifier).
  */
-#include "stm32f103xb.h"
-#include "stm32f1xx_hal.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_hal.h"
 
 /*
  * Driver-long needed values.
@@ -105,5 +105,20 @@ void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber);
  */
 #define uiPORT_DIO_READ_PORT(ucPortNumber)	\
 	(	pxPortDioPortArr[(ucPortNumber)]->IDR	)
+
+/*
+ * Writes complete port.
+ *
+ * Notes:
+ * 		-	This function is very useful when there's need for synchronized writing
+ * 			multiple pins.
+ */
+#define vPORT_DIO_WRITE_PORT(ucPortNumber, usMask, usVal)		\
+{                                                               \
+	uint16_t __temp = pxPortDioPortArr[(ucPortNumber)]->ODR;    \
+	__temp &= ~(usMask);                                        \
+	__temp |= (usVal);                                          \
+	pxPortDioPortArr[(ucPortNumber)]->ODR = __temp;             \
+}
 
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */

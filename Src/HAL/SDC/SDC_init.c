@@ -311,10 +311,13 @@ uint8_t ucHOS_SDC_initPartition(xHOS_SDC_t* pxSdc, TickType_t xTimeout)
 uint8_t ucHOS_SDC_keepTryingInitPartition(xHOS_SDC_t* pxSdc, TickType_t xTimeout)
 {
 	uint8_t ucSuccessfull;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
 
-	while(xTaskGetTickCount() < xEndTime)
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{

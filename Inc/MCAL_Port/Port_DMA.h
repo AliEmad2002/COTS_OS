@@ -8,8 +8,8 @@
 #ifndef HAL_OS_PORT_PORT_DMA_H_
 #define HAL_OS_PORT_PORT_DMA_H_
 
-#include "stm32f1xx.h"
-#include "stm32f1xx_ll_dma.h"
+#include "stm32f401xc.h"
+#include "stm32f4xx_ll_dma.h"
 
 /*******************************************************************************
  * Definition of hardware properties:

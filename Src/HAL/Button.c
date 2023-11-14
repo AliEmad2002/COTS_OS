@@ -59,7 +59,7 @@ static void vTask(void* pvParams)
 				{
 					/*	transit to "PRESSED" state and execute callback	*/
 					pxHandle->ucCurrentState = PRESSED;
-					pxHandle->pfCallback();
+					pxHandle->pfCallback((void*)pxHandle);
 				}
 				/*	otherwise, button is in "PRE_PRESSED" state	*/
 				pxHandle->ucCurrentState = PRE_PRESSED;

@@ -10,7 +10,7 @@
 
 #define configHOS_SDC_INIT_SPI_BAUD_PRESCALER		((uint16_t)256)
 
-#define configHOS_SDC_TRANS_SPI_BAUD_PRESCALER		((uint16_t)64)
+#define configHOS_SDC_TRANS_SPI_BAUD_PRESCALER		((uint16_t)8)
 
 #define configHOS_SDC_BUFFER_SIZE					((uint32_t) 512) // in bytes.
 

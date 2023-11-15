@@ -85,8 +85,6 @@ typedef struct{
  * Notes:
  * 		-	All configuration parameters in the passed "xHOS_SDC_t" handle must
  * 			be initialized with valid values.
- *
- * 		-	This function must be called before scheduler start.
  */
 void vHOS_SDC_init(xHOS_SDC_t* pxSdc);
 

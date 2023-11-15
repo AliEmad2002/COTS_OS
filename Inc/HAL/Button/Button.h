@@ -45,7 +45,7 @@ typedef struct{
 	uint8_t ucPortNumber;
 	uint8_t ucPinNumber;
 
-	void (*pfCallback)(void);
+	void (*pfCallback)(void*);
 
 	uint8_t ucPressedLevel;
 

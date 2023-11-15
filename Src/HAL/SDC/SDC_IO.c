@@ -36,14 +36,21 @@ uint8_t ucHOS_SDC_writeBlock(	xHOS_SDC_t* pxSdc,
 	uint8_t ucGotR1;
 	uint8_t ucGotRd;
 	uint8_t ucDummyByte = 0xFF;
+	uint32_t uiAddress;
 
 	/*	Acquire SPI mutex	*/
 	ucSuccessful = ucHOS_SPI_takeMutex(pxSdc->ucSpiUnitNumber, xTimeout);
 	if (!ucSuccessful)
 		return 0;
 
+	/*	Get address (Based on SDC's version)	*/
+	if (pxSdc->xVer == xHOS_SDC_Version_2_BlockAddress)
+		uiAddress = pxBlock->uiLbaRead;
+	else if (pxSdc->xVer == xHOS_SDC_Version_2_ByteAddress)
+		uiAddress = pxBlock->uiLbaRead * 512;
+
 	/*	Send CMD24	*/
-	vHOS_SDC_sendCommand(pxSdc, 24, pxBlock->uiLbaRead);
+	vHOS_SDC_sendCommand(pxSdc, 24, uiAddress);
 
 	/*	Get R1 response	*/
 	ucGotR1 = ucHOS_SDC_getR1(pxSdc, &xR1);
@@ -95,9 +102,13 @@ uint8_t ucHOS_SDC_keepTryingWriteBlock(	xHOS_SDC_t* pxSdc,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -108,7 +119,7 @@ uint8_t ucHOS_SDC_keepTryingWriteBlock(	xHOS_SDC_t* pxSdc,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxSdc);
 			if (ucSuccessfull)
@@ -128,20 +139,30 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 	uint8_t ucGotR1;
 	uint8_t ucSuccessful;
 	uint8_t ucDummyByte;
+	uint32_t uiAddress;
 
-	/*	if the block requested is the one currently in SD-card's object buffer	*/
-	if (uiBlockNumber == pxSdc->xBuffer.uiLbaRead)
+	/*	if the block requested is the one currently in buffer	*/
+	if (uiBlockNumber == pxBlock->uiLbaRead && uiBlockNumber != 0)
 		return 1;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + pdMS_TO_TICKS(1000);
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
 
 	/*	Acquire SPI mutex	*/
 	ucSuccessful = ucHOS_SPI_takeMutex(pxSdc->ucSpiUnitNumber, xTimeout);
 	if (!ucSuccessful)
 		return 0;
 
+	/*	Get address (Based on SDC's version)	*/
+	if (pxSdc->xVer == xHOS_SDC_Version_2_BlockAddress)
+		uiAddress = uiBlockNumber;
+	else if (pxSdc->xVer == xHOS_SDC_Version_2_ByteAddress)
+		uiAddress = uiBlockNumber * 512;
+
 	/*	Send CMD17	*/
-	vHOS_SDC_sendCommand(pxSdc, 17, uiBlockNumber);
+	vHOS_SDC_sendCommand(pxSdc, 17, uiAddress);
 
 	/*	Get R1 response	*/
 	ucGotR1 = ucHOS_SDC_getR1(pxSdc, &xR1);
@@ -158,7 +179,7 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 		if (ucDummyByte == 0b11111110)
 			break;
 
-		if (xTaskGetTickCount() < xEndTime)
+		if (xTaskGetTickCount() > xEndTime)
 		{
 			vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 			return 0;
@@ -191,6 +212,7 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 	}
 
 	pxBlock->uiLbaRead = uiBlockNumber;
+	pxBlock->ucIsModified = 0;
 
 	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 
@@ -204,9 +226,13 @@ uint8_t ucHOS_SDC_keepTryingReadBlock(	xHOS_SDC_t* pxSdc,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -218,7 +244,7 @@ uint8_t ucHOS_SDC_keepTryingReadBlock(	xHOS_SDC_t* pxSdc,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxSdc);
 			if (ucSuccessfull)

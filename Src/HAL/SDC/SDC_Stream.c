@@ -88,9 +88,13 @@ uint8_t ucHOS_SDC_keepTryingOpenStream(	xHOS_SDC_Stream_t* pxStream,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -103,7 +107,7 @@ uint8_t ucHOS_SDC_keepTryingOpenStream(	xHOS_SDC_Stream_t* pxStream,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxStream->pxSdc);
 			if (ucSuccessfull)
@@ -175,10 +179,10 @@ uint8_t ucHOS_SDC_readSector(	xHOS_SDC_Stream_t* pxStream,
 		uiSectorsOffset % pxStream->pxSdc->ucSectorsPerCluster;
 
 	/*	Read that sector	*/
-	uiSuccessfull = ucHOS_SDC_readBlock(	pxStream->pxSdc,
-											&pxStream->xBuffer,
-											uiLba,
-											xTimeout	);
+	uiSuccessfull = ucHOS_SDC_keepTryingReadBlock(	pxStream->pxSdc,
+													&pxStream->xBuffer,
+													uiLba,
+													xTimeout	);
 	if (!uiSuccessfull)
 		return 0;
 
@@ -202,10 +206,13 @@ uint8_t ucHOS_SDC_updateBbuffer(	xHOS_SDC_Stream_t* pxStream,
 
 	if (uiSectorsOffset != uiStreamBufferOffset)
 	{
-		/*	save the current buffer to SD-card	*/
-		ucSuccessfull = ucHOS_SDC_saveCurrentBuffer(pxStream, xTimeout);
-		if (!ucSuccessfull)
-			return 0;
+		/*	save the current buffer to SD-card (Only if it was written to)	*/
+		if (pxStream->xBuffer.ucIsModified)
+		{
+			ucSuccessfull = ucHOS_SDC_saveCurrentBuffer(pxStream, xTimeout);
+			if (!ucSuccessfull)
+				return 0;
+		}
 
 		/*	Read new buffer from SD-card	*/
 		ucSuccessfull = ucHOS_SDC_readSector(pxStream, uiSectorsOffset, xTimeout);
@@ -225,9 +232,13 @@ uint8_t ucHOS_SDC_keepTryingUpdateBuffer(	xHOS_SDC_Stream_t* pxStream,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -240,7 +251,7 @@ uint8_t ucHOS_SDC_keepTryingUpdateBuffer(	xHOS_SDC_Stream_t* pxStream,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxStream->pxSdc);
 			if (ucSuccessfull)
@@ -306,9 +317,13 @@ uint8_t ucHOS_SDC_keepTryingReadStream(	xHOS_SDC_Stream_t* pxStream,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -323,7 +338,7 @@ uint8_t ucHOS_SDC_keepTryingReadStream(	xHOS_SDC_Stream_t* pxStream,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxStream->pxSdc);
 			if (ucSuccessfull)
@@ -368,6 +383,8 @@ uint8_t ucHOS_SDC_writeStream(	xHOS_SDC_Stream_t* pxStream,
 
 		if ((uiOffset+i) % 512 == 0)
 		{
+			pxStream->xBuffer.ucIsModified = 1;
+
 			ucSuccessfull = ucHOS_SDC_updateBbuffer(
 				pxStream,
 				uiOffset + i,
@@ -380,6 +397,8 @@ uint8_t ucHOS_SDC_writeStream(	xHOS_SDC_Stream_t* pxStream,
 		pxStream->xBuffer.pucBufferr[(uiOffset+i) % 512] = pucArr[i];
 		i++;
 	}
+
+	pxStream->xBuffer.ucIsModified = 1;
 }
 
 /*
@@ -393,9 +412,13 @@ uint8_t ucHOS_SDC_keepTryingWriteStream(	xHOS_SDC_Stream_t* pxStream,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -410,7 +433,7 @@ uint8_t ucHOS_SDC_keepTryingWriteStream(	xHOS_SDC_Stream_t* pxStream,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxStream->pxSdc);
 			if (ucSuccessfull)
@@ -444,9 +467,13 @@ uint8_t ucHOS_SDC_keepTryingSaveStream(	xHOS_SDC_Stream_t* pxStream,
 {
 	uint8_t ucSuccessfull;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
 
-	while(xTaskGetTickCount() < xEndTime)
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
+
+	while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 	{
 		for (uint8_t i = 0; i < 3; i++)
 		{
@@ -458,7 +485,7 @@ uint8_t ucHOS_SDC_keepTryingSaveStream(	xHOS_SDC_Stream_t* pxStream,
 				return 1;
 		}
 
-		while(xTaskGetTickCount() < xEndTime)
+		while(xTimeout == portMAX_DELAY || xTaskGetTickCount() < xEndTime)
 		{
 			ucSuccessfull = ucHOS_SDC_initFlow(pxStream->pxSdc);
 			if (ucSuccessfull)
@@ -481,7 +508,11 @@ uint8_t ucHOS_SDC_getNextLine(	xHOS_SDC_Stream_t* pxStream,
 	uint32_t uiOffset = pxStream->uiReader;
 	uint32_t i = 0;
 
-	TickType_t xEndTime = xTaskGetTickCount() + xTimeout;
+	TickType_t xCurrentTime = xTaskGetTickCount();
+	TickType_t xEndTime = xCurrentTime + xTimeout;
+
+	if (xEndTime < xCurrentTime)
+		xEndTime = portMAX_DELAY;
 
 	ucSuccessfull = ucHOS_SDC_keepTryingUpdateBuffer(pxStream, uiOffset,xTimeout);
 	if (!ucSuccessfull)

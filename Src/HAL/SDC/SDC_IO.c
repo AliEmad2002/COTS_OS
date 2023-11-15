@@ -141,8 +141,8 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 	uint8_t ucDummyByte;
 	uint32_t uiAddress;
 
-	/*	if the block requested is the one currently in SD-card's object buffer	*/
-	if (uiBlockNumber == pxSdc->xBuffer.uiLbaRead)
+	/*	if the block requested is the one currently in buffer	*/
+	if (uiBlockNumber == pxBlock->uiLbaRead && uiBlockNumber != 0)
 		return 1;
 
 	TickType_t xCurrentTime = xTaskGetTickCount();

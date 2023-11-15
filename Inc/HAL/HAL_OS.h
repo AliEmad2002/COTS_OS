@@ -30,8 +30,10 @@
 #include "HAL/RFID/RFID.h"
 #include "HAL/PWMMeasure/PWMMeasure.h"
 #include "HAL/OnePulseGenerator/OnePulseGenerator.h"
-#include "HAL/WaveformsGenerator/WaveformsGenerator.h"
+#include "HAL/WaveGenerator/WaveGenerator.h"
 #include "HAL/DCMotor/DCMotor.h"
 #include "HAL/IREncoder/IREncoder.h"
+#include "HAL/SDC/SDC.h"
+#include "HAL/SDC/SDC_Stream.h"
 
 #endif /* HAL_OS_INC_HAL_OS_H_ */

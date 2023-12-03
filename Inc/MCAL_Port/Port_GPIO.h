@@ -55,4 +55,17 @@ void vPort_GPIO_initDacChannelPinAsOutput(	uint8_t ucDacUnitNumber,
 											uint8_t ucDacChannelNumber,
 											uint8_t ucMapNumber	);
 
+/*
+ * Initializes DAC channel associated pin as output.
+ */
+void vPort_GPIO_initDacChannelPinAsOutput(	uint8_t ucDacUnitNumber,
+											uint8_t ucDacChannelNumber,
+											uint8_t ucMapNumber	);
+
+/*
+ * Initializes ADC channel associated pin as analog input.
+ */
+void vPort_GPIO_initAdcChannelPinAsOutput(	uint8_t ucAdcUnitNumber,
+											uint8_t ucAdcChannelNumber	);
+
 #endif /* HAL_OS_PORT_PORT_GPIO_H_ */

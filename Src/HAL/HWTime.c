@@ -30,7 +30,6 @@ static uint32_t uiOvfCount = 0;
 
 static uint32_t uiMaxCounterVal;
 
-static uint64_t ulLastTakenTimestamp = 0;
 
 /*******************************************************************************
  * Callbacks:
@@ -39,7 +38,6 @@ static void vOvfCallback(void* pvParams)
 {
 	/*	Increment overflow counter	*/
 	uiOvfCount++;
-	//ulLastTakenTimestamp = uiOvfCount * uiMaxCounterVal;
 }
 
 

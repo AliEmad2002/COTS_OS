@@ -48,6 +48,8 @@ uint8_t ucHOS_SDC_writeBlock(	xHOS_SDC_t* pxSdc,
 		uiAddress = pxBlock->uiLbaRead;
 	else if (pxSdc->xVer == xHOS_SDC_Version_2_ByteAddress)
 		uiAddress = pxBlock->uiLbaRead * 512;
+	else
+		uiAddress = 0;	/*	TODO: what does other versions (1, 3) do?	*/
 
 	/*	Send CMD24	*/
 	vHOS_SDC_sendCommand(pxSdc, 24, uiAddress);
@@ -160,6 +162,8 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 		uiAddress = uiBlockNumber;
 	else if (pxSdc->xVer == xHOS_SDC_Version_2_ByteAddress)
 		uiAddress = uiBlockNumber * 512;
+	else
+		uiAddress = 0;	/*	TODO: what does other versions (1, 3) do?	*/
 
 	/*	Send CMD17	*/
 	vHOS_SDC_sendCommand(pxSdc, 17, uiAddress);

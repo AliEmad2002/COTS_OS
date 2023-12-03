@@ -5,6 +5,8 @@
  *      Author: Ali Emad
  */
 
+#include "LIB/Assert.h"
+
 #include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 #include "MCAL_Port/Port_DIO.h"
@@ -52,6 +54,11 @@ typedef struct{
 	uint8_t ucCh4PortAndPin;
 }xPort_GPIO_TimerChannelMap_t;
 
+typedef struct{
+	uint8_t ucPort : 4;
+	uint8_t ucPin : 4;
+}xPort_GPIO_AdcMap_t;
+
 /*******************************************************************************
  * Helping functions:
  ******************************************************************************/
@@ -70,6 +77,16 @@ static void vPort_GPIO_initPinAFOD(uint8_t ucPort, uint8_t ucPin)
 	GPIO_InitTypeDef xConf;
 	xConf.Pin = 1ul << ucPin;
 	xConf.Mode = GPIO_MODE_AF_OD;
+	xConf.Pull = GPIO_NOPULL;
+	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
+}
+
+static void vPort_GPIO_initPinAnalogIn(uint8_t ucPort, uint8_t ucPin)
+{
+	GPIO_InitTypeDef xConf;
+	xConf.Pin = 1ul << ucPin;
+	xConf.Mode = GPIO_MODE_ANALOG;
 	xConf.Pull = GPIO_NOPULL;
 	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
@@ -242,7 +259,22 @@ void vPort_GPIO_initDacChannelPinAsOutput(	uint8_t ucDacUnitNumber,
 	vPort_GPIO_initTimerChannelPinAsOutput(ucDacUnitNumber, ucDacChannelNumber, ucMapNumber);
 }
 
+void vPort_GPIO_initAdcChannelPinAsOutput(	uint8_t ucAdcUnitNumber,
+											uint8_t ucAdcChannelNumber	)
+{
+	vLib_ASSERT(ucAdcChannelNumber <= 9, 0);
 
+	const xPort_GPIO_AdcMap_t pxMap[] = {
+		{0, 0}, {0, 1}, {0, 2}, {0, 3},
+		{0, 4}, {0, 5}, {0, 6}, {0, 7},
+		{1, 0}, {1, 1}
+	};
+
+	uint8_t ucPin = pxMap[ucAdcChannelNumber].ucPin;
+	uint8_t ucPort = pxMap[ucAdcChannelNumber].ucPort;
+
+	vPort_GPIO_initPinAnalogIn(ucPort, ucPin);
+}
 
 
 

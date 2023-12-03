@@ -17,6 +17,7 @@
 /*	MCAL (Ported)	*/
 #include "MCAL_Port/Port_HW.h"
 #include "MCAL_Port/Port_Clock.h"
+#include "MCAL_Port/Port_Interrupt.h"
 
 /*	HAL_OS	*/
 #include "HAL/HAL_OS.h"
@@ -124,10 +125,10 @@ static void init_main_tasks(void)
  ******************************************************************************/
 int main(void)
 {
-	vPort_Interrupt_disableGlobalInterrupt();
+	vPORT_INTERRUPT_DISABLE_GLOBAL_INTERRUPT();
 
 	/*	Initialize clock	*/
-	vPort_Clock_init();
+	vPort_Clock_initCpuClock();
 
 	/*	Initialize initialization task	*/
 	init_initialization_task();
@@ -135,7 +136,7 @@ int main(void)
 	/*	Run scheduler	*/
 	vTaskStartScheduler();
 
-	vPort_Interrupt_enableGlobalInterrupt();
+	vPORT_INTERRUPT_ENABLE_GLOBAL_INTERRUPT();
 
 	while(1)
 	{

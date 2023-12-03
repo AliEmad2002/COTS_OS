@@ -61,7 +61,9 @@ extern const IRQn_Type pxPortInterruptExtiIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];
 
-extern const IRQn_Type xPortInterruptUsbIrqNumber;
+extern const IRQn_Type xPortInterruptUsbLowPriIrqNumber;
+extern const IRQn_Type xPortInterruptUsbHighPriIrqNumber;
+extern const IRQn_Type xPortInterruptUsbWkupIrqNumber;
 
 extern const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[];
 

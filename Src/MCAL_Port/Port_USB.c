@@ -46,6 +46,8 @@ static void vUsbDeviceTask(void *param)
   while (1) {
     // put this thread to waiting state until there is new events
     tud_task();
+
+    tud_cdc_n_write_flush(0);
   }
 }
 

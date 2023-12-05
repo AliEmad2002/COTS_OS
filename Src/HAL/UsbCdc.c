@@ -45,9 +45,6 @@ typedef struct{
 
 	SemaphoreHandle_t xReceptionMutex;
 	StaticSemaphore_t xReceptionMutexStatic;
-
-	SemaphoreHandle_t xRxAvailableSemaphore;
-	StaticSemaphore_t xRxAvailableSemaphoreStatic;
 }xUsbCdc_t;
 
 /*******************************************************************************
@@ -83,7 +80,7 @@ static uint8_t ucIsDataAvailable(uint8_t ucUnitNumber, TickType_t xTimeout)
 
 
 /*******************************************************************************
- * RTOS tasks:
+ * Callbacks:
  ******************************************************************************/
 
 
@@ -112,12 +109,6 @@ void vHOS_UsbCdc_init(void)
 			&pxUnit->xReceptionMutexStatic	);
 
 		xSemaphoreGive(pxUnit->xReceptionMutex);
-
-		/*	Initialize RxAvailable semaphore	*/
-		pxUnit->xRxAvailableSemaphore = xSemaphoreCreateBinaryStatic(
-			&pxUnit->xRxAvailableSemaphoreStatic	);
-
-		xSemaphoreTake(pxUnit->xRxAvailableSemaphore, 0);
 	}
 }
 
@@ -167,6 +158,7 @@ void vHOS_UsbCdc_releaseReception(uint8_t ucUnitNumber)
 void vHOS_UsbCdc_send(uint8_t ucUnitNumber, uint8_t* pucBuffer, uint16_t usLen)
 {
 	tud_cdc_n_write(ucUnitNumber, (void*)pucBuffer, usLen);
+	tud_cdc_n_write_flush(ucUnitNumber);
 }
 
 /*

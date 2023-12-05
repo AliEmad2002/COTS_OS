@@ -21,17 +21,10 @@
 /*******************************************************************************
  * Static (Private) variables:
  ******************************************************************************/
-#if CFG_TUD_MSC
 #define USBD_STACK_SIZE    (3*configMINIMAL_STACK_SIZE)
-static StackType_t  usb_device_stack[USBD_STACK_SIZE];
-static StaticTask_t usb_device_taskdef;
-#endif
-
-#if CFG_TUD_CDC
-#define CDC_STACK_SZIE      configMINIMAL_STACK_SIZE
-static StackType_t  cdc_stack[CDC_STACK_SZIE];
-static StaticTask_t cdc_taskdef;
-#endif
+static StackType_t  pxUsbDeviceTaskStack[USBD_STACK_SIZE];
+static StaticTask_t xUsbDeviceTaskStatic;
+static TaskHandle_t xUsbDeviceTask;
 
 
 /*******************************************************************************
@@ -40,7 +33,7 @@ static StaticTask_t cdc_taskdef;
 /*
  * USB device class RTOS task. Copied from TinyUSB example.
  */
-static void usb_device_task(void *param)
+static void vUsbDeviceTask(void *param)
 {
   (void) param;
 
@@ -53,48 +46,9 @@ static void usb_device_task(void *param)
   while (1) {
     // put this thread to waiting state until there is new events
     tud_task();
-
-    // following code only run if tud_task() process at least 1 event
-#if CFG_TUD_CDC
-    tud_cdc_write_flush();
-#endif
   }
 }
 
-/*
- * USB communication device class RTOS task. Copied from TinyUSB example.
- */
-#if CFG_TUD_CDC
-void cdc_task(void *params)
-{
-  (void) params;
-
-  // RTOS forever loop
-  while (1) {
-    // connected() check for DTR bit
-    // Most but not all terminal client set this when making connection
-    // if ( tud_cdc_connected() )
-    {
-      // There are data available
-      while (tud_cdc_available()) {
-        uint8_t buf[64];
-
-        // read and echo back	/*	TODO: change this and link it with the COTS_OS CDC driver	*/
-        uint32_t count = tud_cdc_read(buf, sizeof(buf));
-        (void) count;
-
-        // Echo back
-        // Note: Skip echo by commenting out write() and write_flush()
-        // for throughput test e.g
-        //    $ dd if=/dev/zero of=/dev/ttyACM0 count=10000
-        tud_cdc_write(buf, count);
-      }
-
-      tud_cdc_write_flush();
-    }
-  }
-}
-#endif
 
 
 /*******************************************************************************
@@ -119,25 +73,14 @@ void vPort_USB_initHardware(void)
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	/*	Initialize USB tasks	*/
-#if CFG_TUD_MSC
-	xTaskCreateStatic(	usb_device_task,
+	xUsbDeviceTask = xTaskCreateStatic(
+						vUsbDeviceTask,
 						"usbd",
 						USBD_STACK_SIZE,
 						NULL,
-						configMAX_PRIORITIES-1,
-						usb_device_stack,
-						&usb_device_taskdef	);
-#endif
-
-#if CFG_TUD_CDC
-	xTaskCreateStatic(	cdc_task,
-						"cdc",
-						CDC_STACK_SZIE,
-						NULL,
-						configMAX_PRIORITIES-2,
-						cdc_stack,
-						&cdc_taskdef	);
-#endif
+						configMAX_PRIORITIES - 1,
+						pxUsbDeviceTaskStack,
+						&xUsbDeviceTaskStatic	);
 }
 
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_USB

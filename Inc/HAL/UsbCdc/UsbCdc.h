@@ -1,20 +1,20 @@
 /*
- * USBVirtualCOM.h
+ * UsbCdc.h
  *
  *  Created on: Sep 11, 2023
  *      Author: Ali Emad
  */
 
-#ifndef COTS_OS_INC_HAL_USBVIRTUALCOM_USB_VIRTUALCOM_H_
-#define COTS_OS_INC_HAL_USBVIRTUALCOM_USB_VIRTUALCOM_H_
+#ifndef COTS_OS_INC_HAL_USB_CDC_USB_CDC_H_
+#define COTS_OS_INC_HAL_USB_CDC_USB_CDC_H_
 
 #include "FreeRTOS.h"
 
 
 /*
- * Initializes USB virtual COM port.
+ * Initializes USB CDC driver.
  */
-void vHOS_USBVirtualCOM_init(void);
+void vHOS_UsbCdc_init(void);
 
 /*
  * Locks USB transmission for the caller task.
@@ -27,7 +27,7 @@ void vHOS_USBVirtualCOM_init(void);
  *
  * 		-	If successfully locked, this function returns 1, otherwise it returns 0.
  */
-uint8_t ucHOS_USBVirtualCOM_lockTransmission(TickType_t xTimeout);
+uint8_t ucHOS_UsbCdc_lockTransmission(uint8_t ucUnitNumber, TickType_t xTimeout);
 
 /*
  * Releases USB transmission.
@@ -36,7 +36,7 @@ uint8_t ucHOS_USBVirtualCOM_lockTransmission(TickType_t xTimeout);
  * 		-	This function must be called from withing the same task which have locked
  * 			it (Mutex based method).
  */
-void vHOS_USBVirtualCOM_releaseTransmission(void);
+void vHOS_UsbCdc_releaseTransmission(uint8_t ucUnitNumber);
 
 /*
  * Locks USB reception for the caller task.
@@ -49,7 +49,7 @@ void vHOS_USBVirtualCOM_releaseTransmission(void);
  *
  * 		-	If successfully locked, this function returns 1, otherwise it returns 0.
  */
-uint8_t ucHOS_USBVirtualCOM_lockReception(TickType_t xTimeout);
+uint8_t ucHOS_UsbCdc_lockReception(uint8_t ucUnitNumber, TickType_t xTimeout);
 
 /*
  * Releases USB reception.
@@ -58,17 +58,17 @@ uint8_t ucHOS_USBVirtualCOM_lockReception(TickType_t xTimeout);
  * 		-	This function must be called from withing the same task which have locked
  * 			it (Mutex based method).
  */
-void vHOS_USBVirtualCOM_releaseReception(void);
+void vHOS_UsbCdc_releaseReception(uint8_t ucUnitNumber);
 
 /*
  * Blocks until the ongoing send operation is done.
  */
-void vHOS_USBVirtualCOM_blockUntilTxDone(void);
+void vHOS_UsbCdc_blockUntilTxDone(uint8_t ucUnitNumber);
 
 /*
  * Stars a send operation.
  */
-void vHOS_USBVirtualCOM_send(uint8_t* pucBuffer, uint16_t usLen);
+void vHOS_UsbCdc_send(uint8_t ucUnitNumber, uint8_t* pucBuffer, uint16_t usLen);
 
 /*
  * Reads the Rx buffer.
@@ -82,9 +82,10 @@ void vHOS_USBVirtualCOM_send(uint8_t* pucBuffer, uint16_t usLen);
  * 			returns 1.
  *
  */
-uint8_t ucHOS_USBVirtualCOM_readRxBuffer(	uint8_t* pucBuffer,
-											uint32_t* puiLen,
-											TickType_t xTimeout	);
+uint8_t ucHOS_UsbCdc_readRxBuffer(	uint8_t ucUnitNumber,
+									uint8_t* pucBuffer,
+									uint32_t* puiLen,
+									TickType_t xTimeout	);
 
 /*
  * Receives N bytes with a a timeout.
@@ -93,10 +94,11 @@ uint8_t ucHOS_USBVirtualCOM_readRxBuffer(	uint8_t* pucBuffer,
  * 		-	If N bytes were not received in the given timeout, function returns 0.
  * 			Otherwise, it returns 1.
  */
-uint8_t ucHOS_USBVirtualCOM_receive(	uint8_t* pucBuffer,
-										uint32_t uiLen,
-										TickType_t xTimeout	);
+uint8_t ucHOS_UsbCdc_receive(	uint8_t ucUnitNumber,
+								uint8_t* pucBuffer,
+								uint32_t uiLen,
+								TickType_t xTimeout	);
 
 
 
-#endif /* COTS_OS_INC_HAL_USBVIRTUALCOM_USB_VIRTUALCOM_H_ */
+#endif /* COTS_OS_INC_HAL_USB_CDC_USB_CDC_H_ */

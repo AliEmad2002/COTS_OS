@@ -25,7 +25,7 @@
 #include "HAL/HWTime/HWTime.h"
 #include "HAL/UltraSonicDistance/UltraSonicDistance.h"
 #include "HAL/UltraSonicDistance/UltraSonicDistanceSynchronizer.h"
-#include "HAL/USBVirtualCOM/USBVirtualCOM.h"
+#include "HAL/UsbCdc/UsbCdc.h"
 #include "HAL/UART/UART.h"
 #include "HAL/RFID/RFID.h"
 #include "HAL/PWMMeasure/PWMMeasure.h"

@@ -67,6 +67,15 @@ void vHOS_UsbCdc_blockUntilTxDone(uint8_t ucUnitNumber);
 
 /*
  * Stars a send operation.
+ *
+ * Notes:
+ * 		-	A delay of at least 1ms is recommended between two send operations
+ * 			on the same unit (port). (This is to give chance to the USB_DEVICE RTOS
+ * 			task to process the data copied to its FIFO buffer and send it to the
+ * 			host.
+ *
+ * 		-	For large data streams, SW synchronization is recommended between device
+ * 			device and host.
  */
 void vHOS_UsbCdc_send(uint8_t ucUnitNumber, uint8_t* pucBuffer, uint16_t usLen);
 

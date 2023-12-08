@@ -12,7 +12,7 @@
  * When in device mode, MCU can show up to (?? TODO find out) USB-CDC interfaces
  * on the host device. Following macro sets maximum number of units to be used.
  */
-#define ucCONF_USB_CDC_NUMBER_OF_UNITS		2
+#define ucCONF_USB_CDC_NUMBER_OF_UNITS		1
 
 
 

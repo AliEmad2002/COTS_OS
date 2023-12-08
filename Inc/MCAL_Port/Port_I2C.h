@@ -38,7 +38,7 @@ typedef struct{
 	uint8_t ucAFIOMapNumber;
 	uint8_t ucEnableGeneralCall : 1;
 	uint8_t ucEnableClockStretching : 1;
-	uint8_t ucClockMode: 1; // 0==>SM, 1==>FM
+	uint8_t ucClockMode: 1; // 0==>SM(Standard Mode), 1==>FM(Fast Mode)
 	uint8_t ucIsAddress7Bit: 1;
 	uint16_t usSelfAddress : 10;
 	uint32_t uiSclFrequencyHz;
@@ -135,16 +135,6 @@ static inline void vPort_I2C_setAckPos(uint8_t ucUnitNumber, uint8_t ucPos)
 		LL_I2C_EnableBitPOS(pxPortI2cArr[ucUnitNumber]);
 	else
 		LL_I2C_DisableBitPOS(pxPortI2cArr[ucUnitNumber]);
-}
-
-/*	Initialize vendor specific configurations	*/
-static inline void vPort_I2C_init(uint8_t ucUnitNumber)
-{
-	/*	Set peripheral frequency to that of APB bus	*/
-	LL_I2C_SetPeriphClock(
-		pxPortI2cArr[ucUnitNumber],
-		uiPORT_CLOCK_MAIN_HZ / 1 / 2);
-		//uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV	);
 }
 
 /*

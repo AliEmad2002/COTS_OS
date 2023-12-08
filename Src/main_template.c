@@ -13,6 +13,8 @@
 /*	RTOS	*/
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
+#include "queue.h"
 
 /*	MCAL (Ported)	*/
 #include "MCAL_Port/Port_HW.h"
@@ -21,6 +23,7 @@
 
 /*	HAL_OS	*/
 #include "HAL/HAL_OS.h"
+
 
 /*******************************************************************************
  * Tasks stacks and handles (initialization task and main tasks):
@@ -32,6 +35,7 @@ static TaskHandle_t xTask1Handle;
 static StackType_t puxTaskInitStack[configMINIMAL_STACK_SIZE];
 static StaticTask_t xTaskInitStaticHandle;
 static TaskHandle_t xTaskInitHandle;
+
 
 /*******************************************************************************
  * Function prototypes:
@@ -61,12 +65,12 @@ static void vInitTask(void* pvParams)
 
 static void vMainTask1(void* pvParams)
 {
-
 	while(1)
 	{
 
 	}
 }
+
 
 
 /*******************************************************************************

@@ -43,11 +43,16 @@ static void vUsbDeviceTask(void *param)
   tud_init(BOARD_TUD_RHPORT);
 
   // RTOS forever loop
-  while (1) {
+  while (1)
+  {
     // put this thread to waiting state until there is new events
     tud_task();
 
-    tud_cdc_n_write_flush(0);
+    /*
+     * send whatever data is temporarily kept in the buffers. (this operation is
+     * done  only if "flush()" was not performed after every write operation.
+     */
+    //tud_cdc_n_write_flush(0);
   }
 }
 

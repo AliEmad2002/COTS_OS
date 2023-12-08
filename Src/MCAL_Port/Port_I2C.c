@@ -42,4 +42,10 @@ void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf)
 
 	/*	Max rising time setting	*/
 	vPort_I2C_setMaxRisingTime(ucUnitNumber, pxConf->uiMaxRisingTimeNs);
+
+	/*	Set peripheral frequency to that of APB bus	*/
+	LL_I2C_SetPeriphClock(
+		pxPortI2cArr[ucUnitNumber],
+		uiPORT_CLOCK_MAIN_HZ / 1 / 2);
+		//uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV	);
 }

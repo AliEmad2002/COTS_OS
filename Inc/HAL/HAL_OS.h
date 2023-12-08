@@ -35,5 +35,6 @@
 #include "HAL/IREncoder/IREncoder.h"
 #include "HAL/SDC/SDC.h"
 #include "HAL/SDC/SDC_Stream.h"
+#include "HAL/CharLcdI2c/CharLcdI2c.h"
 
 #endif /* HAL_OS_INC_HAL_OS_H_ */

@@ -24,6 +24,13 @@ typedef struct
 	/*	Address of the LCD I2C interface	*/
 	uint8_t ucAddress;
 
+	/*
+	 * Mutex of the LCD handle (Should be locked before using and unlocked after,
+	 * not using this mutex is user's responsibility).
+	 */
+	SemaphoreHandle_t xMutex;
+	StaticSemaphore_t xMutexStatic;
+
 	/*		PRIVATE		*/
 	/*	Value of the bus between I2C IO extender, and the LCD module	*/
 	uint8_t ucBusVal;
@@ -41,7 +48,7 @@ void vHOS_CharLcdI2c_clearDisplay(xHOS_CharLcdI2c_t* pxHandle);
 
 void vHOS_CharLcdI2c_printChar(xHOS_CharLcdI2c_t* pxHandle, char cCh);
 
-void HLCD_voidPrintStr(xHOS_CharLcdI2c_t* pxHandle, char* pcStr);
+void vHOS_CharLcdI2c_printStr(xHOS_CharLcdI2c_t* pxHandle, char* pcStr);
 
 
 #endif /* CHARLCDI2C_H_ */

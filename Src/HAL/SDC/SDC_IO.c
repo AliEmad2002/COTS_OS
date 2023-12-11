@@ -39,9 +39,9 @@ uint8_t ucHOS_SDC_writeBlock(	xHOS_SDC_t* pxSdc,
 	uint32_t uiAddress;
 
 	/*	Acquire SPI mutex	*/
-	ucSuccessful = ucHOS_SPI_takeMutex(pxSdc->ucSpiUnitNumber, xTimeout);
-	if (!ucSuccessful)
-		return 0;
+//	ucSuccessful = ucHOS_SPI_takeMutex(pxSdc->ucSpiUnitNumber, xTimeout);
+//	if (!ucSuccessful)
+//		return 0;
 
 	/*	Get address (Based on SDC's version)	*/
 	if (pxSdc->xVer == xHOS_SDC_Version_2_BlockAddress)
@@ -58,7 +58,7 @@ uint8_t ucHOS_SDC_writeBlock(	xHOS_SDC_t* pxSdc,
 	ucGotR1 = ucHOS_SDC_getR1(pxSdc, &xR1);
 	if (ucGotR1 == 0 || ucHOS_SDC_checkR1(&xR1) == 0)
 	{
-		vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//		vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 		return 0;
 	}
 
@@ -89,11 +89,11 @@ uint8_t ucHOS_SDC_writeBlock(	xHOS_SDC_t* pxSdc,
 	ucGotRd = ucHOS_SDC_getDataResponse(pxSdc, &xRd);
 	if (!ucGotRd || xRd.ucStatus != SDC_Data_Response_Status_Accepted)
 	{
-		vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//		vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 		return 0;
 	}
 
-	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 
 	return 1;
 }
@@ -153,9 +153,9 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 		xEndTime = portMAX_DELAY;
 
 	/*	Acquire SPI mutex	*/
-	ucSuccessful = ucHOS_SPI_takeMutex(pxSdc->ucSpiUnitNumber, xTimeout);
-	if (!ucSuccessful)
-		return 0;
+//	ucSuccessful = ucHOS_SPI_takeMutex(pxSdc->ucSpiUnitNumber, xTimeout);
+//	if (!ucSuccessful)
+//		return 0;
 
 	/*	Get address (Based on SDC's version)	*/
 	if (pxSdc->xVer == xHOS_SDC_Version_2_BlockAddress)
@@ -172,7 +172,7 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 	ucGotR1 = ucHOS_SDC_getR1(pxSdc, &xR1);
 	if (ucGotR1 == 0 || ucHOS_SDC_checkR1(&xR1) == 0)
 	{
-		vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//		vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 		return 0;
 	}
 
@@ -197,20 +197,21 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 	vHOS_SPI_receive(pxSdc->ucSpiUnitNumber, (int8_t*)pxBlock->pucBufferr, 512);
 
 	/*	Receive the CRC	*/
-	uint16_t usCrc;
+	uint8_t pcCrcArr[2];
 
 	vHOS_SPI_setByteDirection(	pxSdc->ucSpiUnitNumber,
 								ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST	);
 
-	vHOS_SPI_receive(pxSdc->ucSpiUnitNumber, (int8_t*)&usCrc, 2);
+	vHOS_SPI_receive(pxSdc->ucSpiUnitNumber, pcCrcArr, 2);
 
+	uint16_t usCrc = (pcCrcArr[1] << 8) | pcCrcArr[0];
 	/*	Check CRC (if enabled)	*/
 	if (pxSdc->ucIsCrcEnabled)
 	{
-		uint16_t usCrcCalc = usLIB_CRC_getCrc16(pxSdc->xBuffer.pucBufferr, 512);
+		uint16_t usCrcCalc = usLIB_CRC_getCrc16(pxBlock->pucBufferr, 512);
 		if (usCrcCalc != usCrc)
 		{
-			vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//			vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 			return 0;
 		}
 	}
@@ -218,7 +219,7 @@ uint8_t ucHOS_SDC_readBlock(	xHOS_SDC_t* pxSdc,
 	pxBlock->uiLbaRead = uiBlockNumber;
 	pxBlock->ucIsModified = 0;
 
-	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 
 	return 1;
 }

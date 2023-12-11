@@ -57,6 +57,10 @@ typedef struct{
 	/*	Version of the SDC connected to the handle. (read only)	*/
 	xHOS_SDC_Version_t xVer;
 
+	uint32_t uiNumberOfSectors;
+
+	uint32_t uiPartitionBeginLba;
+
 	/*
 	 * Mutex of the SDC handle. This must be taken before doing any operations
 	 * on the handle.

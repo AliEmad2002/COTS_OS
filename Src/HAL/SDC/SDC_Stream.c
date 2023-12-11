@@ -37,6 +37,7 @@ uint8_t ucHOS_SDC_openStream(	xHOS_SDC_Stream_t* pxStream,
 	SDC_DirData_t* pxDirData;
 	uint8_t ucFound = 0;
 	char pcInFileName[11];
+	/*	TODO: add code from sound project	*/
 	vHOS_SDC_getInFileName(pcInFileName, pcFileName);
 
 	pxStream->uiReader = 0;
@@ -140,6 +141,8 @@ uint8_t ucHOS_SDC_saveCurrentBuffer(	xHOS_SDC_Stream_t* pxStream,
 		return 0;
 
 	/*	Write the current buffer to the SD-card	*/
+	/*	TODO: create a write+check function.	*/
+
 	ucSuccessfull = ucHOS_SDC_writeBlock(
 		pxStream->pxSdc,
 		&pxStream->xBuffer,

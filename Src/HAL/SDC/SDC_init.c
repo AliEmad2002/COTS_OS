@@ -162,11 +162,11 @@ uint8_t ucHOS_SDC_initFlow(xHOS_SDC_t* pxSdc)
 	uint8_t ucDummyByte = 0xFF;
 
 	/*	Acquire SPI mutex	*/
-	ucSuccessfull = ucHOS_SPI_takeMutex(
-						pxSdc->ucSpiUnitNumber,
-						pdMS_TO_TICKS(configHOS_SDC_INIT_LOOP_TIMEOUT_MS)	);
-	if (!ucSuccessfull)
-		return 0;
+//	ucSuccessfull = ucHOS_SPI_takeMutex(
+//						pxSdc->ucSpiUnitNumber,
+//						pdMS_TO_TICKS(configHOS_SDC_INIT_LOOP_TIMEOUT_MS)	);
+//	if (!ucSuccessfull)
+//		return 0;
 
 	vPort_SPI_setBaudratePrescaler(	pxSdc->ucSpiUnitNumber,
 									configHOS_SDC_INIT_SPI_BAUD_PRESCALER	);
@@ -231,7 +231,7 @@ uint8_t ucHOS_SDC_initFlow(xHOS_SDC_t* pxSdc)
 	vPort_SPI_setBaudratePrescaler(	pxSdc->ucSpiUnitNumber,
 									configHOS_SDC_TRANS_SPI_BAUD_PRESCALER	);
 
-	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
+//	vHOS_SPI_releaseMutex(pxSdc->ucSpiUnitNumber);
 
 	return 1;
 }
@@ -242,6 +242,7 @@ uint8_t ucHOS_SDC_initFlow(xHOS_SDC_t* pxSdc)
 uint8_t ucHOS_SDC_initPartition(xHOS_SDC_t* pxSdc, TickType_t xTimeout)
 {
 	uint8_t ucSuccessfull;
+	volatile SDC_Partition_Entry_t* pxPartitionEntry;
 
 	static uint8_t ucFirstTime = 1;
 	if (ucFirstTime)
@@ -252,23 +253,35 @@ uint8_t ucHOS_SDC_initPartition(xHOS_SDC_t* pxSdc, TickType_t xTimeout)
 	}
 
 	/*	Read zero-th sector (MBR)	*/
-	ucSuccessfull = ucHOS_SDC_readBlock(pxSdc, &pxSdc->xBuffer, 0, xTimeout);
-	if (!ucSuccessfull)
-		return 0;
-
-	/*	In the partition table, search for the partition that uses FAT32	*/
-	SDC_Partition_Entry_t* pxPartitionEntry;
-	for (uint8_t i = 0; i < 4; i++)
+	for (uint32_t uiMbrSector = 0;; uiMbrSector++)
 	{
-		pxPartitionEntry =
-			(SDC_Partition_Entry_t*)&(pxSdc->xBuffer.pucBufferr[446 + 16 * i]);
+		ucSuccessfull = ucHOS_SDC_readBlock(pxSdc, &pxSdc->xBuffer, uiMbrSector, xTimeout);
+		if (!ucSuccessfull)
+			return 0;
 
-		if (	pxPartitionEntry->ucTypeCode == 0xB ||
-				pxPartitionEntry->ucTypeCode == 0xC	)
+		/*	In the partition table, search for the partition that uses FAT32	*/
+		uint8_t i = 0;
+		for (; i < 4; i++)
 		{
-			break;
+			pxPartitionEntry =
+				(SDC_Partition_Entry_t*)&(pxSdc->xBuffer.pucBufferr[446 + 16 * i]);
+
+			if (	pxPartitionEntry->ucTypeCode == 0xB ||
+					pxPartitionEntry->ucTypeCode == 0xC	)
+			{
+				break;
+			}
 		}
+
+		/*
+		 * If partition entry was found, break. Otherwise, next sector may be
+		 * the MBR
+		 */
+		if (i != 4)
+			break;
 	}
+
+	pxSdc->uiNumberOfSectors = pxPartitionEntry->uiNumberOfSectors;
 
 	/*	Read volume ID sector of the partition (first sector in partition)	*/
 	uint32_t uiLbaBegin = pxPartitionEntry->uiLbaBegin;
@@ -291,6 +304,9 @@ uint8_t ucHOS_SDC_initPartition(xHOS_SDC_t* pxSdc, TickType_t xTimeout)
 		return 0;
 	if (usSignature != 0xAA55)
 		return 0;
+
+
+	pxSdc->uiPartitionBeginLba = uiLbaBegin;
 
 	/*	Get LBA of the File Allocation Table of that partition	*/
 	pxSdc->xFat.uiLba = uiLbaBegin + usNumberOfReservedSectors;
@@ -352,6 +368,8 @@ void vHOS_SDC_init(xHOS_SDC_t* pxSdc)
 	pxSdc->xInitCompletionSemaphore =
 		xSemaphoreCreateBinaryStatic(&pxSdc->xInitCompletionSemaphoreStatic);
 	xSemaphoreTake(pxSdc->xInitCompletionSemaphore, 0);
+
+
 }
 
 uint8_t ucHOS_SDC_waitForInitCompletion(xHOS_SDC_t* pxSdc, TickType_t xTimeout)

@@ -65,7 +65,7 @@
 #define configCPU_CLOCK_HZ                       ( SystemCoreClock )
 #define configTICK_RATE_HZ                       ((TickType_t)1000)
 #define configMAX_PRIORITIES                     ( 6 )
-#define configMINIMAL_STACK_SIZE                 ((uint16_t)100)	// in words
+#define configMINIMAL_STACK_SIZE                 ((uint16_t)32)	// in words
 #define configTOTAL_HEAP_SIZE                    ((size_t)10 * 1024)
 #define configMAX_TASK_NAME_LEN                  ( 16 )
 #define configGENERATE_RUN_TIME_STATS            1
@@ -76,7 +76,7 @@
 #define configQUEUE_REGISTRY_SIZE                8
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION  1
 #define configRECORD_STACK_HIGH_ADDRESS          1
-#define configUSE_TICKLESS_IDLE					 1
+#define configUSE_TICKLESS_IDLE					 0
 
 
 /* Co-routine definitions. */
@@ -90,7 +90,7 @@
 to exclude the API function. */
 #define INCLUDE_vTaskPrioritySet            1
 #define INCLUDE_uxTaskPriorityGet           1
-#define INCLUDE_vTaskDelete                 1
+#define INCLUDE_vTaskDelete                 0
 #define INCLUDE_vTaskCleanUpResources       0
 #define INCLUDE_vTaskSuspend                1
 #define INCLUDE_vTaskDelayUntil             1

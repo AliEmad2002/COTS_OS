@@ -276,6 +276,8 @@ uint32_t uiHOS_SDC_getClusterNumber(	xHOS_SDC_t* pxSdc,
 										uint32_t uiFirstClusterNumber,
 										uint32_t uiClusterIndex	)
 {
+
+/*	TODO: test code in "sound" project for this function.	*/
 	uint32_t uiClusterNumber = uiFirstClusterNumber;
 	for (uint32_t i = 0; i < uiClusterIndex; i++)
 	{

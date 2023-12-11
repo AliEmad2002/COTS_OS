@@ -68,9 +68,6 @@ void vPort_Clock_initPeriphClock(void)
 	__HAL_RCC_PWR_CLK_ENABLE();
 	__HAL_RCC_BKP_CLK_ENABLE();
 
-	/*	Initialize timers clock	*/
-	__HAL_RCC_TIM1_CLK_ENABLE();
-
 	/*	Initialize UART clock	*/
 	__HAL_RCC_USART1_CLK_ENABLE();
 	__HAL_RCC_USART2_CLK_ENABLE();

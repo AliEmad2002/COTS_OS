@@ -21,6 +21,7 @@
 #include "MCAL_Port/Port_GPIO.h"
 #include "MCAL_Port/Port_ADC.h"
 #include "MCAL_Port/Port_I2C.h"
+#include "MCAL_Port/Port_SPI.h"
 
 static void vInitUartUnit(uint8_t i)
 {
@@ -53,8 +54,19 @@ void vPort_HW_init(void)
 	vInitUartUnit(1);
 	vInitUartUnit(2);
 
-	/*	Initialize SPI (todo)		*/
-
+	/*	Initialize SPI 		*/
+	xPort_SPI_HW_Conf_t xSpiConf = {
+		.ucFullDuplexEn         = 1,
+		.ucLSBitFirst           = 0,
+		.ucIsMaster             = 1,
+		.ucMOSIEn               = 1,
+		.ucMISOEn               = 1,
+		.ucNssEn                = 0,
+		.ucComMode              = 0,
+		.usBaudratePrescaler    = 256,
+		.ucAFIOMapNumber		= 0
+	};
+	vPort_SPI_initHardware(0, &xSpiConf);
 
 	/*	Initialize I2C HW	*/
 	xPort_I2C_HW_Conf_t xI2cConf = {

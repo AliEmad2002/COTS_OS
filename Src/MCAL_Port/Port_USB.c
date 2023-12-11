@@ -21,7 +21,7 @@
 /*******************************************************************************
  * Static (Private) variables:
  ******************************************************************************/
-#define USBD_STACK_SIZE    (3*configMINIMAL_STACK_SIZE)
+#define USBD_STACK_SIZE    (700/4)
 static StackType_t  pxUsbDeviceTaskStack[USBD_STACK_SIZE];
 static StaticTask_t xUsbDeviceTaskStatic;
 static TaskHandle_t xUsbDeviceTask;

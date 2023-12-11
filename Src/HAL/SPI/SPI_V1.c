@@ -254,6 +254,9 @@ void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 	/*	Assure TxE semaphore is not available (force it)	*/
 	xSemaphoreTake(pxUnit->xTxeSemaphore, 0);
 
+	/*	Assure that SPI unit is not busy	*/
+	while(ucPort_SPI_isBusy(ucUnitNumber));
+
 	/*	Configure loop counter based on the previously configured byte direction	*/
 	int32_t i, iIncrementer, iEnd;
 	vCONF_ITERATOR(pxUnit->ucByteDir, uiSize, i, iIncrementer, iEnd);
@@ -268,6 +271,9 @@ void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 
 		/*	Block until there's free byte/s in unit's data buffer	*/
 		xSemaphoreTake(pxUnit->xTxeSemaphore, portMAX_DELAY);
+
+		/*	Assure that SPI unit is not busy	*/
+		while(ucPort_SPI_isBusy(ucUnitNumber));
 	}
 
 	/*	Block until last byte is completely transmitted on the bus	*/
@@ -413,6 +419,9 @@ void vHOS_SPI_sendMultiple(	uint8_t ucUnitNumber,
 	/*	Assure TxE semaphore is not available (force it)	*/
 	xSemaphoreTake(pxUnit->xTxeSemaphore, 0);
 
+	/*	Assure that SPI unit is not busy	*/
+	while(ucPort_SPI_isBusy(ucUnitNumber));
+
 	/*	Configure loop counter based on the previously configured byte direction	*/
 	int32_t i, iInit, iIncrementer, iEnd;
 	vCONF_ITERATOR(pxUnit->ucByteDir, uiSize, iInit, iIncrementer, iEnd);
@@ -431,6 +440,9 @@ void vHOS_SPI_sendMultiple(	uint8_t ucUnitNumber,
 
 			/*	Block until there's free byte/s in unit's data buffer	*/
 			xSemaphoreTake(pxUnit->xTxeSemaphore, portMAX_DELAY);
+
+			/*	Assure that SPI unit is not busy	*/
+			while(ucPort_SPI_isBusy(ucUnitNumber));
 		}
 	}
 

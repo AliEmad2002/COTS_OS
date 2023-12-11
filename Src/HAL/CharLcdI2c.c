@@ -113,6 +113,10 @@ static void vSendCmd(xHOS_CharLcdI2c_t* pxHandle, uint8_t ucCmd)
  ******************************************************************************/
 void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle)
 {
+	/*	Initialize handle's mutex	*/
+	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
+	xSemaphoreGive(pxHandle->xMutex);
+
 	/*	Bus is initially all ones	*/
 	pxHandle->ucBusVal = 255;
 	vWriteBus(pxHandle);
@@ -204,7 +208,7 @@ void vHOS_CharLcdI2c_printChar(xHOS_CharLcdI2c_t* pxHandle, char cCh)
 /*
  * See header for info.
  */
-void HLCD_voidPrintStr(xHOS_CharLcdI2c_t* pxHandle, char* pcStr)
+void vHOS_CharLcdI2c_printStr(xHOS_CharLcdI2c_t* pxHandle, char* pcStr)
 {
 	for (uint32_t i = 0; pcStr[i] != '\0'; i++)
 	{

@@ -17,6 +17,8 @@
 #include "HAL/RFID/RFID_Config.h"
 #include "HAL/RFID/RFID_Private.h"
 
+#define uiRFID_STACK_SIZE	(300/4)
+
 typedef struct{
 	/*	PUBLIC	*/
 	uint8_t pucData[5];
@@ -34,7 +36,7 @@ typedef struct{
 	uint8_t ucType;
 
 	/*	PRIVATE	*/
-	StackType_t pxTaskStack[configMINIMAL_STACK_SIZE];
+	StackType_t pxTaskStack[uiRFID_STACK_SIZE];
 	StaticTask_t xTaskStatic;
 	TaskHandle_t xTask;
 

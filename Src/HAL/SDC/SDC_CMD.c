@@ -87,7 +87,7 @@ uint8_t ucHOS_SDC_getDataResponse(	xHOS_SDC_t* pxSdc,
  */
 uint8_t ucHOS_SDC_getR1(xHOS_SDC_t* pxSdc, SDC_R1_t* pxResponse)
 {
-	uint8_t ucData;
+	volatile uint8_t ucData;
 	for (uint8_t i = 0; i < 8; i++)
 	{
 		vHOS_SPI_receive(pxSdc->ucSpiUnitNumber, (int8_t*)&ucData, 1);

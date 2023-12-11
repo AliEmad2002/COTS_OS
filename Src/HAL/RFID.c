@@ -244,7 +244,7 @@ void vHOS_RFID_init(xHOS_RFID_t* pxHandle)
 
 	pxHandle->xTask = xTaskCreateStatic(	vTask,
 											pcTaskName,
-											configMINIMAL_STACK_SIZE,
+											uiRFID_STACK_SIZE,
 											(void*)pxHandle,
 											configHOS_HARD_REAL_TIME_TASK_PRI,
 											pxHandle->pxTaskStack,

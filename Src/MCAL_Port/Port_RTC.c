@@ -10,6 +10,7 @@
 
 #include "stm32f1xx.h"
 #include "stm32f1xx_ll_pwr.h"
+#include "stm32f1xx_hal_rtc.h"
 
 #include "MCAL_Port/Port_BKP.h"
 #include "MCAL_Port/Port_RTC.h"
@@ -20,7 +21,7 @@
 /*******************************************************************************
  * Helping functions / macros:
  ******************************************************************************/
-#define uiRTCCLK	32768
+#define uiRTCCLK	40000//32768
 
 /*******************************************************************************
  * Base time:
@@ -67,23 +68,23 @@ void inline vPort_RTC_init(void)
 	LL_PWR_EnableBkUpAccess();
 
 	/*	If RTC was previously initialized, return	*/
-	if (usPORT_BKP_READ_DATA_REGISTER(0) == 0x5678)
-	{
-		/*	Lock backup domain	*/
-		LL_PWR_DisableBkUpAccess();
-		return;
-	}
-
-	/*	Otherwise, log that RTC was initialized	*/
-	vPORT_BKP_WRITE_DATA_REGISTER(0, 0x5678);
+//	if (usPORT_BKP_READ_DATA_REGISTER(0) == 0x5678)
+//	{
+//		/*	Lock backup domain	*/
+//		LL_PWR_DisableBkUpAccess();
+//		return;
+//	}
+//
+//	/*	Otherwise, log that RTC was initialized	*/
+//	vPORT_BKP_WRITE_DATA_REGISTER(0, 0x5678);
 
 	/*	Configure RTC clock	*/
 	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-	RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
 	vLib_ASSERT(HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK, 0);
 
-	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
 	__HAL_RCC_RTC_ENABLE();
 
 	/*
@@ -95,7 +96,7 @@ void inline vPort_RTC_init(void)
 
 	/*	Following the configuration procedure described in RM0008 page485	*/
 
-	/*	Poll RTOFF, ait until its value goes to 1	*/
+	/*	Poll RTOFFw ait until its value goes to 1	*/
 	while(!LL_RTC_IsActiveFlag_RTOF(RTC));
 
 	/*	Set the CNF bit to enter configuration mode	*/

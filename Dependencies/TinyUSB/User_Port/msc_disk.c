@@ -114,6 +114,8 @@ int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buff
 {
 	(void) lun;
 
+	xSemaphoreTake(xSDC.xMutex, portMAX_DELAY);
+
 	/*	For each of the blocks requested by USB	*/
 	for (uint16_t i = 0; i < bufsize / 512; i++)
 	{
@@ -124,6 +126,8 @@ int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buff
 		/*	Pass block (by copy) to USB driver	*/
 		memcpy(&((uint8_t*)buffer)[i*512], xBuffer.pucBufferr, 512);
 	}
+
+	xSemaphoreGive(xSDC.xMutex);
 
 	/*	Toggle indicator LED	*/
 	vPORT_DIO_TOGGLE_PIN(2, 13);
@@ -136,7 +140,7 @@ int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buff
 int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize)
 {
 	/*	Memory is read-only	*/
-	return (int32_t) 0;
+	return (int32_t) bufsize;
 }
 
 // Callback invoked when received an SCSI command not in built-in list below

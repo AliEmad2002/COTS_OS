@@ -101,7 +101,7 @@ void vHOS_Button_init(xHOS_Button_t* pxHandle)
 
 	pxHandle->xTask = xTaskCreateStatic(	vTask,
 											pcTaskName,
-											configMINIMAL_STACK_SIZE,
+											uiBUTTON_STACK_SIZE,
 											(void*)pxHandle,
 											configHOS_SOFT_REAL_TIME_TASK_PRI,
 											pxHandle->puxTaskStack,

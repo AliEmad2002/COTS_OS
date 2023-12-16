@@ -11,6 +11,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#define uiBUTTON_STACK_SIZE			100
+
 /*
  * "Button" structure.
  *
@@ -37,7 +39,7 @@ typedef struct{
 	uint8_t ucCurrentState;
 	uint8_t ucNumberOfPressedSamples;
 
-	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
+	StackType_t puxTaskStack[uiBUTTON_STACK_SIZE];
 	StaticTask_t xTaskStatic;
 	TaskHandle_t xTask;
 

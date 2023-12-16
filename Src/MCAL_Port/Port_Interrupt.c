@@ -39,6 +39,8 @@ const IRQn_Type* pxPortInterruptUartTcIrqNumberArr = pxPortInterruptUartTxeIrqNu
 
 const IRQn_Type xPortInterruptPwrPvdIrqNumber = PVD_IRQn;
 
+const IRQn_Type pxPortInterruptAdcEocIrqNumberArr[] = {ADC1_2_IRQn, ADC1_2_IRQn};
+
 
 
 

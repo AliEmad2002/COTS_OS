@@ -73,6 +73,8 @@ extern const IRQn_Type pxPortInterruptUartTcIrqNumberArr[];
 
 extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
 
+extern const IRQn_Type pxPortInterruptAdcEocIrqNumberArr[];
+
 /*******************************************************************************
  * IRQ handler code enable.
  * 	As IRQ handlers are forced to be compiled (no optimization could be done to exclude
@@ -89,7 +91,7 @@ extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
 //#define ucPORT_INTERRUPT_IRQ_DEF_DMA
 #define ucPORT_INTERRUPT_IRQ_DEF_UART
 //#define ucPORT_INTERRUPT_IRQ_DEF_PWR_PVD
-
+#define ucPORT_INTERRUPT_IRQ_DEF_ADC
 
 
 

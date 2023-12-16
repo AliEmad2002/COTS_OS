@@ -16,6 +16,36 @@
 
 extern ADC_TypeDef* const pxPortADCArr[];
 
+
+/*	Reads EOC flag.	*/
+#define ucPORT_ADC_GET_EOC_FLAG(ucUnitNumber)	\
+	(LL_ADC_IsActiveFlag_EOS(pxPortADCArr[(ucUnitNumber)]))
+
+/*	Clears EOC flag.	*/
+#define vPORT_ADC_CLR_EOC_FLAG(ucUnitNumber)	\
+	(LL_ADC_ClearFlag_EOS(pxPortADCArr[(ucUnitNumber)]))
+
+/*	Reads start flag.	*/
+#define ucPORT_ADC_GET_START_FLAG(ucUnitNumber)	\
+	(LL_ADC_IsActiveFlag_s(pxPortADCArr[(ucUnitNumber)]))
+
+/*	Enables EOC interrupt	*/
+#define vPORT_ADC_ENABLE_EOC_INTERRUPT(ucUnitNumber)	\
+	(LL_ADC_EnableIT_EOS(pxPortADCArr[(ucUnitNumber)]))
+
+/*	Disables EOC interrupt	*/
+#define vPORT_ADC_DISABLE_EOC_INTERRUPT(ucUnitNumber)	\
+	(LL_ADC_DisableIT_EOS(pxPortADCArr[(ucUnitNumber)]))
+
+/*	Sets EOC ISR callback	*/
+void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,
+										void(*pfCallback)(void*),
+										void* pvParams	);
+
+/*	Triggers conversion start	*/
+#define vPORT_ADC_TRIGGER_CONVERSION(ucUnitNumber)	\
+	(LL_ADC_REG_StartConversionSWStart(pxPortADCArr[(ucUnitNumber)]))
+
 /*******************************************************************************
  * ADC_TimeSampling_t.
  * What is it ?:

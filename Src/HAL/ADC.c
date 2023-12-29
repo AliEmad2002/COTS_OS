@@ -67,6 +67,15 @@ void vEocCallback(void* pvParams)
  */
 void vHOS_ADC_init(void)
 {
+	/*	Ignore more  than one call in the whole reset cycle	*/
+	static uint8_t ucIsPrevInit = 0;
+
+	if (ucIsPrevInit == 1)
+		return;
+
+	ucIsPrevInit = 1;
+
+	/*	Start initialization	*/
 	xHOS_ADC_t* pxHandle;
 
 	for (uint8_t i = 0; i < uiCONF_ADC_NUMBER_OF_UNITS; i++)
@@ -118,9 +127,19 @@ void vHOS_ADC_unlockUnit(uint8_t ucUnitNumber)
 /*
  * See header for info.
  */
-void vHOS_ADC_selectChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
+inline void vHOS_ADC_selectChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
 {
-	vPort_ADC_InitChannel(ucUnitNumber, ucChannelNumber, ADC_SAMPLETIME_1CYCLE_5);
+	vPORT_ADC_SELECT_CHANNEL(ucUnitNumber, ucChannelNumber);
+}
+
+/*
+ * See header for info.
+ */
+inline void vHOS_ADC_setSampleTime(	uint8_t ucUnitNumber,
+		uint8_t ucChannelNumber,
+		uint32_t uiSampleTime	)
+{
+	vPort_ADC_setChannelSampleTime(ucUnitNumber, ucChannelNumber, uiSampleTime);
 }
 
 /*
@@ -156,15 +175,44 @@ uint8_t ucHOS_ADC_blockUntilEOC(uint8_t ucUnitNumber, TickType_t xTimeout)
  */
 inline uint32_t uiHOS_ADC_read(uint8_t ucUnitNumber)
 {
-	return usPORT_ADC_DIRECT_READ(ucUnitNumber);
+	return usPORT_ADC_GET_DR(ucUnitNumber);
 }
 
+/*
+ * See header for info.
+ */
+uint32_t uiHOS_ADC_readChannelBlocking(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
+{
+	/*	Select channel as ADC input	*/
+	vHOS_ADC_selectChannel(ucUnitNumber, ucChannelNumber);
 
+	/*	Start ADC conversion	*/
+	vHOS_ADC_triggerRead(ucUnitNumber);
 
+	/*	Block until EOC	*/
+	ucHOS_ADC_blockUntilEOC(ucUnitNumber, portMAX_DELAY);
 
+	/*	Get value	*/
+	uint32_t uiVal = usPORT_ADC_GET_DR(ucUnitNumber);
 
+	return uiVal;
+}
 
+/*
+ * See header for info.
+ */
+uint32_t uiHOS_ADC_getVoltageCalib(uint32_t uiRawRead, uint32_t uiVrefIntRead)
+{
+	return ((uint64_t)uiRawRead * (uiPORT_ADC_VREFINT_IN_MV * 1000)) / uiVrefIntRead;
+}
 
+/*
+ * See header for info.
+ */
+inline uint32_t uiHOS_ADC_getVoltageDirect(uint32_t uiRawRead)
+{
+	return ((uint64_t)uiRawRead * (uiPORT_ADC_VREF_IN_MV * 1000)) / 4096;
+}
 
 
 

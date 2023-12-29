@@ -61,11 +61,6 @@ uint8_t ucHOS_UsbCdc_lockReception(uint8_t ucUnitNumber, TickType_t xTimeout);
 void vHOS_UsbCdc_releaseReception(uint8_t ucUnitNumber);
 
 /*
- * Blocks until the ongoing send operation is done.
- */
-void vHOS_UsbCdc_blockUntilTxDone(uint8_t ucUnitNumber);
-
-/*
  * Stars a send operation.
  *
  * Notes:

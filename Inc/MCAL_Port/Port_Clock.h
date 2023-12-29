@@ -18,7 +18,7 @@
 #define uiPORT_CLOCK_AHB_DIV	1
 #define uiPORT_CLOCK_APB1_DIV	2
 #define uiPORT_CLOCK_APB2_DIV	1
-
+#define uiPORT_CLOCK_ADC_DIV	6
 
 void vPort_Clock_initCpuClock(void);
 

@@ -62,25 +62,19 @@ void vPort_Clock_initPeriphClock(void)
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
 
 	/*	Initialize Backup-domain clock	*/
 	__HAL_RCC_PWR_CLK_ENABLE();
 	__HAL_RCC_BKP_CLK_ENABLE();
 
-	/*	Initialize UART clock	*/
-	__HAL_RCC_USART1_CLK_ENABLE();
-	__HAL_RCC_USART2_CLK_ENABLE();
-	__HAL_RCC_USART3_CLK_ENABLE();
-
-	/*	Initialize SPI clock	*/
-	__HAL_RCC_SPI1_CLK_ENABLE();
-
-	/*	Initialize I2C clock	*/
-	__HAL_RCC_I2C1_CLK_ENABLE();
+	/*	Initialize ADC clock	*/
+	__HAL_RCC_ADC_CONFIG(RCC_ADCPCLK2_DIV6);
+	__HAL_RCC_ADC1_CLK_ENABLE();
 
 	/*	Initialize USB clock	*/
-	vInitUsbClock();
+//	vInitUsbClock();
 }
 
 

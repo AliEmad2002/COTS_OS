@@ -12,7 +12,9 @@ FreeRTOS based HAL, LIB layers library.
   * I2C.
   * UART.
   * DMA.
+  * SD-Card (SPI + FAT32) interface.
   * USB_CDC (Based on TinyUSB) (Supports multiple ports. This is useful when communicating with multiple processes on the host machine).
+  * USB_MSC using SD-Card (Based on TinyUSB).
   * Colored-LCD (Uses DMA if available).
   * Binary consecutive N-samples filter (Useful with input digital signals).
   * Push buttons (Uses the above mentioned filter).

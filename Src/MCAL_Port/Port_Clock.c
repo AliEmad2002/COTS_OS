@@ -74,7 +74,7 @@ void vPort_Clock_initPeriphClock(void)
 	__HAL_RCC_ADC1_CLK_ENABLE();
 
 	/*	Initialize USB clock	*/
-//	vInitUsbClock();
+	vInitUsbClock();
 }
 
 

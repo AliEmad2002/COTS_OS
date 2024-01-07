@@ -201,9 +201,9 @@ uint32_t uiHOS_ADC_readChannelBlocking(uint8_t ucUnitNumber, uint8_t ucChannelNu
 /*
  * See header for info.
  */
-uint32_t uiHOS_ADC_getVoltageCalib(uint32_t uiRawRead, uint32_t uiVrefIntRead)
+int32_t iHOS_ADC_getVoltageCalib(int32_t iRawRead, uint32_t uiVrefIntRead)
 {
-	return ((uint64_t)uiRawRead * (uiPORT_ADC_VREFINT_IN_MV * 1000)) / uiVrefIntRead;
+	return ((int64_t)iRawRead * (uiPORT_ADC_VREFINT_IN_MV * 1000)) / uiVrefIntRead;
 }
 
 /*

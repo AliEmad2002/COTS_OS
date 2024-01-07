@@ -139,8 +139,8 @@ static void vTask(void* pvParams)
 void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle, uint8_t ucNFilter)
 {
 	/*	initialize A, B pins	*/
-	vPort_DIO_initPinInput(pxHandle->ucAPort, pxHandle->ucAPin, 2);
-	vPort_DIO_initPinInput(pxHandle->ucBPort, pxHandle->ucBPin, 2);
+	vPort_DIO_initPinInput(pxHandle->ucAPort, pxHandle->ucAPin, 1);
+	vPort_DIO_initPinInput(pxHandle->ucBPort, pxHandle->ucBPin, 1);
 
 	/*	initialize handle's variables	*/
 	pxHandle->xAFilter.ucNFilter = ucNFilter;
@@ -158,7 +158,7 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle, uint8_t ucNFilter)
 
 	pxHandle->xTask = xTaskCreateStatic(	vTask,
 											pcTaskName,
-											configMINIMAL_STACK_SIZE,
+											uiHOS_ROTARYENCODER_STACK_SZ,
 											(void*)pxHandle,
 											configHOS_HARD_REAL_TIME_TASK_PRI,
 											pxHandle->puxTaskStack,

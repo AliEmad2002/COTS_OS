@@ -22,10 +22,11 @@ typedef struct{
 
 	/*
 	 * Parameters of the line equation. Let the equation be:
-	 * 		-	Temperature_in_mill_C = A * Sensor_voltage_in_micro_V + B
+	 * 		-	Temperature_in_mill_C = (A * Sensor_voltage_in_micro_V + B) / C
 	 */
 	int32_t iA;
 	int32_t iB;
+	int32_t iC;
 }xHOS_AnalogLinearTemperatureSensor_t;
 
 /*
@@ -51,7 +52,7 @@ void vHOS_AnalogLinearTemperatureSensor_init(
  * 		-	This function changes ADC channel selection. Thus it is recommended
  * 			that all ADC dependent SW select channel before reading.
  */
-uint32_t uiHOS_AnalogLinearTemperatureSensor_getTemperature(
+int32_t iHOS_AnalogLinearTemperatureSensor_getTemperature(
 		xHOS_AnalogLinearTemperatureSensor_t* pxHandle);
 
 

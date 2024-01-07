@@ -85,7 +85,8 @@ uint32_t uiHOS_ADC_readChannelBlocking(uint8_t ucUnitNumber, uint8_t ucChannelNu
  * Calibrates a "raw" read sample using internal voltage reference. Return value
  * is in micro-Volts.
  */
-uint32_t uiHOS_ADC_getVoltageCalib(uint32_t uiRawRead, uint32_t uiVrefIntRead);
+//todo: make this "uiVrefIntRead" static and updates in a task.
+int32_t iHOS_ADC_getVoltageCalib(int32_t iRawRead, uint32_t uiVrefIntRead);
 
 /*
  * Converts ADC reading to uV directly using "uiPORT_ADC_VREF_IN_MV".

@@ -14,6 +14,7 @@
 #include "stm32f1xx_ll_adc.h"
 
 extern ADC_TypeDef* const pxPortADCArr[];
+extern const uint32_t pxPortADCChannelsArr[];
 
 /*******************************************************************************
  * Macros (Defining values):
@@ -34,10 +35,11 @@ extern ADC_TypeDef* const pxPortADCArr[];
 
 /*
  * Internal temperature sensor equation parameters, such that:
- * 		-	Temperature_in_mill_C = A * Sensor_voltage_in_micro_V + B
+ * 		-	Temperature_in_mill_C = (A * Sensor_voltage_in_micro_V + B) / C
  */
-#define iPORT_ADC_TEMP_SENS_A						(		)
-#define iPORT_ADC_TEMP_SENS_B						(		)
+#define iPORT_ADC_TEMP_SENS_A						(	-10			)
+#define iPORT_ADC_TEMP_SENS_B						(	15075000	)
+#define iPORT_ADC_TEMP_SENS_C						(	43			)
 
 
 /*******************************************************************************
@@ -62,7 +64,7 @@ void vPort_ADC_setChannelSampleTime(	uint8_t ucUnitNumber,
 
 /*	Selects channel to be used by a unit	*/
 #define vPORT_ADC_SELECT_CHANNEL(ucUnitNumber, ucChannelNumber)	\
-	(LL_ADC_REG_SetSequencerRanks(pxPortADCArr[(ucUnitNumber)], LL_ADC_REG_RANK_1, (ucChannelNumber)))
+	(LL_ADC_REG_SetSequencerRanks(pxPortADCArr[(ucUnitNumber)], LL_ADC_REG_RANK_1, pxPortADCChannelsArr[(ucChannelNumber)]))
 
 /*	Reads EOC flag.	*/
 #define ucPORT_ADC_GET_EOC_FLAG(ucUnitNumber)	\

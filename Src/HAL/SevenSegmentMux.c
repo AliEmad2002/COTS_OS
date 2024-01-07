@@ -157,6 +157,8 @@ void vHOS_SevenSegmentMux_init(xHOS_SevenSegmentMux_t* pxHandle)
 	static uint8_t ucCreatedObjectsCount = 0;
 	char pcTaskName[configMAX_TASK_NAME_LEN];
 
+	pxHandle->ucIsEnabled = 0;
+
 	/*	initialize segments pins as digital outputs, initially in-active	*/
 	ucLevel = ucGET_LEVEL(0, pxHandle->ucSegmentActiveLevel);
 	for (i = 0; i < 8; i++)
@@ -191,7 +193,7 @@ void vHOS_SevenSegmentMux_init(xHOS_SevenSegmentMux_t* pxHandle)
 
 	pxHandle->xTask = xTaskCreateStatic(	vTask,
 											pcTaskName,
-											configMINIMAL_STACK_SIZE,
+											uiHOS_SEVENSEGMENTMUX_STACK_SZ,
 											(void*)pxHandle,
 											configHOS_SOFT_REAL_TIME_TASK_PRI,
 											pxHandle->puxTaskStack,
@@ -232,6 +234,8 @@ void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxHandle,
 __attribute__((always_inline)) inline
 void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxHandle)
 {
+	pxHandle->ucIsEnabled = 1;
+
 	vTaskResume(pxHandle->xTask);
 }
 
@@ -241,6 +245,8 @@ void vHOS_SevenSegmentMux_Enable(xHOS_SevenSegmentMux_t* pxHandle)
 void vHOS_SevenSegmentMux_Disable(xHOS_SevenSegmentMux_t* pxHandle)
 {
 	vTaskSuspend(pxHandle->xTask);
+
+	pxHandle->ucIsEnabled = 0;
 
 	/*	disable all digits	*/
 	for (uint8_t i = 0; i < pxHandle->ucNumberOfDigits; i++)

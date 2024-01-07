@@ -36,7 +36,6 @@ void vPort_HW_init(void)
 
 	/*	Initialize ADC	*/
 	vPort_ADC_init(0);
-	vPort_ADC_setChannelSampleTime(0, 5, 1);
 
 	/*	Initialize USB	*/
 	vPort_USB_initHardware();

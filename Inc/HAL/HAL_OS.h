@@ -38,5 +38,9 @@
 #include "HAL/CharLcdI2c/CharLcdI2c.h"
 #include "HAL/ADC/ADC.h"
 #include "HAL/AnalogLinearTemperatureSensor/AnalogLinearTemperatureSensor.h"
+#include "HAL/CalibratableAmplifier/CalibratableAmplifier.h"
+#include "HAL/Thermocouple/Thermocouple.h"
+#include "HAL/Relay/Relay.h"
+
 
 #endif /* HAL_OS_INC_HAL_OS_H_ */

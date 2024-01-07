@@ -11,12 +11,14 @@
 #include "HAL/SevenSegmentMux/SevenSegmentMuxConfig.h"
 #include "MCAL_Port/Port_DIO.h"
 
+#define uiHOS_SEVENSEGMENTMUX_STACK_SZ	(128)
+
 /*
  * "xHOS_SevenSegmentMux_t" structure.
  */
 typedef struct{
 	/*		PRIVATE		*/
-	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
+	StackType_t puxTaskStack[uiHOS_SEVENSEGMENTMUX_STACK_SZ];
 	StaticTask_t xTaskStatic;
 	TaskHandle_t xTask;
 
@@ -33,6 +35,8 @@ typedef struct{
 	uint8_t ucSegmentActiveLevel : 1;
 
 	uint8_t ucEnableActiveLevel : 1;
+
+	uint8_t ucIsEnabled : 1;
 
 	uint8_t ucNumberOfDigits;
 

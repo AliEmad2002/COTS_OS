@@ -14,12 +14,14 @@
 #include "FreeRTOS.h"
 #include "LIB/BinaryFilter/BinaryFilter.h"
 
+#define uiHOS_ROTARYENCODER_STACK_SZ	128
+
 /*******************************************************************************
  * Structures:
  ******************************************************************************/
 typedef struct{
 	/*		PRIVATE		*/
-	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
+	StackType_t puxTaskStack[uiHOS_ROTARYENCODER_STACK_SZ];
 	StaticTask_t xTaskStatic;
 	TaskHandle_t xTask;
 
@@ -40,7 +42,7 @@ typedef struct{
 	uint32_t uiSamplePeriodMs;
 	uint32_t uiSpeedUpdatePeriodMs;
 	uint32_t uiSpeedDeadTimeMs; // If the position stays constant for this time,
-								// speed remains is set to zero.
+								// speed is set to zero.
 
 	int32_t iPos;
 	int32_t iSpeed;		// read only.

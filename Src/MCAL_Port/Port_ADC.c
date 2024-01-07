@@ -25,6 +25,27 @@
  ******************************************************************************/
 ADC_TypeDef* const pxPortADCArr[] = {ADC1, ADC2};
 
+const uint32_t pxPortADCChannelsArr[] = {
+		LL_ADC_CHANNEL_0,
+		LL_ADC_CHANNEL_1,
+		LL_ADC_CHANNEL_2,
+		LL_ADC_CHANNEL_3,
+		LL_ADC_CHANNEL_4,
+		LL_ADC_CHANNEL_5,
+		LL_ADC_CHANNEL_6,
+		LL_ADC_CHANNEL_7,
+		LL_ADC_CHANNEL_8,
+		LL_ADC_CHANNEL_9,
+		LL_ADC_CHANNEL_10,
+		LL_ADC_CHANNEL_11,
+		LL_ADC_CHANNEL_12,
+		LL_ADC_CHANNEL_13,
+		LL_ADC_CHANNEL_14,
+		LL_ADC_CHANNEL_15,
+		LL_ADC_CHANNEL_16,
+		LL_ADC_CHANNEL_17
+};
+
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_ADC
 	void (*ppfPortAdcIsrCallback[2])(void*);
 	void* ppvPortAdcIsrParams[2];
@@ -64,6 +85,9 @@ void vPort_ADC_init(uint8_t ucUnitNumber)
 
 	HAL_ADCEx_Calibration_Start(&xAdcHandle);
 
+	LL_ADC_SetCommonPathInternalCh(
+			__LL_ADC_COMMON_INSTANCE(pxPortADCArr[0]), LL_ADC_PATH_INTERNAL_VREFINT);
+
 	vPort_ADC_setChannelSampleTime(0, 16, 171);	/*	Internal temperature sensor	*/
 	vPort_ADC_setChannelSampleTime(0, 17, 171);	/*	Internal voltage reference	*/
 }
@@ -102,7 +126,7 @@ void vPort_ADC_setChannelSampleTime(	uint8_t ucUnitNumber,
 
 	/*	Set that option	*/
 	LL_ADC_SetChannelSamplingTime(
-			pxPortADCArr[ucUnitNumber], LL_ADC_CHANNEL_17/*	TODO	*/, uiOption	);
+			pxPortADCArr[ucUnitNumber], pxPortADCChannelsArr[ucChannelNumber], uiOption	);
 }
 
 void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,

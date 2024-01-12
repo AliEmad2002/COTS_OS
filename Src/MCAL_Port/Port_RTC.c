@@ -10,6 +10,7 @@
 
 #include "stm32f1xx.h"
 #include "stm32f1xx_ll_pwr.h"
+#include "stm32f1xx_ll_rcc.h"
 #include "stm32f1xx_hal_rtc.h"
 
 #include "MCAL_Port/Port_BKP.h"
@@ -21,7 +22,7 @@
 /*******************************************************************************
  * Helping functions / macros:
  ******************************************************************************/
-#define uiRTCCLK	40000//32768
+#define uiRTCCLK	32768	//40000
 
 /*******************************************************************************
  * Base time:
@@ -67,16 +68,21 @@ void inline vPort_RTC_init(void)
 	/*	Unlock backup domain	*/
 	LL_PWR_EnableBkUpAccess();
 
-	/*	If RTC was previously initialized, return	*/
-//	if (usPORT_BKP_READ_DATA_REGISTER(0) == 0x5678)
-//	{
-//		/*	Lock backup domain	*/
-//		LL_PWR_DisableBkUpAccess();
-//		return;
-//	}
-//
-//	/*	Otherwise, log that RTC was initialized	*/
-//	vPORT_BKP_WRITE_DATA_REGISTER(0, 0x5678);
+	/*	If RTC was previously initialized and LSI is running and ready, return	*/
+	if (	usPORT_BKP_READ_DATA_REGISTER(0) == 0x5678 &&
+			LL_RCC_LSI_IsReady()	)
+	{
+		/*	Lock backup domain	*/
+		LL_PWR_DisableBkUpAccess();
+		return;
+	}
+
+	/*	Otherwise, log that RTC was not initialized	*/
+	vPORT_BKP_WRITE_DATA_REGISTER(0, 0x5678);
+
+	/*	Reset BD	*/
+//	LL_RCC_ForceBackupDomainReset();
+//	LL_RCC_ReleaseBackupDomainReset();
 
 	/*	Configure RTC clock	*/
 	RCC_OscInitTypeDef RCC_OscInitStruct = {0};

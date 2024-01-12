@@ -28,8 +28,8 @@ static inline uint8_t ucCharToHex(char c)
 		return (uint8_t)((10 + c) - 'A');
 
 	/*	Otherwise, "c" is not valid	*/
-	vLib_ASSERT(0, 1);
-	return 0;
+//	vLib_ASSERT(0, 1);
+	return 255;
 }
 
 static inline char ucHexToChar(uint8_t halfByte)
@@ -53,9 +53,20 @@ static inline char ucHexToChar(uint8_t halfByte)
  */
 void vLIB_String_str2hex(char* pcStr, uint8_t* pucHex, uint32_t uiNumberOfBytes)
 {
-	for (uint32_t i = 0; i < uiNumberOfBytes; i++)
+	uint8_t LHByte, MHByte;
+	uint8_t j = 0;
+	for (int32_t i = 0; i < uiNumberOfBytes; i++)
 	{
-		pucHex[i] = (ucCharToHex(pcStr[2*i]) << 4) | ucCharToHex(pcStr[2*i+1]);
+		LHByte = ucCharToHex(pcStr[2*i+1 + j]);
+		MHByte = (ucCharToHex(pcStr[2*i + j]) << 4);
+
+		if (LHByte == 255 || MHByte == 255)
+		{
+			j++;
+			continue;
+		}
+
+		pucHex[i] = MHByte | LHByte;
 	}
 }
 

@@ -2,7 +2,7 @@
 
 import os
 
-DIR = "C:\\Users\\ali20\\Desktop\\New folder (2)\\New folder"
+DIR = "C:\\Users\\ali20\\github\\COTS_OS\\Dependencies\\SM32F401RCT6"
 
 INSERTION1 = "\n\n/*	Target checking	*/\n""#include \"MCAL_Port/Port_Target.h\"\n""#ifdef MCAL_PORT_TARGET_STM32F401RCT6\n"
 

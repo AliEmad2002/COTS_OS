@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -318,5 +323,7 @@ TU_ATTR_ALWAYS_INLINE static inline void tu_unaligned_write16(void *mem, uint16_
 
 #endif /* _TUSB_COMMON_H_ */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

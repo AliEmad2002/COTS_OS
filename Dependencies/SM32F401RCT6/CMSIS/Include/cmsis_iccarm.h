@@ -1,4 +1,9 @@
-/**************************************************************************//**
+/**************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+/**
  * @file     cmsis_iccarm.h
  * @brief    CMSIS compiler ICCARM (IAR Compiler for Arm) header file
  * @version  V5.0.7
@@ -933,3 +938,6 @@ __packed struct  __iar_u32 { uint32_t v; };
 #pragma diag_default=Pe177
 
 #endif /* __CMSIS_ICCARM_H__ */
+
+
+#endif /* Target checking */

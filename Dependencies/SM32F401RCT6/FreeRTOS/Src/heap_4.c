@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /*
  * A sample implementation of pvPortMalloc() and vPortFree() that combines
  * (coalescences) adjacent memory blocks as they are freed, and in so doing
@@ -490,3 +495,6 @@ size_t xBlocks = 0, xMaxSize = 0, xMinSize = portMAX_DELAY; /* portMAX_DELAY use
 	taskEXIT_CRITICAL();
 }
 
+
+
+#endif /* Target checking */

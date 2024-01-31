@@ -1,4 +1,9 @@
-/**************************************************************************//**
+/**************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+/**
  * @file     core_cm1.h
  * @brief    CMSIS Cortex-M1 Core Peripheral Access Layer Header File
  * @version  V1.0.0
@@ -974,3 +979,6 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
 #endif /* __CORE_CM1_H_DEPENDANT */
 
 #endif /* __CMSIS_GENERIC */
+
+
+#endif /* Target checking */

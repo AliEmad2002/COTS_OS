@@ -18,6 +18,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
  
 
@@ -762,5 +767,7 @@ HAL_StatusTypeDef HAL_SD_Abort_IT(SD_HandleTypeDef *hsd);
 
 #endif /* STM32F1xx_HAL_SD_H */ 
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

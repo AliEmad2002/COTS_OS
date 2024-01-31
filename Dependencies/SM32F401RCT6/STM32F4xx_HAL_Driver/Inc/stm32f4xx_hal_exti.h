@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32f4xx_HAL_EXTI_H
 #define STM32f4xx_HAL_EXTI_H
@@ -364,3 +369,6 @@ void HAL_EXTI_GenerateSWI(EXTI_HandleTypeDef *hexti);
 
 #endif /* STM32f4xx_HAL_EXTI_H */
 
+
+
+#endif /* Target checking */

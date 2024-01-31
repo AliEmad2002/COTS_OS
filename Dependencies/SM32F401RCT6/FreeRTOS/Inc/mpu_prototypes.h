@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /*
  * When the MPU is used the standard (non MPU) API functions are mapped to
  * equivalents that start "MPU_", the prototypes for which are defined in this
@@ -158,3 +163,6 @@ StreamBufferHandle_t MPU_xStreamBufferGenericCreateStatic( size_t xBufferSizeByt
 
 #endif /* MPU_PROTOTYPES_H */
 
+
+
+#endif /* Target checking */

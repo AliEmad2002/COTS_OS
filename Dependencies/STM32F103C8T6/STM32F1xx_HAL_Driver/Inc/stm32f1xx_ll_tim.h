@@ -18,6 +18,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -3894,5 +3899,7 @@ ErrorStatus LL_TIM_BDTR_Init(TIM_TypeDef *TIMx, const LL_TIM_BDTR_InitTypeDef *T
 
 #endif /* __STM32F1xx_LL_TIM_H */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

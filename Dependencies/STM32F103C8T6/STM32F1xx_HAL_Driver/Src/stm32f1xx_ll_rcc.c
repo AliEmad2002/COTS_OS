@@ -17,6 +17,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -475,5 +480,7 @@ uint32_t RCC_PLLI2S_GetFreqDomain_I2S(void)
 #endif /* USE_FULL_LL_DRIVER */
 
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

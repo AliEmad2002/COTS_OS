@@ -1,4 +1,9 @@
-/**************************************************************************//**
+/**************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+/**
  * @file     cmsis_compiler.h
  * @brief    CMSIS compiler generic header file
  * @version  V5.0.4
@@ -264,3 +269,6 @@
 
 #endif /* __CMSIS_COMPILER_H */
 
+
+
+#endif /* Target checking */

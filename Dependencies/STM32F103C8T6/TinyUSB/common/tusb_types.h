@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -589,5 +594,7 @@ uint8_t const * tu_desc_find3(uint8_t const* desc, uint8_t const* end, uint8_t b
 
 /** @} */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

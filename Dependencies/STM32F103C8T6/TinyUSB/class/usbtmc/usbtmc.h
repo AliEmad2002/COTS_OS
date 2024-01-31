@@ -27,6 +27,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -322,5 +327,7 @@ TU_VERIFY_STATIC(sizeof(usbtmc_read_stb_interrupt_488_t) == 2u, "struct wrong le
 
 #endif
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

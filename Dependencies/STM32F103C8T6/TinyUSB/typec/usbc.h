@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -95,5 +100,7 @@ bool tuc_msg_request(uint8_t rhport, void const* rdo);
 
 #endif
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /*
  * This is the list implementation used by the scheduler.  While it is tailored
  * heavily for the schedulers needs, it is also available for use by
@@ -410,3 +415,6 @@ UBaseType_t uxListRemove( ListItem_t * const pxItemToRemove ) PRIVILEGED_FUNCTIO
 
 #endif
 
+
+
+#endif /* Target checking */

@@ -4,6 +4,11 @@
  * @version  V1.0.1
  * @date     10. January 2018
  ******************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 /*
  * Copyright (c) 2017-2018 Arm Limited. All rights reserved.
  *
@@ -68,3 +73,6 @@ uint32_t TZ_LoadContext_S (TZ_MemoryId_t id);
 uint32_t TZ_StoreContext_S (TZ_MemoryId_t id);
  
 #endif  // TZ_CONTEXT_H
+
+
+#endif /* Target checking */

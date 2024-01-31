@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /*
  * Stream buffers are used to send a continuous stream of data from one task or
  * interrupt to another.  Their implementation is light weight, making them
@@ -857,3 +862,6 @@ size_t xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer )
 #endif
 
 #endif	/* !defined( STREAM_BUFFER_H ) */
+
+
+#endif /* Target checking */

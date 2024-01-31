@@ -1,4 +1,9 @@
-/**************************************************************************//**
+/**************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+/**
  * @file     cmsis_armclang.h
  * @brief    CMSIS compiler armclang (Arm Compiler 6) header file
  * @version  V5.0.4
@@ -1867,3 +1872,6 @@ __STATIC_FORCEINLINE int32_t __SMMLA (int32_t op1, int32_t op2, int32_t op3)
 
 
 #endif /* __CMSIS_ARMCLANG_H */
+
+
+#endif /* Target checking */

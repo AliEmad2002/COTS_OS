@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /*-----------------------------------------------------------
  * Implementation of functions defined in portable.h for the ARM CM4F port.
  *----------------------------------------------------------*/
@@ -773,3 +778,6 @@ static void vPortEnableVFP( void )
 #endif /* configASSERT_DEFINED */
 
 
+
+
+#endif /* Target checking */

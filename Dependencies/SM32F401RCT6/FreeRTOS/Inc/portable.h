@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /*-----------------------------------------------------------
  * Portable layer API.  Each function must be defined for each port.
  *----------------------------------------------------------*/
@@ -197,3 +202,6 @@ void vPortEndScheduler( void ) PRIVILEGED_FUNCTION;
 
 #endif /* PORTABLE_H */
 
+
+
+#endif /* Target checking */

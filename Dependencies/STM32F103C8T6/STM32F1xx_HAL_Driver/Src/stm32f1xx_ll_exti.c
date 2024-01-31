@@ -18,6 +18,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -217,5 +222,7 @@ void LL_EXTI_StructInit(LL_EXTI_InitTypeDef *EXTI_InitStruct)
 #endif /* USE_FULL_LL_DRIVER */
 
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

@@ -1,4 +1,9 @@
 /* USER CODE BEGIN Header */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 /**
   ******************************************************************************
   * File Name          : freertos.c
@@ -72,3 +77,6 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
+
+
+#endif /* Target checking */

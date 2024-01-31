@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -952,5 +957,7 @@ static void qtd_init(ehci_qtd_t* qtd, void const* buffer, uint16_t total_bytes) 
 
 #endif
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

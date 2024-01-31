@@ -13,7 +13,12 @@
   * the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
-  */ 
+  */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_PWR_H
@@ -425,3 +430,6 @@ void HAL_PWR_DisableSEVOnPend(void);
 
 
 #endif /* __STM32F4xx_HAL_PWR_H */
+
+
+#endif /* Target checking */

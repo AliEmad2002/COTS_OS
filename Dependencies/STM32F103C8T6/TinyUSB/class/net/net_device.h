@@ -27,6 +27,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -122,5 +127,7 @@ void     netd_report          (uint8_t *buf, uint16_t len);
 
 #endif /* _TUSB_NET_DEVICE_H_ */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

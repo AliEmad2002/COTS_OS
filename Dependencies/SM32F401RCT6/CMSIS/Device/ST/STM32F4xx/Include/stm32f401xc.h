@@ -22,6 +22,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /** @addtogroup CMSIS_Device
   * @{
   */
@@ -8639,3 +8644,6 @@ typedef struct
 #endif /* __cplusplus */
 
 #endif /* __STM32F401xC_H */
+
+
+#endif /* Target checking */

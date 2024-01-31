@@ -27,6 +27,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -433,5 +438,7 @@ static bool __tusb_irq_path_func(e15_is_critical_frame_period) (struct hw_endpoi
 
 #endif
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

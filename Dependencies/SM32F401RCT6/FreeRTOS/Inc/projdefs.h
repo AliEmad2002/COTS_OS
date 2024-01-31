@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 #ifndef PROJDEFS_H
 #define PROJDEFS_H
 
@@ -122,3 +127,6 @@ itself. */
 
 
 
+
+
+#endif /* Target checking */

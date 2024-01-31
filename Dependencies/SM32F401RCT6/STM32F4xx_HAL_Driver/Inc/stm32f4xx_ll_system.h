@@ -30,6 +30,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_SYSTEM_H
 #define __STM32F4xx_LL_SYSTEM_H
@@ -1709,3 +1714,6 @@ __STATIC_INLINE void LL_FLASH_DisableDataCacheReset(void)
 #endif /* __STM32F4xx_LL_SYSTEM_H */
 
 
+
+
+#endif /* Target checking */

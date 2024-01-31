@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
@@ -241,3 +246,6 @@ portFORCE_INLINE static void vPortSetBASEPRI( uint32_t ulNewMaskValue )
 
 #endif /* PORTMACRO_H */
 
+
+
+#endif /* Target checking */

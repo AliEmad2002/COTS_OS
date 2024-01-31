@@ -1,4 +1,9 @@
-/**************************************************************************//**
+/**************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+/**
  * @file     core_armv8mbl.h
  * @brief    CMSIS Armv8-M Baseline Core Peripheral Access Layer Header File
  * @version  V5.0.7
@@ -1916,3 +1921,6 @@ __STATIC_INLINE uint32_t TZ_SysTick_Config_NS(uint32_t ticks)
 #endif /* __CORE_ARMV8MBL_H_DEPENDANT */
 
 #endif /* __CMSIS_GENERIC */
+
+
+#endif /* Target checking */

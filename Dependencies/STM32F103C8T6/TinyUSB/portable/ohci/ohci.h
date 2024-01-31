@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -303,5 +308,7 @@ TU_VERIFY_STATIC( sizeof(ohci_registers_t) == (0x54 + (4 * TUP_OHCI_RHPORTS)), "
 
 #endif /* _TUSB_OHCI_H_ */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

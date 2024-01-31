@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 #ifndef INC_FREERTOS_H
 #define INC_FREERTOS_H
 
@@ -1293,3 +1298,6 @@ typedef StaticStreamBuffer_t StaticMessageBuffer_t;
 
 #endif /* INC_FREERTOS_H */
 
+
+
+#endif /* Target checking */

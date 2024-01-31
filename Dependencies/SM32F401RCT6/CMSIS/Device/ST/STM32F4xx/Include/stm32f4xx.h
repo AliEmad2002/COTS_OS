@@ -26,6 +26,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /** @addtogroup CMSIS
   * @{
   */
@@ -299,3 +304,6 @@ typedef enum
 /**
   * @}
   */
+
+
+#endif /* Target checking */

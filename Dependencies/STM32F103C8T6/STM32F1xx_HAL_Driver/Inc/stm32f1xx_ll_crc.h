@@ -18,6 +18,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -205,5 +210,7 @@ ErrorStatus LL_CRC_DeInit(CRC_TypeDef *CRCx);
 
 #endif /* STM32F1xx_LL_CRC_H */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

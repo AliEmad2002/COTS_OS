@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 
 /*
  * Message buffers build functionality on top of FreeRTOS stream buffers.
@@ -801,3 +806,6 @@ BaseType_t xMessageBufferReceiveCompletedFromISR( MessageBufferHandle_t xStreamB
 #endif
 
 #endif	/* !defined( FREERTOS_MESSAGE_BUFFER_H ) */
+
+
+#endif /* Target checking */

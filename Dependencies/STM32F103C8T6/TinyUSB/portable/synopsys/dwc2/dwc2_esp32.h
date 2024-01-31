@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -100,5 +105,7 @@ static inline void dwc2_phy_update(dwc2_regs_t * dwc2, uint8_t hs_phy_type)
 
 #endif /* _DWC2_ESP32_H_ */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

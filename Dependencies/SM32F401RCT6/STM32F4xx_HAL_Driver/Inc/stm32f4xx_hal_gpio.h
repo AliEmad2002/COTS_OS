@@ -14,7 +14,12 @@
   * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
-  */ 
+  */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_GPIO_H
@@ -323,3 +328,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 #endif /* __STM32F4xx_HAL_GPIO_H */
 
+
+
+#endif /* Target checking */

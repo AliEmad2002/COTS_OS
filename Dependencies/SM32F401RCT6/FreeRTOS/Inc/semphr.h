@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
@@ -1138,3 +1143,6 @@ typedef QueueHandle_t SemaphoreHandle_t;
 #endif /* SEMAPHORE_H */
 
 
+
+
+#endif /* Target checking */

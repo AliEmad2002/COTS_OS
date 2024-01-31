@@ -2,6 +2,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 /**
  * @file     core_cm3.h
@@ -1945,5 +1950,7 @@ __STATIC_INLINE int32_t ITM_CheckChar (void)
 
 #endif /* __CMSIS_GENERIC */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

@@ -25,6 +25,11 @@
  * 1 tab == 4 spaces!
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Standard includes. */
 #include <stdint.h>
 #include <string.h>
@@ -1261,3 +1266,6 @@ static void prvInitialiseNewStreamBuffer( StreamBuffer_t * const pxStreamBuffer,
 
 #endif /* configUSE_TRACE_FACILITY */
 /*-----------------------------------------------------------*/
+
+
+#endif /* Target checking */

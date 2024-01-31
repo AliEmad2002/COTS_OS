@@ -4,6 +4,11 @@
  * @version  V5.0.4
  * @date     10. January 2018
  ******************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 /*
  * Copyright (c) 2017-2018 Arm Limited. All rights reserved.
  *
@@ -268,3 +273,6 @@ __STATIC_INLINE void ARM_MPU_Load(ARM_MPU_Region_t const* table, uint32_t cnt)
 }
 
 #endif
+
+
+#endif /* Target checking */

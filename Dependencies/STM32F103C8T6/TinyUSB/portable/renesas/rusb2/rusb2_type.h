@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -1784,5 +1789,7 @@ TU_VERIFY_STATIC(offsetof(rusb2_reg_t, DPUSR1R_FS ) == 0x0404, "incorrect offset
 
 #endif /* _TUSB_RUSB2_TYPE_H_ */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

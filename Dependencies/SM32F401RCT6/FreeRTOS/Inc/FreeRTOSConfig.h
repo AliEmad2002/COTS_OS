@@ -1,4 +1,9 @@
 /* USER CODE BEGIN Header */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 /*
  * FreeRTOS Kernel V10.3.1
  * Portion Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
@@ -141,3 +146,6 @@ standard names. */
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
+
+
+#endif /* Target checking */

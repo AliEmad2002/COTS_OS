@@ -1,6 +1,14 @@
-This software component is provided to you as part of a software package and
+T
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+his software component is provided to you as part of a software package and
 applicable license terms are in the  Package_license file. If you received this
 software component outside of a package or without applicable license terms,
 the terms of the Apache-2.0 license shall apply. 
 You may obtain a copy of the Apache-2.0 at:
 https://opensource.org/licenses/Apache-2.0
+
+
+#endif /* Target checking */

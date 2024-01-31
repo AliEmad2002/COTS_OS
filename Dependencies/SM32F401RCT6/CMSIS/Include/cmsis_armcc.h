@@ -1,4 +1,9 @@
-/**************************************************************************//**
+/**************************************************************************/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+/**
  * @file     cmsis_armcc.h
  * @brief    CMSIS compiler ARMCC (Arm Compiler 5) header file
  * @version  V5.0.4
@@ -863,3 +868,6 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __USAT(int32_t val, uint
 
 
 #endif /* __CMSIS_ARMCC_H */
+
+
+#endif /* Target checking */

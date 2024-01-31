@@ -7,6 +7,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 /*
@@ -74,5 +79,7 @@ uint32_t TZ_StoreContext_S (TZ_MemoryId_t id);
  
 #endif  // TZ_CONTEXT_H
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

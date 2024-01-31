@@ -26,6 +26,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -214,5 +219,7 @@ void __no_inline_not_in_flash_func(pio_usb_device_irq_handler)(uint8_t root_id)
 
 #endif
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

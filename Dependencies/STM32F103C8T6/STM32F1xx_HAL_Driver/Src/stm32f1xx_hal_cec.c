@@ -109,6 +109,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -1013,5 +1018,7 @@ static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec)
   * @}
   */
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

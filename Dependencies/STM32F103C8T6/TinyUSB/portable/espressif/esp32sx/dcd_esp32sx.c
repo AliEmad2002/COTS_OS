@@ -28,6 +28,11 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -880,5 +885,7 @@ void dcd_int_disable (uint8_t rhport)
 
 #endif // #if OPT_MCU_ESP32S2 || OPT_MCU_ESP32S3
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

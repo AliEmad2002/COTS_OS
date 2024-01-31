@@ -77,11 +77,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -341,6 +336,16 @@ void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
 #endif /* __MPU_PRESENT */
 
 /**
+  * @brief  Clear pending events.
+  * @retval None
+  */
+void HAL_CORTEX_ClearEvent(void)
+{
+  __SEV();
+  __WFE();
+}
+
+/**
   * @brief  Gets the priority grouping field from the NVIC Interrupt Controller.
   * @retval Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field)
   */
@@ -505,6 +510,3 @@ __weak void HAL_SYSTICK_Callback(void)
   * @}
   */
 
-
-
-#endif /* Target checking */

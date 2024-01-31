@@ -17,11 +17,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_DEF
 #define __STM32F4xx_HAL_DEF
@@ -59,7 +54,9 @@ typedef enum
 
 /* Exported macro ------------------------------------------------------------*/
 
+#if !defined(UNUSED)
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
+#endif /* UNUSED */
 
 #define HAL_MAX_DELAY      0xFFFFFFFFU
 
@@ -213,6 +210,3 @@ typedef enum
 #endif /* ___STM32F4xx_HAL_DEF */
 
 
-
-
-#endif /* Target checking */

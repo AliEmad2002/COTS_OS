@@ -28,11 +28,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_UTILS_H
 #define __STM32F4xx_LL_UTILS_H
@@ -259,7 +254,7 @@ __STATIC_INLINE uint32_t LL_GetPackageType(void)
   * @param  HCLKFrequency HCLK frequency in Hz (can be calculated thanks to RCC helper macro)
   * @note   When a RTOS is used, it is recommended to avoid changing the SysTick
   *         configuration by calling this function, for a delay use rather osDelay RTOS service.
-  * @param  Ticks Number of ticks
+  * @param  Ticks Frequency of Ticks (Hz)
   * @retval None
   */
 __STATIC_INLINE void LL_InitTick(uint32_t HCLKFrequency, uint32_t Ticks)
@@ -310,6 +305,3 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypa
 #endif
 
 #endif /* __STM32F4xx_LL_UTILS_H */
-
-
-#endif /* Target checking */

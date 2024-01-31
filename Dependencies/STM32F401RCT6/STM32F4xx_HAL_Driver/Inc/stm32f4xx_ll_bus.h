@@ -32,11 +32,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_BUS_H
 #define __STM32F4xx_LL_BUS_H
@@ -2108,6 +2103,3 @@ __STATIC_INLINE void LL_APB2_GRP1_DisableClockLowPower(uint32_t Periphs)
 
 #endif /* __STM32F4xx_LL_BUS_H */
 
-
-
-#endif /* Target checking */

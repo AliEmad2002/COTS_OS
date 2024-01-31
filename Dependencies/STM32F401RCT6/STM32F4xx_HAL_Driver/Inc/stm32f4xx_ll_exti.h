@@ -16,11 +16,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_EXTI_H
 #define __STM32F4xx_LL_EXTI_H
@@ -957,6 +952,3 @@ void LL_EXTI_StructInit(LL_EXTI_InitTypeDef *EXTI_InitStruct);
 
 #endif /* __STM32F4xx_LL_EXTI_H */
 
-
-
-#endif /* Target checking */

@@ -19,11 +19,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -848,6 +843,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       }
       break;
     }
+  default:
+    {
+       break;
+    }
   }
   return frequency;
 }
@@ -1257,6 +1256,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       }
       break;
+    }
+  default:
+    {
+       break;
     }
   }
   return frequency;
@@ -1915,6 +1918,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       }
       break;
     }
+  default:
+    {
+       break;
+    }
   }
   return frequency;
 }
@@ -2144,6 +2151,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       }
       break;
+    }
+  default:
+    {
+       break;
     }
   }
   return frequency;
@@ -2496,6 +2507,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       }
       break;
     }
+  default:
+    {
+       break;
+    }
   }
   return frequency;
 }
@@ -2749,6 +2764,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       }
       break;
+    }
+  default:
+    {
+       break;
     }
   }
   return frequency;
@@ -3787,6 +3806,3 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   * @}
   */
 
-
-
-#endif /* Target checking */

@@ -13,12 +13,7 @@
   * the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
-  */
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
- 
+  */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_FLASH_RAMFUNC_H
@@ -79,6 +74,3 @@ __RAM_FUNC HAL_StatusTypeDef HAL_FLASHEx_DisableFlashSleepMode(void);
 
 #endif /* __STM32F4xx_FLASH_RAMFUNC_H */
 
-
-
-#endif /* Target checking */

@@ -63,11 +63,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -484,7 +479,7 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
         /* Get Start Tick */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL is ready */
+        /* Wait till PLL is disabled */
         while(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY) != RESET)
         {
           if((HAL_GetTick() - tickstart ) > PLL_TIMEOUT_VALUE)
@@ -522,7 +517,7 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
         /* Get Start Tick */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL is ready */
+        /* Wait till PLL is disabled */
         while(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY) != RESET)
         {
           if((HAL_GetTick() - tickstart ) > PLL_TIMEOUT_VALUE)
@@ -1125,6 +1120,3 @@ __weak void HAL_RCC_CSSCallback(void)
   * @}
   */
 
-
-
-#endif /* Target checking */

@@ -16,11 +16,6 @@
   ******************************************************************************
   */
 
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_DMA_EX_H
 #define __STM32F4xx_HAL_DMA_EX_H
@@ -105,6 +100,3 @@ HAL_StatusTypeDef HAL_DMAEx_ChangeMemory(DMA_HandleTypeDef *hdma, uint32_t Addre
 
 #endif /*__STM32F4xx_HAL_DMA_EX_H*/
 
-
-
-#endif /* Target checking */

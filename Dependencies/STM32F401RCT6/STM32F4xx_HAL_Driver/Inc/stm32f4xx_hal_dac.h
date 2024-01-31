@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_DAC_H
 #define STM32F4xx_HAL_DAC_H
@@ -478,3 +483,6 @@ void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma);
 
 
 #endif /* STM32F4xx_HAL_DAC_H */
+
+
+#endif /* Target checking */

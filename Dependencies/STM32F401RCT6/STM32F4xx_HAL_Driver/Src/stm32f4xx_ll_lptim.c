@@ -15,6 +15,11 @@
   *
   ******************************************************************************
   */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
@@ -298,3 +303,6 @@ void LL_LPTIM_Disable(LPTIM_TypeDef *LPTIMx)
   */
 
 #endif /* USE_FULL_LL_DRIVER */
+
+
+#endif /* Target checking */

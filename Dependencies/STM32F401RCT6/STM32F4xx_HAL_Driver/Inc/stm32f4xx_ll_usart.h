@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_USART_H
 #define __STM32F4xx_LL_USART_H
@@ -2519,3 +2524,6 @@ void        LL_USART_ClockStructInit(LL_USART_ClockInitTypeDef *USART_ClockInitS
 
 #endif /* __STM32F4xx_LL_USART_H */
 
+
+
+#endif /* Target checking */

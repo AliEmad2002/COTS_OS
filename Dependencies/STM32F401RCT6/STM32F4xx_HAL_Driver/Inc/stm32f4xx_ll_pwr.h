@@ -15,6 +15,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_PWR_H
 #define __STM32F4xx_LL_PWR_H
@@ -983,3 +988,6 @@ ErrorStatus LL_PWR_DeInit(void);
 #endif
 
 #endif /* __STM32F4xx_LL_PWR_H */
+
+
+#endif /* Target checking */

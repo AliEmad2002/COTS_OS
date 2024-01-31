@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_I2S_EX_H
 #define STM32F4xx_HAL_I2S_EX_H
@@ -181,3 +186,6 @@ void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef *hi2s);
 
 #endif /* STM32F4xx_HAL_I2S_EX_H */
 
+
+
+#endif /* Target checking */

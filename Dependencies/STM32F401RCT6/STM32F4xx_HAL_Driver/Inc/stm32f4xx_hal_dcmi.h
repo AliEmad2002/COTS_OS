@@ -15,6 +15,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_DCMI_H
 #define __STM32F4xx_HAL_DCMI_H
@@ -561,3 +566,6 @@ uint32_t              HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi);
 #endif
 
 #endif /* __STM32F4xx_HAL_DCMI_H */
+
+
+#endif /* Target checking */

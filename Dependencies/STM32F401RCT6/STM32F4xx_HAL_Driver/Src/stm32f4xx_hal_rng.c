@@ -92,6 +92,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -858,3 +863,6 @@ uint32_t HAL_RNG_GetError(const RNG_HandleTypeDef *hrng)
   * @}
   */
 
+
+
+#endif /* Target checking */

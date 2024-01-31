@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_NOR_H
 #define STM32F4xx_HAL_NOR_H
@@ -328,3 +333,6 @@ HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
 #endif
 
 #endif /* STM32F4xx_HAL_NOR_H */
+
+
+#endif /* Target checking */

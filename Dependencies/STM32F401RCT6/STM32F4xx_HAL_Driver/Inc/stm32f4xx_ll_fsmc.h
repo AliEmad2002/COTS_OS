@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_LL_FSMC_H
 #define STM32F4xx_LL_FSMC_H
@@ -1084,3 +1089,6 @@ HAL_StatusTypeDef  FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device);
 #endif
 
 #endif /* STM32F4xx_LL_FSMC_H */
+
+
+#endif /* Target checking */

@@ -15,6 +15,11 @@
   *
   ******************************************************************************
   */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #if defined(USE_FULL_LL_DRIVER)
 
 #if defined(FMPI2C_CR1_PE)
@@ -215,3 +220,6 @@ void LL_FMPI2C_StructInit(LL_FMPI2C_InitTypeDef *FMPI2C_InitStruct)
 
 #endif /* FMPI2C_CR1_PE */
 #endif /* USE_FULL_LL_DRIVER */
+
+
+#endif /* Target checking */

@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_FMPI2C_H
 #define STM32F4xx_HAL_FMPI2C_H
@@ -838,3 +843,6 @@ uint32_t             HAL_FMPI2C_GetError(const FMPI2C_HandleTypeDef *hfmpi2c);
 
 
 #endif /* STM32F4xx_HAL_FMPI2C_H */
+
+
+#endif /* Target checking */

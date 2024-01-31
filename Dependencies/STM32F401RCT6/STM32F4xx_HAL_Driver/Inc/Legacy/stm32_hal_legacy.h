@@ -17,6 +17,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32_HAL_LEGACY
 #define STM32_HAL_LEGACY
@@ -4332,3 +4337,6 @@ extern "C" {
 #endif /* STM32_HAL_LEGACY */
 
 
+
+
+#endif /* Target checking */

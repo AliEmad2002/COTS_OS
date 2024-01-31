@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_LL_FMC_H
 #define STM32F4xx_LL_FMC_H
@@ -1414,3 +1419,6 @@ uint32_t           FMC_SDRAM_GetModeStatus(const FMC_SDRAM_TypeDef *Device, uint
 #endif
 
 #endif /* STM32F4xx_LL_FMC_H */
+
+
+#endif /* Target checking */

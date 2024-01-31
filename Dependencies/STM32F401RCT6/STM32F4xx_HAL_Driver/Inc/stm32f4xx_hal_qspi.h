@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_QSPI_H
 #define STM32F4xx_HAL_QSPI_H
@@ -748,3 +753,6 @@ HAL_StatusTypeDef     HAL_QSPI_SetFlashID      (QSPI_HandleTypeDef *hqspi, uint3
 #endif
 
 #endif /* STM32F4xx_HAL_QSPI_H */
+
+
+#endif /* Target checking */

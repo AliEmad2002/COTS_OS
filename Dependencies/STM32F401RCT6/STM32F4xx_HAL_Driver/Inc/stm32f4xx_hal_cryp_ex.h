@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_CRYP_EX_H
 #define __STM32F4xx_HAL_CRYP_EX_H
@@ -140,3 +145,6 @@ void  HAL_CRYPEx_DisableAutoKeyDerivation(CRYP_HandleTypeDef *hcryp);
 
 #endif /* __STM32F4xx_HAL_CRYP_EX_H */
 
+
+
+#endif /* Target checking */

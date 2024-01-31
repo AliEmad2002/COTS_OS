@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_LTDC_EX_H
 #define STM32F4xx_HAL_LTDC_EX_H
@@ -81,3 +86,6 @@ HAL_StatusTypeDef HAL_LTDCEx_StructInitFromAdaptedCommandConfig(LTDC_HandleTypeD
 #endif
 
 #endif /* STM32F4xx_HAL_LTDC_EX_H */
+
+
+#endif /* Target checking */

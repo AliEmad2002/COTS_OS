@@ -2,7 +2,7 @@
 
 import os
 
-DIR = "C:\\Users\\ali20\\github\\COTS_OS\\Dependencies\\SM32F401RCT6"
+DIR = "C:\\Users\\ali20\\github\\COTS_OS\\Dependencies\\STM32F401RCT6\\STM32F4xx_HAL_Driver"
 
 INSERTION1 = "\n\n/*	Target checking	*/\n""#include \"MCAL_Port/Port_Target.h\"\n""#ifdef MCAL_PORT_TARGET_STM32F401RCT6\n"
 

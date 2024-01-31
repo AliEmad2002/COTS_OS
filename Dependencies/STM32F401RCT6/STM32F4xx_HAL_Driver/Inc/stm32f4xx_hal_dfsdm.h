@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_DFSDM_H
 #define __STM32F4xx_HAL_DFSDM_H
@@ -1139,3 +1144,6 @@ void HAL_DFSDM_BitStreamClkDistribution_Config(uint32_t source);
 #endif
 
 #endif /* __STM32F4xx_HAL_DFSDM_H */
+
+
+#endif /* Target checking */

@@ -14,6 +14,11 @@
   * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
   */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
@@ -1658,3 +1663,6 @@ uint32_t RCC_PLLI2S_GetFreqDomain_48M(void)
 
 #endif /* USE_FULL_LL_DRIVER */
 
+
+
+#endif /* Target checking */

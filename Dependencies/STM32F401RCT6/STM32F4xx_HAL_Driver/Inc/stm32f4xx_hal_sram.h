@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_SRAM_H
 #define STM32F4xx_HAL_SRAM_H
@@ -234,3 +239,6 @@ HAL_SRAM_StateTypeDef HAL_SRAM_GetState(const SRAM_HandleTypeDef *hsram);
 #endif
 
 #endif /* STM32F4xx_HAL_SRAM_H */
+
+
+#endif /* Target checking */

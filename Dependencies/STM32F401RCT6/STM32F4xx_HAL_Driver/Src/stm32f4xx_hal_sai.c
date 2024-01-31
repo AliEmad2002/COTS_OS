@@ -212,6 +212,11 @@
   @endverbatim
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -2552,3 +2557,6 @@ static void SAI_DMAAbort(DMA_HandleTypeDef *hdma)
   * @}
   */
 
+
+
+#endif /* Target checking */

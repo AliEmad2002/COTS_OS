@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_TIM_H
 #define __STM32F4xx_LL_TIM_H
@@ -4094,3 +4099,6 @@ ErrorStatus LL_TIM_BDTR_Init(TIM_TypeDef *TIMx, const LL_TIM_BDTR_InitTypeDef *T
 #endif
 
 #endif /* __STM32F4xx_LL_TIM_H */
+
+
+#endif /* Target checking */

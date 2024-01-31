@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_LL_I2C_H
 #define __STM32F4xx_LL_I2C_H
@@ -1888,3 +1893,6 @@ void LL_I2C_StructInit(LL_I2C_InitTypeDef *I2C_InitStruct);
 
 #endif /* __STM32F4xx_LL_I2C_H */
 
+
+
+#endif /* Target checking */

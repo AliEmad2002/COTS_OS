@@ -44,6 +44,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 /** @addtogroup STM32F4xx_HAL_Driver
@@ -316,3 +321,6 @@ void RTC_Alarm_IRQHandler(void)
   */
 
 
+
+
+#endif /* Target checking */

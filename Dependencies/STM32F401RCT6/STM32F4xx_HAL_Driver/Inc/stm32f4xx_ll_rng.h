@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_LL_RNG_H
 #define STM32F4xx_LL_RNG_H
@@ -334,3 +339,6 @@ ErrorStatus LL_RNG_DeInit(const RNG_TypeDef *RNGx);
 
 #endif /* __STM32F4xx_LL_RNG_H */
 
+
+
+#endif /* Target checking */

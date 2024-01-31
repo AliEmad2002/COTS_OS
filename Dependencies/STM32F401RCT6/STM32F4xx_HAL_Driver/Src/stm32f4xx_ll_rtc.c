@@ -15,6 +15,11 @@
   *
   ******************************************************************************
   */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
@@ -836,3 +841,6 @@ ErrorStatus LL_RTC_WaitForSynchro(RTC_TypeDef *RTCx)
   */
 
 #endif /* USE_FULL_LL_DRIVER */
+
+
+#endif /* Target checking */

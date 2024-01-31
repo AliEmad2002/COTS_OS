@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_LL_CRC_H
 #define STM32F4xx_LL_CRC_H
@@ -199,3 +204,6 @@ ErrorStatus LL_CRC_DeInit(const CRC_TypeDef *CRCx);
 #endif
 
 #endif /* STM32F4xx_LL_CRC_H */
+
+
+#endif /* Target checking */

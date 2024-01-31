@@ -106,6 +106,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -2393,3 +2398,6 @@ uint32_t HAL_NAND_Read_Status(const NAND_HandleTypeDef *hnand)
   */
 
 #endif /* FMC_Bank3) || defined(FMC_Bank2_3) || defined(FSMC_Bank2_3 */
+
+
+#endif /* Target checking */

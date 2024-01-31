@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_PCCARD_H
 #define STM32F4xx_HAL_PCCARD_H
@@ -283,3 +288,6 @@ HAL_PCCARD_StatusTypeDef HAL_PCCARD_ReadStatus(PCCARD_HandleTypeDef *hpccard);
 #endif
 
 #endif /* STM32F4xx_HAL_PCCARD_H */
+
+
+#endif /* Target checking */

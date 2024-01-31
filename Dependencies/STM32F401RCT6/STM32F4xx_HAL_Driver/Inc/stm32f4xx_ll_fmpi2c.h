@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_LL_FMPI2C_H
 #define STM32F4xx_LL_FMPI2C_H
@@ -2239,3 +2244,6 @@ void LL_FMPI2C_StructInit(LL_FMPI2C_InitTypeDef *FMPI2C_InitStruct);
 #endif
 
 #endif /* STM32F4xx_LL_FMPI2C_H */
+
+
+#endif /* Target checking */

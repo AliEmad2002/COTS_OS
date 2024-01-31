@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_TIM_EX_H
 #define STM32F4xx_HAL_TIM_EX_H
@@ -353,3 +358,6 @@ void TIMEx_DMACommutationHalfCplt(DMA_HandleTypeDef *hdma);
 
 
 #endif /* STM32F4xx_HAL_TIM_EX_H */
+
+
+#endif /* Target checking */

@@ -15,6 +15,11 @@
   *
   ******************************************************************************
   */
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
@@ -622,3 +627,6 @@ ErrorStatus  LL_I2S_InitFullDuplex(SPI_TypeDef *I2Sxext, LL_I2S_InitTypeDef *I2S
 
 #endif /* USE_FULL_LL_DRIVER */
 
+
+
+#endif /* Target checking */

@@ -1,6 +1,11 @@
 T
 
 /*	Target checking	*/
+
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F401RCT6
 his software component is provided to you as part of a software package and
@@ -10,5 +15,7 @@ the terms of the BSD-3-Clause license shall apply.
 You may obtain a copy of the BSD-3-Clause at:
 https://opensource.org/licenses/BSD-3-Clause
 
+
+#endif /* Target checking */
 
 #endif /* Target checking */

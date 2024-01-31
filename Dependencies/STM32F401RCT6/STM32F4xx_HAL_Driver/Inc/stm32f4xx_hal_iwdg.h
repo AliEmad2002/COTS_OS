@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_HAL_IWDG_H
 #define STM32F4xx_HAL_IWDG_H
@@ -218,3 +223,6 @@ HAL_StatusTypeDef     HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg);
 #endif
 
 #endif /* STM32F4xx_HAL_IWDG_H */
+
+
+#endif /* Target checking */

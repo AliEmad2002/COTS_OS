@@ -16,6 +16,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STM32F4xx_LL_LPTIM_H
 #define STM32F4xx_LL_LPTIM_H
@@ -1390,3 +1395,6 @@ __STATIC_INLINE uint32_t LL_LPTIM_IsEnabledIT_DOWN(const LPTIM_TypeDef *LPTIMx)
 #endif
 
 #endif /* STM32F4xx_LL_LPTIM_H */
+
+
+#endif /* Target checking */

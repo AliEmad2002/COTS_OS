@@ -53,6 +53,11 @@
   ******************************************************************************
   */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -1995,3 +2000,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 /**
   * @}
   */
+
+
+#endif /* Target checking */

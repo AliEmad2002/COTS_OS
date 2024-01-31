@@ -1,15 +1,18 @@
- <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <cdtprojectproperties>
   <section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.IncludePaths">
     <language id="org.eclipse.cdt.core.assembly" name="s,S"/>
     <language id="org.eclipse.cdt.core.gcc" name="C Source File">
       <includepath>Core/Inc</includepath>
-      <includepath>Drivers/CMSIS/Device/ST/STM32F1xx/Include</includepath>
-      <includepath>Drivers/CMSIS/Include</includepath>
-      <includepath>${FreeRTOS}/Inc</includepath>
-      <includepath>Drivers/</includepath>
       <includepath>${COTS_OS}/Inc</includepath>
-      <includepath>C:/Users/ali20/STM32Cube/Repository/STM32Cube_FW_F1_V1.8.5/Drivers/STM32F1xx_HAL_Driver/Inc</includepath>
+      <includepath>${COTS_OS}/Inc/MCAL_Port/${Target}</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/STM32F1xx_HAL_Driver/Inc/Legacy</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/STM32F1xx_HAL_Driver/Inc</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/CMSIS/Device/ST/STM32F1xx/Include</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/CMSIS/Include</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/FreeRTOS/Inc</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/TinyUSB</includepath>
+      <includepath>${COTS_OS}/Dependencies/${Target}/TinyUSB/User_Port</includepath>
     </language>
     <language name="Object File"/>
   </section>

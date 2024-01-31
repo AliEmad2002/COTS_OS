@@ -7,6 +7,11 @@
  * TODO: this driver is not yet optimized.
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef HAL_OS_PORT_PORT_SPI_H_
 #define HAL_OS_PORT_PORT_SPI_H_
 
@@ -405,3 +410,6 @@ static inline void vPort_SPI_initHardware(uint8_t ucUnitNumber, xPort_SPI_HW_Con
 
 
 #endif /* HAL_OS_PORT_PORT_SPI_H_ */
+
+
+#endif /* Target checking */

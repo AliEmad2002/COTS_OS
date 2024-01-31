@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef PORT_PORT_ADC_H_
 #define PORT_PORT_ADC_H_
 
@@ -124,3 +129,6 @@ uint16_t usPort_ADC_PollingRead(uint8_t ucAdcNumbe,uint32_t ulTimeout);
 
 
 #endif /* PORT_PORT_ADC_H_ */
+
+
+#endif /* Target checking */

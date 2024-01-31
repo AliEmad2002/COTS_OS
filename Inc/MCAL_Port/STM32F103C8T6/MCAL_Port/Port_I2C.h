@@ -7,6 +7,11 @@
  * TODO: this driver is not yet optimized.
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef COTS_OS_INC_MCAL_PORT_PORT_I2C_H_
 #define COTS_OS_INC_MCAL_PORT_PORT_I2C_H_
 
@@ -422,3 +427,6 @@ static inline void vPort_I2C_setMaxRisingTime(uint8_t ucUnitNumber, uint32_t uiT
 
 
 #endif /* COTS_OS_INC_MCAL_PORT_PORT_I2C_H_ */
+
+
+#endif /* Target checking */

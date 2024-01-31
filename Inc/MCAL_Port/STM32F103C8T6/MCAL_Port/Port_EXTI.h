@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef COTS_OS_INC_MCAL_PORT_PORT_EXTI_H_
 #define COTS_OS_INC_MCAL_PORT_PORT_EXTI_H_
 
@@ -114,3 +119,6 @@ uint32_t uiPort_EXTI_getIrqNum(uint8_t ucPort, uint8_t ucPin);
 
 
 #endif /* COTS_OS_INC_MCAL_PORT_PORT_EXTI_H_ */
+
+
+#endif /* Target checking */

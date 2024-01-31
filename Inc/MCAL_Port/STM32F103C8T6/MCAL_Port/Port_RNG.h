@@ -7,6 +7,11 @@
  * This driver implements random number generator.
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef INC_MCAL_PORT_PORT_RNG_H_
 #define INC_MCAL_PORT_PORT_RNG_H_
 
@@ -26,3 +31,6 @@ void vPort_RNG_init(void);
 
 
 #endif /* INC_MCAL_PORT_PORT_RNG_H_ */
+
+
+#endif /* Target checking */

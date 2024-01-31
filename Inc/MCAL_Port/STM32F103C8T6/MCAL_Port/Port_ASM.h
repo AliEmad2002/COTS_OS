@@ -11,6 +11,11 @@
  * multiple instructions / lines of C are used instead.
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef COTS_OS_INC_MCAL_PORT_PORT_ROTATE_H_
 #define COTS_OS_INC_MCAL_PORT_PORT_ROTATE_H_
 
@@ -63,3 +68,6 @@ static inline uint16_t uiPort_ASM_reverse16(uint16_t uiX)
 
 
 #endif /* COTS_OS_INC_MCAL_PORT_PORT_ROTATE_H_ */
+
+
+#endif /* Target checking */

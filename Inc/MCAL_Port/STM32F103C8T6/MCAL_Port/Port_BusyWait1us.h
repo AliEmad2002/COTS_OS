@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef HAL_OS_PORT_PORT_BUSYWAIT1US_H_
 #define HAL_OS_PORT_PORT_BUSYWAIT1US_H_
 
@@ -24,3 +29,6 @@ static inline void vPort_BusyWait1us(void)
 
 
 #endif /* HAL_OS_PORT_PORT_BUSYWAIT1US_H_ */
+
+
+#endif /* Target checking */

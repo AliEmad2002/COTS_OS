@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef HAL_OS_PORT_PORT_DIO_H_
 #define HAL_OS_PORT_PORT_DIO_H_
 
@@ -107,3 +112,6 @@ void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber);
 	(	pxPortDioPortArr[(ucPortNumber)]->IDR	)
 
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */
+
+
+#endif /* Target checking */

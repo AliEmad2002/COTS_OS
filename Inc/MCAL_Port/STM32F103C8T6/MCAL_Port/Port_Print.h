@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef HAL_OS_PORT_PORT_PRINT_H_
 #define HAL_OS_PORT_PORT_PRINT_H_
 
@@ -24,3 +29,6 @@
 #define vPort_Print(...)	printf(__VA_ARGS__)
 
 #endif /* HAL_OS_PORT_PORT_PRINT_H_ */
+
+
+#endif /* Target checking */

@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #ifndef HAL_OS_PORT_PORT_GPIO_H_
 #define HAL_OS_PORT_PORT_GPIO_H_
 
@@ -69,3 +74,6 @@ void vPort_GPIO_initAdcChannelPinAsOutput(	uint8_t ucAdcUnitNumber,
 											uint8_t ucAdcChannelNumber	);
 
 #endif /* HAL_OS_PORT_PORT_GPIO_H_ */
+
+
+#endif /* Target checking */

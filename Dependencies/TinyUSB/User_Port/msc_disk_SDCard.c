@@ -24,6 +24,9 @@
  */
 
 #include "board_api.h"
+
+#if 1
+
 #include "tusb.h"
 
 #include "MCAL_Port/Port_DIO.h"
@@ -183,5 +186,7 @@ int32_t tud_msc_scsi_cb (uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, 
 
   return (int32_t) resplen;
 }
+
+#endif
 
 #endif

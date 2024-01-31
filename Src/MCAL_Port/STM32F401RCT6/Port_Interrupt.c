@@ -43,7 +43,21 @@ const IRQn_Type* ppxPortInterruptDmaIrqNumberArr[] = {
 		pxPortInterruptDma2IrqNumberArr
 };
 
+const IRQn_Type xPortInterruptUsbLowPriIrqNumber = OTG_FS_IRQn;
+const IRQn_Type xPortInterruptUsbHighPriIrqNumber = OTG_FS_IRQn;
+const IRQn_Type xPortInterruptUsbWkupIrqNumber = OTG_FS_WKUP_IRQn;
 
+const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[] = {
+	USART1_IRQn, USART2_IRQn, USART6_IRQn
+};
+
+const IRQn_Type* pxPortInterruptUartRxneIrqNumberArr = pxPortInterruptUartTxeIrqNumberArr;
+
+const IRQn_Type* pxPortInterruptUartTcIrqNumberArr = pxPortInterruptUartTxeIrqNumberArr;
+
+const IRQn_Type xPortInterruptPwrPvdIrqNumber = PVD_IRQn;
+
+const IRQn_Type pxPortInterruptAdcEocIrqNumberArr[] = {ADC_IRQn};
 
 
 

@@ -227,11 +227,12 @@ void xHOS_RFPhysical_init(xHOS_RF_t* pxHandle)
 	vPORT_EXTI_DISABLE_LINE(pxHandle->ucRxPort, pxHandle->ucRxPin);
 
 	/*	Initialize receiver's interrupt in the interrupt controller	*/
+	uint32_t uiIrqNum = uiPort_EXTI_getIrqNum(0, pxHandle->ucRxPin);
 	VPORT_INTERRUPT_SET_PRIORITY(
-		pxPortInterruptExtiIrqNumberArr[pxHandle->ucRxPin],
+		uiIrqNum,
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1	);
 
-	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptExtiIrqNumberArr[pxHandle->ucRxPin]);
+	vPORT_INTERRUPT_ENABLE_IRQ(uiIrqNum);
 
 	/*	Initialize counters and flags	*/
 	pxHandle->uiTxNRemaining = 0;

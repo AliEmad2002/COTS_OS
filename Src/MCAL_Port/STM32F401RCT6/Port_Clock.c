@@ -9,9 +9,9 @@
 #include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F401RCT6
 
-
-
 #include "stdint.h"
+
+#include "stm32f4xx_hal_rcc.h"
 
 #include "MCAL_Port/Port_Clock.h"
 
@@ -58,6 +58,9 @@ void vPort_Clock_initPeriphClock(void)
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
+
+	/*	Initialize SYSCFG clock	*/
+	__HAL_RCC_SYSCFG_CLK_ENABLE();
 
 	/*	Initialize timers clock	*/
 	__HAL_RCC_TIM1_CLK_ENABLE();

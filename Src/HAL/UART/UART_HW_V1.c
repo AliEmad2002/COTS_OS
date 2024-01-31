@@ -19,7 +19,6 @@
 #include "MCAL_Port/Port_UART.h"
 #include "MCAL_Port/Port_Interrupt.h"
 #include "MCAL_Port/Port_GPIO.h"
-#include "MCAL_Port/Port_AFIO.h"
 #include "MCAL_Port/Port_DIO.h"
 
 /*	HAL (OS)	*/

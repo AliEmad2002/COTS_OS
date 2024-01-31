@@ -64,6 +64,19 @@ extern const IRQn_Type pxPortInterruptTimerCcIrqNumberArr[];
 
 extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];
 
+extern const IRQn_Type xPortInterruptUsbLowPriIrqNumber;
+extern const IRQn_Type xPortInterruptUsbHighPriIrqNumber;
+extern const IRQn_Type xPortInterruptUsbWkupIrqNumber;
+
+extern const IRQn_Type pxPortInterruptUartTxeIrqNumberArr[];
+
+extern const IRQn_Type pxPortInterruptUartRxneIrqNumberArr[];
+
+extern const IRQn_Type pxPortInterruptUartTcIrqNumberArr[];
+
+extern const IRQn_Type xPortInterruptPwrPvdIrqNumber;
+
+extern const IRQn_Type pxPortInterruptAdcEocIrqNumberArr[];
 
 /*******************************************************************************
  * IRQ handler code enable.
@@ -77,7 +90,8 @@ extern const IRQn_Type pxPortInterruptDmaIrqNumberArr[];
 #define ucPORT_INTERRUPT_IRQ_DEF_TIM
 #define ucPORT_INTERRUPT_IRQ_DEF_SPI
 //#define ucPORT_INTERRUPT_IRQ_DEF_DMA
-
+#define ucPORT_INTERRUPT_IRQ_DEF_EXTI
+#define ucPORT_INTERRUPT_IRQ_DEF_UART
 
 
 

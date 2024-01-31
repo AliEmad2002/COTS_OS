@@ -36,3 +36,4 @@ void vPort_AFIO_mapUart(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 			__HAL_AFIO_REMAP_USART1_ENABLE();
 	}
 }
+

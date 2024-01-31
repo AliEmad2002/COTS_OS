@@ -26,7 +26,7 @@
 //#include "bsp/board_api.h"
 #include "tusb.h"
 
-#if 0
+#if 1
 
 #if CFG_TUD_MSC
 

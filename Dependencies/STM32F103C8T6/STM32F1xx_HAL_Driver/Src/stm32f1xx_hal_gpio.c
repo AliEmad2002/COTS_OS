@@ -103,11 +103,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -595,7 +590,5 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   */
 
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

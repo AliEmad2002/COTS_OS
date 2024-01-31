@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -298,7 +293,5 @@ static tusb_error_t send_message_get_response_subtask( uint8_t dev_addr, cdch_da
 //}
 #endif
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

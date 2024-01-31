@@ -18,11 +18,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 #if defined(USE_FULL_LL_DRIVER)
@@ -1215,7 +1210,5 @@ static ErrorStatus IC4Config(TIM_TypeDef *TIMx, const LL_TIM_IC_InitTypeDef *TIM
 #endif /* USE_FULL_LL_DRIVER */
 
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

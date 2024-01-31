@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -118,7 +113,5 @@ TU_ATTR_ALWAYS_INLINE static inline void rusb2_phy_init(void) {
 
 #endif /* _RUSB2_RA_H_ */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

@@ -25,11 +25,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -263,7 +258,5 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
   return _desc_str;
 }
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

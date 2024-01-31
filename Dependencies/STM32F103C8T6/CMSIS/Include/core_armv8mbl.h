@@ -2,11 +2,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 /**
  * @file     core_armv8mbl.h
@@ -1927,7 +1922,5 @@ __STATIC_INLINE uint32_t TZ_SysTick_Config_NS(uint32_t ticks)
 
 #endif /* __CMSIS_GENERIC */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 #ifndef _TUSB_USBD_PVT_H_
@@ -140,7 +135,5 @@ void usbd_defer_func(osal_task_func_t func, void *param, bool in_isr);
 
 #endif
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

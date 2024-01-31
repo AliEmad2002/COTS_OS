@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -70,7 +65,5 @@ void tusb_rusb2_set_irqnum(uint8_t rhport, int32_t irqnum) {
 
 #endif
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

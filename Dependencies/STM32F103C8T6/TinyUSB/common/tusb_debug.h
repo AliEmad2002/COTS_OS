@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -179,7 +174,5 @@ static inline const char* tu_lookup_find(tu_lookup_table_t const* p_table, uint3
 
 #endif /* _TUSB_DEBUG_H_ */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

@@ -1,11 +1,6 @@
 |
 
 /*	Target checking	*/
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
 #include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
                              | BCM2711 (Pi4)   | EFM32GG FullSpeed   | ESP32-S2   | STM32F407 Fullspeed   | STM32F407 Highspeed   | STM32F411 Fullspeed   | STM32F412 Fullspeed   | STM32F429 Fullspeed   | STM32F429 Highspeed   | STM32F723 Fullspeed   | STM32F723 HighSpeed   | STM32F767 Fullspeed   | STM32H743 Highspeed   | STM32L476 Fullspeed   | STM32U5A5 Highspeed   | GD32VF103 Fullspeed   | XMC4500    |
@@ -64,7 +59,5 @@
 | - dma_desc_enable           | 0               | 0                   | 0          | 0                     | 0                     | 0                     | 0                     | 0                     | 0                     | 0                     | 1                     | 0                     | 1                     | 0                     | 1                     | 0                     | 0          |
 | - dma_dynamic               | 0               | 0                   | 1          | 0                     | 0                     | 0                     | 0                     | 0                     | 0                     | 0                     | 0                     | 0                     | 1                     | 0                     | 1                     | 0                     | 1          |
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -2728,7 +2723,5 @@ uint8_t audiod_get_audio_fct_idx(audiod_function_t * audio)
 
 #endif //CFG_TUD_ENABLED && CFG_TUD_AUDIO
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

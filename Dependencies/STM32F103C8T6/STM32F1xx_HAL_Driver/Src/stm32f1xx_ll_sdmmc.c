@@ -157,11 +157,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
  
 
@@ -1587,7 +1582,5 @@ static uint32_t SDMMC_GetCmdError(SDIO_TypeDef *SDIOx)
 
 #endif /* SDIO */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

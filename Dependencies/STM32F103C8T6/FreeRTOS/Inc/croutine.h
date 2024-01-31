@@ -27,11 +27,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -729,7 +724,5 @@ BaseType_t xCoRoutineRemoveFromEventList( const List_t *pxEventList );
 
 #endif /* CO_ROUTINE_H */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

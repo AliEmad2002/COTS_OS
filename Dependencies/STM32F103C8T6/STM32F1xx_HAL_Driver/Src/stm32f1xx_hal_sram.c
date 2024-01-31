@@ -114,11 +114,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -1123,7 +1118,5 @@ static void SRAM_DMAError(DMA_HandleTypeDef *hdma)
 
 #endif /* FSMC_BANK1 */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

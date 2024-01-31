@@ -2,11 +2,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 /**
  * @file     cmsis_iccarm.h
@@ -944,7 +939,5 @@ __packed struct  __iar_u32 { uint32_t v; };
 
 #endif /* __CMSIS_ICCARM_H__ */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

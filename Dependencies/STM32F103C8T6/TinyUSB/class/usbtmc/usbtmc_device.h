@@ -26,11 +26,6 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F401RCT6
-
-
-/*	Target checking	*/
-#include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F103C8T6
 
 
@@ -121,7 +116,5 @@ void     usbtmcd_init_cb(void);
 
 #endif /* CLASS_USBTMC_USBTMC_DEVICE_H_ */
 
-
-#endif /* Target checking */
 
 #endif /* Target checking */

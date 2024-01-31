@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "LIB/Assert.h"
 
 #include "stm32f1xx.h"
@@ -58,3 +63,6 @@ void PVD_IRQHandler(void)
 }
 
 #endif
+
+
+#endif /* Target checking */

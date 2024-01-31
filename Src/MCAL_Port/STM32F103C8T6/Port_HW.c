@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 
 #include "stdint.h"
 
@@ -40,3 +45,6 @@ void vPort_HW_init(void)
 	/*	Initialize USB	*/
 	vPort_USB_initHardware();
 }
+
+
+#endif /* Target checking */

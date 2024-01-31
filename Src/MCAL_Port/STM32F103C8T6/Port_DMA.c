@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "stm32f1xx.h"
 #include "MCAL_Port/Port_DMA.h"
 #include "MCAL_Port/Port_Interrupt.h"
@@ -188,3 +193,6 @@ void DMA1_Channel7_IRQHandler(void)
 #endif
 
 #endif		/*		portDMA_IS_AVAILABLE		*/
+
+
+#endif /* Target checking */

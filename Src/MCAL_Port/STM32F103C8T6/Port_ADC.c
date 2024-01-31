@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 /*	LIB	*/
 #include "stdint.h"
 #include "LIB/Assert.h"
@@ -167,3 +172,6 @@ void ADC1_2_IRQHandler(void)
 
 #endif	/*	ucPORT_INTERRUPT_IRQ_DEF_ADC	*/
 
+
+
+#endif /* Target checking */

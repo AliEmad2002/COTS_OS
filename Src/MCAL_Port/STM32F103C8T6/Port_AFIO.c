@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 
 #include "stdint.h"
 
@@ -37,3 +42,6 @@ void vPort_AFIO_mapUart(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 	}
 }
 
+
+
+#endif /* Target checking */

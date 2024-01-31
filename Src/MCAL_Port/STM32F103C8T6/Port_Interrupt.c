@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_gcc.h"
@@ -46,3 +51,6 @@ const IRQn_Type pxPortInterruptAdcEocIrqNumberArr[] = {ADC1_2_IRQn, ADC1_2_IRQn}
 
 
 
+
+
+#endif /* Target checking */

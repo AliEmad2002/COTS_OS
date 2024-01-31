@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "LIB/Assert.h"
 
 #include "stm32f103xb.h"
@@ -280,3 +285,6 @@ void vPort_GPIO_initAdcChannelPinAsOutput(	uint8_t ucAdcUnitNumber,
 
 
 
+
+
+#endif /* Target checking */

@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 
@@ -49,3 +54,6 @@ void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf)
 		uiPORT_CLOCK_MAIN_HZ / 1 / 2);
 		//uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV	);
 }
+
+
+#endif /* Target checking */

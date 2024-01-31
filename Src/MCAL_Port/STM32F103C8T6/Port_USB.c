@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 /*	LIB	*/
 #include "LIB/Assert.h"
 
@@ -106,3 +111,6 @@ void USBWakeUp_IRQHandler(void) {
   tud_int_handler(0);
 }
 #endif
+
+
+#endif /* Target checking */

@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_gcc.h"
@@ -210,3 +215,6 @@ void EXTI15_10_IRQHandler(void)
 
 
 
+
+
+#endif /* Target checking */

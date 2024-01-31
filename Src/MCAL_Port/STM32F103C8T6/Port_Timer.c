@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 
 #include "stm32f1xx.h"
 #include "stm32f1xx_ll_tim.h"
@@ -344,3 +349,6 @@ void TIM4_IRQHandler(void)
 
 
 
+
+
+#endif /* Target checking */

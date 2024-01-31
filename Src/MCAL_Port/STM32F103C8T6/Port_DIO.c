@@ -5,6 +5,11 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+
+
 #include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 
@@ -35,3 +40,6 @@ void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
 	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
 }
 
+
+
+#endif /* Target checking */

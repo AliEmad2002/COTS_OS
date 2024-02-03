@@ -7,7 +7,7 @@
 
 /*	Target checking	*/
 #include "MCAL_Port/Port_Target.h"
-#ifdef MCAL_PORT_TARGET_STM32F103C8T6
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
 
 
 /*	LIB	*/
@@ -15,9 +15,9 @@
 #include "LIB/Assert.h"
 
 /* MCAL */
-#include "stm32f1xx.h"
-#include "stm32f1xx_hal_adc.h"
-#include "stm32f1xx_ll_adc.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_hal_adc.h"
+#include "stm32f4xx_ll_adc.h"
 
 #include "MCAL_Port/Port_Clock.h"
 #include "MCAL_Port/Port_ADC.h"
@@ -28,7 +28,7 @@
 /*******************************************************************************
  * Driver variables:
  ******************************************************************************/
-ADC_TypeDef* const pxPortADCArr[] = {ADC1, ADC2};
+ADC_TypeDef* const pxPortADCArr[] = {ADC1};
 
 const uint32_t pxPortADCChannelsArr[] = {
 		LL_ADC_CHANNEL_0,
@@ -48,12 +48,13 @@ const uint32_t pxPortADCChannelsArr[] = {
 		LL_ADC_CHANNEL_14,
 		LL_ADC_CHANNEL_15,
 		LL_ADC_CHANNEL_16,
-		LL_ADC_CHANNEL_17
+		LL_ADC_CHANNEL_17,
+		LL_ADC_CHANNEL_18
 };
 
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_ADC
-	void (*ppfPortAdcIsrCallback[2])(void*);
-	void* ppvPortAdcIsrParams[2];
+	void (*ppfPortAdcIsrCallback[1])(void*);
+	void* ppvPortAdcIsrParams[1];
 #endif	/*	ucPORT_INTERRUPT_IRQ_DEF_ADC	*/
 
 /*******************************************************************************
@@ -64,7 +65,29 @@ const uint32_t pxPortADCChannelsArr[] = {
 /*******************************************************************************
  * Static (private) functions:
  ******************************************************************************/
+void vADC_selectChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber)
+{
+	if (ucChannelNumber == ucPORT_ADC_BKP_BAT_CH_NUMBER)
+	{
+		LL_ADC_SetCommonPathInternalCh(
+				__LL_ADC_COMMON_INSTANCE(pxPortADCArr[0]),
+				LL_ADC_PATH_INTERNAL_VREFINT | LL_ADC_PATH_INTERNAL_VBAT	);
+	}
 
+	else if (ucChannelNumber == ucPORT_ADC_TEMP_SENS_INT_CH_NUMBER)
+	{
+		LL_ADC_SetCommonPathInternalCh(
+				__LL_ADC_COMMON_INSTANCE(pxPortADCArr[0]),
+				LL_ADC_PATH_INTERNAL_VREFINT | LL_ADC_PATH_INTERNAL_TEMPSENSOR	);
+
+		ucChannelNumber = 18;
+	}
+
+	LL_ADC_REG_SetSequencerRanks(
+			pxPortADCArr[(ucUnitNumber)],
+			LL_ADC_REG_RANK_1,
+			pxPortADCChannelsArr[(ucChannelNumber)]	);
+}
 
 /*******************************************************************************
  * API functions:
@@ -86,15 +109,14 @@ void vPort_ADC_init(uint8_t ucUnitNumber)
 
 	vLib_ASSERT(HAL_ADC_Init(&xAdcHandle)==HAL_OK, 0);
 
-	ADC_Enable(&xAdcHandle);
-
-	HAL_ADCEx_Calibration_Start(&xAdcHandle);
+	__HAL_ADC_ENABLE(&xAdcHandle);
 
 	LL_ADC_SetCommonPathInternalCh(
 			__LL_ADC_COMMON_INSTANCE(pxPortADCArr[0]), LL_ADC_PATH_INTERNAL_VREFINT);
 
-	vPort_ADC_setChannelSampleTime(0, 16, 171);	/*	Internal temperature sensor	*/
-	vPort_ADC_setChannelSampleTime(0, 17, 171);	/*	Internal voltage reference	*/
+	vPort_ADC_setChannelSampleTime(0, ucPORT_ADC_TEMP_SENS_INT_CH_NUMBER, 171);	/*	Internal temperature sensor	*/
+	vPort_ADC_setChannelSampleTime(0, ucPORT_ADC_VREFINT_CH_NUMBER, 171);	/*	Internal voltage reference	*/
+	vPort_ADC_setChannelSampleTime(0, ucPORT_ADC_BKP_BAT_CH_NUMBER, 171);	/*	Internal voltage reference	*/
 }
 
 /*
@@ -120,14 +142,14 @@ void vPort_ADC_setChannelSampleTime(	uint8_t ucUnitNumber,
 	 * Select the closest possible option.
 	 */
 	uint32_t uiOption;
-	if 		(uiNCyclesBy10 < 15+(75-15)/2)		uiOption = ADC_SAMPLETIME_1CYCLE_5;
-	else if (uiNCyclesBy10 < 75+(135-75)/2)		uiOption = ADC_SAMPLETIME_7CYCLES_5;
-	else if (uiNCyclesBy10 < 135+(285-135)/2)	uiOption = ADC_SAMPLETIME_13CYCLES_5;
-	else if (uiNCyclesBy10 < 285+(415-285)/2)	uiOption = ADC_SAMPLETIME_28CYCLES_5;
-	else if (uiNCyclesBy10 < 415+(555-415)/2)	uiOption = ADC_SAMPLETIME_41CYCLES_5;
-	else if (uiNCyclesBy10 < 555+(715-555)/2)	uiOption = ADC_SAMPLETIME_55CYCLES_5;
-	else if (uiNCyclesBy10 < 715+(2395-715)/2)	uiOption = ADC_SAMPLETIME_71CYCLES_5;
-	else 										uiOption = ADC_SAMPLETIME_239CYCLES_5;
+	if 		(uiNCyclesBy10 < 30+(150-30)/2)			uiOption = ADC_SAMPLETIME_3CYCLES  ;
+	else if (uiNCyclesBy10 < 150+(280-150)/2)		uiOption = ADC_SAMPLETIME_15CYCLES ;
+	else if (uiNCyclesBy10 < 280+(560-280)/2)		uiOption = ADC_SAMPLETIME_28CYCLES ;
+	else if (uiNCyclesBy10 < 560+(840-560)/2)		uiOption = ADC_SAMPLETIME_56CYCLES ;
+	else if (uiNCyclesBy10 < 840+(1120-840)/2)		uiOption = ADC_SAMPLETIME_84CYCLES ;
+	else if (uiNCyclesBy10 < 1120+(1440-1120)/2)	uiOption = ADC_SAMPLETIME_112CYCLES;
+	else if (uiNCyclesBy10 < 1440+(4800-1440)/2)	uiOption = ADC_SAMPLETIME_144CYCLES;
+	else 											uiOption = ADC_SAMPLETIME_480CYCLES;
 
 	/*	Set that option	*/
 	LL_ADC_SetChannelSamplingTime(
@@ -148,7 +170,7 @@ void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,
  ******************************************************************************/
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_ADC
 
-void ADC1_2_IRQHandler(void)
+void ADC_IRQHandler(void)
 {
 	/*
 	 * Important!:

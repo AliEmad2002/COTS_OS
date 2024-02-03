@@ -755,22 +755,51 @@ HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
               ((uint32_t)(sTime->TimeFormat) << RTC_TR_PM_Pos));
   }
 
-  /* Disable the write protection for RTC registers */
-  __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
+  /*
+   * Following section is modified by Ali Emad. Due to incorrect operation of
+   * the RTC hardware, stated in device errata: "ES0222-Rev7, 2.7.4".
+   */
+  /* Assure PWR peripheral is enabled */
+  RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 
-  /* Enter Initialization mode */
-  status = RTC_EnterInitMode(hrtc);
+  /*	Unlock write to backup domain	*/
+  PWR->CR |= PWR_CR_DBP;
+
+  /* unlock RTC write protection	*/
+  RTC->WPR = 0xCA;
+  RTC->WPR = 0x53;
+
+  /*	Wait for sync flag	*/
+  while(RTC->ISR && RTC_ISR_RSF == 0);
+
+  /*	Enter init mode	*/
+  RTC->ISR |= RTC_ISR_INIT;
+
+  /*	Wait for init mode to be entered	*/
+  volatile uint32_t i;
+  for (i = 0; i < 10000; i++)
+  {
+	  if ((RTC->ISR && RTC_ISR_INITF) != 0)
+		  break;
+  }
+
+  /*	If timeout passes while init mode is not yet entered	*/
+  if (i == 10000)
+	  status = HAL_ERROR;
+  /*	Otherwise, if successfully entered init mode	*/
+  else
+	  status = HAL_OK;
 
   if (status == HAL_OK)
   {
-    /* Set the RTC_TR register */
-    hrtc->Instance->TR = (uint32_t)(tmpreg & RTC_TR_RESERVED_MASK);
+	  /*	After entering init mode, CPU must wait before writing RTC registers	*/
+	  for(volatile uint32_t n = 0; n < 1000000; n++);
 
-    /* Clear the bits to be configured (Deprecated. Use HAL_RTC_DST_xxx functions instead) */
-    hrtc->Instance->CR &= (uint32_t)~RTC_CR_BKP;
+	  /* Set the RTC_TR register */
+	  hrtc->Instance->TR = (uint32_t)(tmpreg & RTC_TR_RESERVED_MASK);
 
-    /* Configure the RTC_CR register (Deprecated. Use HAL_RTC_DST_xxx functions instead) */
-    hrtc->Instance->CR |= (uint32_t)(sTime->DayLightSaving | sTime->StoreOperation);
+	  /*	Wait for write to be completed	*/
+	  for(volatile uint32_t n = 0; n < 1000000; n++);
 
     /* Exit Initialization mode */
     status = RTC_ExitInitMode(hrtc);
@@ -902,19 +931,54 @@ HAL_StatusTypeDef HAL_RTC_SetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDat
                   (((uint32_t)sDate->WeekDay) << RTC_DR_WDU_Pos));
   }
 
-  /* Disable the write protection for RTC registers */
-  __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
+  /*
+   * Following section is modified by Ali Emad. Due to incorrect operation of
+   * the RTC hardware, stated in device errata: "ES0222-Rev7, 2.7.4".
+   */
+  /* Assure PWR peripheral is enabled */
+  RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 
-  /* Enter Initialization mode */
-  status = RTC_EnterInitMode(hrtc);
+  /*	Unlock write to backup domain	*/
+  PWR->CR |= PWR_CR_DBP;
+
+  /* unlock RTC write protection	*/
+  RTC->WPR = 0xCA;
+  RTC->WPR = 0x53;
+
+  /*	Wait for sync flag	*/
+  while(RTC->ISR && RTC_ISR_RSF == 0);
+
+  /*	Enter init mode	*/
+  RTC->ISR |= RTC_ISR_INIT;
+
+  /*	Wait for init mode to be entered	*/
+  volatile uint32_t i;
+  for (i = 0; i < 10000; i++)
+  {
+	  if ((RTC->ISR && RTC_ISR_INITF) != 0)
+		  break;
+  }
+
+  /*	If timeout passes while init mode is not yet entered	*/
+  if (i == 10000)
+	  status = HAL_ERROR;
+  /*	Otherwise, if successfully entered init mode	*/
+  else
+	  status = HAL_OK;
 
   if (status == HAL_OK)
   {
-    /* Set the RTC_DR register */
-    hrtc->Instance->DR = (uint32_t)(datetmpreg & RTC_DR_RESERVED_MASK);
+	  /*	After entering init mode, CPU must wait before writing RTC registers	*/
+	  for(volatile uint32_t n = 0; n < 1000000; n++);
 
-    /* Exit Initialization mode */
-    status = RTC_ExitInitMode(hrtc);
+	  /* Set the RTC_DR register */
+	  hrtc->Instance->DR = (uint32_t)(datetmpreg & RTC_DR_RESERVED_MASK);
+
+	  /*	Wait for write to be completed	*/
+	  for(volatile uint32_t n = 0; n < 1000000; n++);
+
+	  /* Exit Initialization mode */
+	  status = RTC_ExitInitMode(hrtc);
   }
 
   if (status == HAL_OK)

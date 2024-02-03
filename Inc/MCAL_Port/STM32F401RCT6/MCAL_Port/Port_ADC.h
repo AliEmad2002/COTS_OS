@@ -28,8 +28,12 @@ extern const uint32_t pxPortADCChannelsArr[];
 #define ucPORT_ADC_VREFINT_UNIT_NUMBER		(	0	)
 #define ucPORT_ADC_VREFINT_CH_NUMBER		(	17	)
 
+/*	Number of unit and channel connected to backup battery	*/
+#define ucPORT_ADC_BKP_BAT_UNIT_NUMBER		(	0	)
+#define ucPORT_ADC_BKP_BAT_CH_NUMBER		(	18	)
+
 /*	Value of internal voltage reference in mV	*/
-#define uiPORT_ADC_VREFINT_IN_MV			(	1200	)
+#define uiPORT_ADC_VREFINT_IN_MV			(	1210	)
 
 /*	Value of voltage reference in mV	*/
 #define uiPORT_ADC_VREF_IN_MV				(	3300	)
@@ -42,9 +46,9 @@ extern const uint32_t pxPortADCChannelsArr[];
  * Internal temperature sensor equation parameters, such that:
  * 		-	Temperature_in_mill_C = (A * Sensor_voltage_in_micro_V + B) / C
  */
-#define iPORT_ADC_TEMP_SENS_A						(	-10			)
-#define iPORT_ADC_TEMP_SENS_B						(	15075000	)
-#define iPORT_ADC_TEMP_SENS_C						(	43			)
+#define iPORT_ADC_TEMP_SENS_A						(	2			)
+#define iPORT_ADC_TEMP_SENS_B						(	-1395000	)
+#define iPORT_ADC_TEMP_SENS_C						(	5			)
 
 
 /*******************************************************************************
@@ -68,16 +72,17 @@ void vPort_ADC_setChannelSampleTime(	uint8_t ucUnitNumber,
 										uint32_t uiSampleTimeInUsBy10	);
 
 /*	Selects channel to be used by a unit	*/
+extern void vADC_selectChannel(uint8_t ucUnitNumber, uint8_t ucChannelNumber);
 #define vPORT_ADC_SELECT_CHANNEL(ucUnitNumber, ucChannelNumber)	\
-	(LL_ADC_REG_SetSequencerRanks(pxPortADCArr[(ucUnitNumber)], LL_ADC_REG_RANK_1, pxPortADCChannelsArr[(ucChannelNumber)]))
+	(vADC_selectChannel(ucUnitNumber, ucChannelNumber))
 
 /*	Reads EOC flag.	*/
 #define ucPORT_ADC_GET_EOC_FLAG(ucUnitNumber)	\
-	(LL_ADC_IsActiveFlag_EOS(pxPortADCArr[(ucUnitNumber)]))
+	(LL_ADC_IsActiveFlag_EOCS(pxPortADCArr[(ucUnitNumber)]))
 
 /*	Clears EOC flag.	*/
 #define vPORT_ADC_CLR_EOC_FLAG(ucUnitNumber)	\
-	(LL_ADC_ClearFlag_EOS(pxPortADCArr[(ucUnitNumber)]))
+	(LL_ADC_ClearFlag_EOCS(pxPortADCArr[(ucUnitNumber)]))
 
 /*	Reads start flag.	*/
 #define ucPORT_ADC_GET_START_FLAG(ucUnitNumber)	\
@@ -85,11 +90,11 @@ void vPort_ADC_setChannelSampleTime(	uint8_t ucUnitNumber,
 
 /*	Enables EOC interrupt	*/
 #define vPORT_ADC_ENABLE_EOC_INTERRUPT(ucUnitNumber)	\
-	(LL_ADC_EnableIT_EOS(pxPortADCArr[(ucUnitNumber)]))
+	(LL_ADC_EnableIT_EOCS(pxPortADCArr[(ucUnitNumber)]))
 
 /*	Disables EOC interrupt	*/
 #define vPORT_ADC_DISABLE_EOC_INTERRUPT(ucUnitNumber)	\
-	(LL_ADC_DisableIT_EOS(pxPortADCArr[(ucUnitNumber)]))
+	(LL_ADC_DisableIT_EOCS(pxPortADCArr[(ucUnitNumber)]))
 
 /*	Sets EOC ISR callback	*/
 void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,

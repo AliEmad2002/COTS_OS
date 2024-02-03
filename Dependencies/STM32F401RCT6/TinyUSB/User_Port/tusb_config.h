@@ -54,7 +54,7 @@
 //--------------------------------------------------------------------
 // COMMON CONFIGURATION
 //--------------------------------------------------------------------
-#define CFG_TUSB_MCU		OPT_MCU_STM32F1
+#define CFG_TUSB_MCU		OPT_MCU_STM32F4
 
 
 // defined by board.mk

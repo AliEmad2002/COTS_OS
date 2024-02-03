@@ -18,6 +18,7 @@
 #include "LIB/Assert.h"
 
 #define uiPORT_CLOCK_MAIN_HZ		84000000//(SystemCoreClock)
+#define uiPORT_CLOCK_ADC_DIV		4
 
 void vPort_Clock_initCpuClock(void);
 

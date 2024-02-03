@@ -92,7 +92,8 @@ extern const IRQn_Type pxPortInterruptAdcEocIrqNumberArr[];
 //#define ucPORT_INTERRUPT_IRQ_DEF_DMA
 #define ucPORT_INTERRUPT_IRQ_DEF_EXTI
 #define ucPORT_INTERRUPT_IRQ_DEF_UART
-
+#define ucPORT_INTERRUPT_IRQ_DEF_USB
+#define ucPORT_INTERRUPT_IRQ_DEF_ADC
 
 
 

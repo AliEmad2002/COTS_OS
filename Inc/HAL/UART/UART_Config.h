@@ -12,7 +12,7 @@
 /*
  * Total number of UART units required for the application.
  */
-#define uiCONF_UART_NUMBER_OF_NEEDED_UNITS			3
+#define uiCONF_UART_NUMBER_OF_NEEDED_UNITS			1
 
 /*
  * SW units' pins.

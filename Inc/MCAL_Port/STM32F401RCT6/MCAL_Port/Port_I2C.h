@@ -19,7 +19,6 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_ll_i2c.h"
 #include "MCAL_Port/Port_Clock.h"
-#include "MCAL_Port/Port_AFIO.h"
 #include "MCAL_Port/Port_GPIO.h"
 #include "LIB/Assert.h"
 
@@ -40,7 +39,6 @@ extern I2C_TypeDef* const pxPortI2cArr[];
  * Structures:
  ******************************************************************************/
 typedef struct{
-	uint8_t ucAFIOMapNumber;
 	uint8_t ucEnableGeneralCall : 1;
 	uint8_t ucEnableClockStretching : 1;
 	uint8_t ucClockMode: 1; // 0==>SM(Standard Mode), 1==>FM(Fast Mode)

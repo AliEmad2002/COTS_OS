@@ -165,6 +165,10 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 {
 	uint8_t ucFlag;
 
+	/*
+	 * TODO: Driver should handle I2C transreceiption without entering such long
+	 * time critical sections.
+	 */
 	taskENTER_CRITICAL();
 
 	/*	Wait for bus if it was busy	*/

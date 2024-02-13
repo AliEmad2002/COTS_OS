@@ -31,6 +31,18 @@ void vPort_GPIO_initSpiPins(	uint8_t ucUnitNumber,
 								uint8_t ucInitMOSI	);
 
 /*
+ * Initializes UART associated pins.
+ */
+void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
+								uint8_t ucInitTx,
+								uint8_t ucInitRx	);
+
+/*
+ * Initializes I2C associated pins.
+ */
+void vPort_GPIO_initI2cPins(uint8_t ucUnitNumber);
+
+/*
  * Initializes timer associated pins.
  *
  * Notes:

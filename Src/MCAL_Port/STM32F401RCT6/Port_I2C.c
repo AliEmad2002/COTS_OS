@@ -14,6 +14,8 @@
 #include "stm32f4xx_hal.h"
 
 #include "MCAL_Port/Port_I2C.h"
+#include "MCAL_Port/Port_GPIO.h"
+
 
 I2C_TypeDef* const pxPortI2cArr[] = {I2C1, I2C2};
 
@@ -21,8 +23,7 @@ I2C_TypeDef* const pxPortI2cArr[] = {I2C1, I2C2};
 void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf)
 {
 	/*	Init pins HW	*/
-	vPort_AFIO_mapI2C(ucUnitNumber, pxConf->ucAFIOMapNumber);
-	vPort_GPIO_initI2CPins(ucUnitNumber, ucUnitNumber);
+	vPort_GPIO_initI2cPins(ucUnitNumber);
 
 	/*	Disable unit before initialization	*/
 	vPort_I2C_disable(ucUnitNumber);
@@ -51,8 +52,7 @@ void vPort_I2C_initHardware(uint8_t ucUnitNumber, xPort_I2C_HW_Conf_t* pxConf)
 	/*	Set peripheral frequency to that of APB bus	*/
 	LL_I2C_SetPeriphClock(
 		pxPortI2cArr[ucUnitNumber],
-		uiPORT_CLOCK_MAIN_HZ / 1 / 2);
-		//uiPORT_CLOCK_MAIN_HZ / uiPORT_CLOCK_AHB_DIV / uiPORT_CLOCK_APB1_DIV	);
+		uiPORT_CLOCK_MAIN_HZ / 1 / 2);	/*	All I2C units are connected to APB1 bus	*/
 }
 
 

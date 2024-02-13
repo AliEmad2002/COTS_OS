@@ -102,7 +102,7 @@ static inline void vPort_UART_setBaudRate(uint8_t ucUnitNumber, uint32_t uiBaudR
 {
 	LL_USART_SetBaudRate(	pxPortUartArr[ucUnitNumber],
 							puiPortUartPeriphClockArr[ucUnitNumber],
-							LL_USART_OVERSAMPLING_8,
+							LL_USART_OVERSAMPLING_16,
 							uiBaudRate	);
 }
 

@@ -80,6 +80,12 @@ void vPort_Clock_initPeriphClock(void)
 
 	/*	Initialize ADC clock	*/
 	__HAL_RCC_ADC1_CLK_ENABLE();
+
+	/*	Initialize UART clock	*/
+	__HAL_RCC_USART1_CLK_ENABLE();
+
+	/*	Initialize I2C clock	*/
+	__HAL_RCC_I2C1_CLK_ENABLE();
 }
 
 

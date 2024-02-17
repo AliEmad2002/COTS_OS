@@ -117,7 +117,7 @@ uint32_t uiHOS_ADC_getVoltageDirect(uint32_t uiRawRead);
  */
 void vHOS_ADC_initDmaSampling(	uint8_t ucUnitNumber,
 								uint8_t* pucChannelNumberSequenceArr,
-								uint8_t ucChannelSequenceLength,
+								uint8_t ucChannelSequenceLength
 								);
 
 #endif /* COTS_OS_INC_HAL_ADC_ADC_H_ */

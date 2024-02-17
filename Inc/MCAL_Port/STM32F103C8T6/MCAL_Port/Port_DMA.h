@@ -156,14 +156,44 @@ void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t*  pxInfo);
 
 /*
  * Sets callback of transfer complete interrupt of a certain channel.
- *
- * This function should not be changed even when target is changed, as it only
- * uses driver's defined arrays.
  */
 void vPort_DMA_setTransferCompleteCallback(	uint8_t ucUnitNumber,
-															uint8_t ucChannelNumber,
-															void(*pfCallback)(void*),
-															void* pvParams	);
+											uint8_t ucChannelNumber,
+											void(*pfCallback)(void*),
+											void* pvParams	);
+
+/*
+ * Reads transfer half complete flag of a channel.
+ */
+#define ucPort_DMA_GET_THC_FLAG(ucUnitNumber, ucChannelNumber)	\
+	(READ_BIT(pxPort_DmaArr[(ucUnitNumber)]->ISR, 1 << (4*(ucChannelNumber)+2)))
+
+/*
+ * Clears transfer half complete flag of a channel.
+ */
+#define vPort_DMA_CLEAR_THC_FLAG(ucUnitNumber, ucChannelNumber)	\
+		WRITE_REG(pxPort_DmaArr[(ucUnitNumber)]->IFCR, 1ul << (2 + 4 * (ucChannelNumber)));
+
+/*
+ * Enables transfer half complete interrupt of a channel.
+ */
+#define vPORT_DMA_ENABLE_TRANSFER_HALF_COMPLETE_INTERRUPT(ucUnitNumber, ucChannelNumber)	\
+	(	LL_DMA_EnableIT_HT(pxPort_DmaArr[(ucUnitNumber)], (ucChannelNumber) + 1)	)
+
+/*
+ * Disables transfer half complete interrupt of a channel.
+ */
+#define vPORT_DMA_DISABLE_TRANSFER_HALF_COMPLETE_INTERRUPT(ucUnitNumber, ucChannelNumber)	\
+	(	LL_DMA_DisableIT_HT(pxPort_DmaArr[(ucUnitNumber)], (ucChannelNumber) + 1)	)
+
+/*
+ * Sets callback of transfer complete interrupt of a certain channel.
+ */
+void vPort_DMA_setTransferHalfCompleteCallback(	uint8_t ucUnitNumber,
+												uint8_t ucChannelNumber,
+												void(*pfCallback)(void*),
+												void* pvParams	);
+
 
 
 

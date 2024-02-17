@@ -35,6 +35,9 @@ typedef struct{
 	SemaphoreHandle_t xMutex;
 	StaticSemaphore_t xMutexStatic;
 
+	SemaphoreHandle_t xTransferHalfCompleteSemaphore;
+	StaticSemaphore_t xTransferHalfCompleteSemaphoreStatic;
+
 	SemaphoreHandle_t xTransferCompleteSemaphore;
 	StaticSemaphore_t xTransferCompleteSemaphoreStatic;
 }xHOS_DMA_Channel_t;
@@ -64,7 +67,7 @@ static StaticSemaphore_t xQueueMutexStatic;
 /*******************************************************************************
  * ISR callback:
  ******************************************************************************/
-static void vCallback(void* pvParams)
+static void vTCCallback(void* pvParams)
 {
 	xHOS_DMA_Channel_t* pxChannel = (xHOS_DMA_Channel_t*)pvParams;
 	BaseType_t xHighPriorityTaskWoken = pdFALSE;
@@ -74,6 +77,18 @@ static void vCallback(void* pvParams)
 
 	portYIELD_FROM_ISR(xHighPriorityTaskWoken);
 }
+
+static void vTHCCallback(void* pvParams)
+{
+	xHOS_DMA_Channel_t* pxChannel = (xHOS_DMA_Channel_t*)pvParams;
+	BaseType_t xHighPriorityTaskWoken = pdFALSE;
+
+	xSemaphoreGiveFromISR(	pxChannel->xTransferHalfCompleteSemaphore,
+							&xHighPriorityTaskWoken	);
+
+	portYIELD_FROM_ISR(xHighPriorityTaskWoken);
+}
+
 
 /*******************************************************************************
  * API functions:
@@ -112,6 +127,11 @@ void vHOS_DMA_init(void)
 					&pxChannelArr[i].xTransferCompleteSemaphoreStatic	);
 			xSemaphoreGive(pxChannelArr[i].xTransferCompleteSemaphore);
 
+			pxChannelArr[i].xTransferHalfCompleteSemaphore =
+				xSemaphoreCreateBinaryStatic(
+					&pxChannelArr[i].xTransferHalfCompleteSemaphoreStatic	);
+			xSemaphoreGive(pxChannelArr[i].xTransferHalfCompleteSemaphore);
+
 			/*	Enqueue pointer to the channel to channels' queue	*/
 			pxChannel = &pxChannelArr[i];
 			xQueueSend(xChannelQueue, (void*)&pxChannel, portMAX_DELAY); // shall never wait.
@@ -125,10 +145,15 @@ void vHOS_DMA_init(void)
 
 			vPort_DMA_setTransferCompleteCallback(	ucUnit,
 													ucCh,
-													vCallback,
+													vTCCallback,
 													(void*)pxChannel	);
 
-			vPORT_DMA_ENABLE_TRANSFER_COMPLETE_INTERRUPT(ucUnit, ucCh);
+			vPort_DMA_setTransferHalfCompleteCallback(	ucUnit,
+														ucCh,
+														vTHCCallback,
+														(void*)pxChannel	);
+
+			vPORT_DMA_ENABLE_TRANSFER_HALF_COMPLETE_INTERRUPT(ucUnit, ucCh);
 
 			i++;
 		}
@@ -230,13 +255,26 @@ uint8_t ucHOS_DMA_blockUntilTransferComplete(	uint8_t ucUnitNumber,
 /*
  * See header for info.
  */
-void vHOS_DMA_clearTransferCompleteFlag(	uint8_t ucUnitNumber,
-											uint8_t ucChannelNumber	)
+uint8_t ucHOS_DMA_blockUntilTransferHalfComplete(	uint8_t ucUnitNumber,
+													uint8_t ucChannelNumber,
+													TickType_t xTimeout	)
 {
 	uint32_t uiIndex = ucUnitNumber * portDMA_NUMBER_OF_CHANNELS_PER_UNIT + ucChannelNumber;
 
-	xSemaphoreTake(pxChannelArr[uiIndex].xTransferCompleteSemaphore, 0);
+	return xSemaphoreTake(	pxChannelArr[uiIndex].xTransferHalfCompleteSemaphore,
+							xTimeout	);
 }
+
+///*
+// * See header for info.
+// */
+//void vHOS_DMA_clearTransferCompleteFlag(	uint8_t ucUnitNumber,
+//											uint8_t ucChannelNumber	)
+//{
+//	uint32_t uiIndex = ucUnitNumber * portDMA_NUMBER_OF_CHANNELS_PER_UNIT + ucChannelNumber;
+//
+//	xSemaphoreTake(pxChannelArr[uiIndex].xTransferCompleteSemaphore, 0);
+//}
 
 /*
  * See header for info.

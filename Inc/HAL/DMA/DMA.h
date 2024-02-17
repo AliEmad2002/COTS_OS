@@ -88,13 +88,33 @@ uint8_t ucHOS_DMA_blockUntilTransferComplete(	uint8_t ucUnitNumber,
 												TickType_t xTimeout	);
 
 /*
- * Clears transfer complete flag.
+ * Blocks the calling task until transfer is half-completed.
  *
  * Notes:
- * 		-	TC flags must be cleared before starting a transfer.
+ * 		-	Useful to achieve 0% missed data (See diagram at DOC folder).
+ * 		-	Returns 1 if transfer completed, 0 if timeout was reached.
  */
-void vHOS_DMA_clearTransferCompleteFlag(	uint8_t ucUnitNumber,
-											uint8_t ucChannelNumber	);
+uint8_t ucHOS_DMA_blockUntilHalfTransferComplete(	uint8_t ucUnitNumber,
+													uint8_t ucChannelNumber,
+													TickType_t xTimeout	);
+
+///*
+// * Clears transfer complete flag (SW Semaphore, not physical flag).
+// *
+// * Notes:
+// * 		-	TC flags must be cleared before starting a transfer.
+// */
+//void vHOS_DMA_clearTransferCompleteFlag(	uint8_t ucUnitNumber,
+//											uint8_t ucChannelNumber	);
+//
+///*
+// * Clears transfer half complete flag (SW Semaphore, not physical flag).
+// *
+// * Notes:
+// * 		-	THC flags must be cleared before starting a transfer.
+// */
+//void vHOS_DMA_clearTransferHalfCompleteFlag(	uint8_t ucUnitNumber,
+//											uint8_t ucChannelNumber	);
 
 /*
  * Releases a previously locked channel.

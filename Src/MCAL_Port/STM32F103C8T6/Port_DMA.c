@@ -121,72 +121,120 @@ void vPort_DMA_startTransfer(xPort_DMA_TransInfo_t* pxInfo)
  ******************************************************************************/
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_DMA
 
-volatile void(*ppfPortDmaCallbackArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT]) (void*);
-void* ppvPortDmaCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
+volatile void(*ppfPortDmaTCCallbackArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT]) (void*);
+void* ppvPortDmaTCCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
+
+volatile void(*ppfPortDmaTHCCallbackArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT]) (void*);
+void* ppvPortDmaTHCCallbackParamsArr[portDMA_NUMBER_OF_UNITS][portDMA_NUMBER_OF_CHANNELS_PER_UNIT];
 
 void vPort_DMA_setTransferCompleteCallback(	uint8_t ucUnitNumber,
 															uint8_t ucChannelNumber,
 															void(*pfCallback)(void*),
 															void* pvParams	)
 {
-	ppfPortDmaCallbackArr[ucUnitNumber][ucChannelNumber] = pfCallback;
-	ppvPortDmaCallbackParamsArr[ucUnitNumber][ucChannelNumber] = pvParams;
+	ppfPortDmaTCCallbackArr[ucUnitNumber][ucChannelNumber] = pfCallback;
+	ppvPortDmaTCCallbackParamsArr[ucUnitNumber][ucChannelNumber] = pvParams;
+}
+
+void vPort_DMA_setTransferHalfCompleteCallback(	uint8_t ucUnitNumber,
+												uint8_t ucChannelNumber,
+												void(*pfCallback)(void*),
+												void* pvParams	)
+{
+	ppfPortDmaTHCCallbackArr[ucUnitNumber][ucChannelNumber] = pfCallback;
+	ppvPortDmaTHCCallbackParamsArr[ucUnitNumber][ucChannelNumber] = pvParams;
 }
 
 void DMA1_Channel1_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 0))
 	{
-		ppfPortDmaCallbackArr[0][0](ppvPortDmaCallbackParamsArr[0][0]);
+		ppfPortDmaTCCallbackArr[0][0](ppvPortDmaTCCallbackParamsArr[0][0]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 0);
 	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 0))
+	{
+		ppfPortDmaTHCCallbackArr[0][0](ppvPortDmaTCCallbackParamsArr[0][0]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 0);
+	}
 }
+
 void DMA1_Channel2_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 1))
 	{
-		ppfPortDmaCallbackArr[0][1](ppvPortDmaCallbackParamsArr[0][1]);
+		ppfPortDmaTCCallbackArr[0][1](ppvPortDmaTCCallbackParamsArr[0][1]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 1);
+	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 1))
+	{
+		ppfPortDmaTHCCallbackArr[0][1](ppvPortDmaTCCallbackParamsArr[0][1]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 1);
 	}
 }
 void DMA1_Channel3_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 2))
 	{
-		ppfPortDmaCallbackArr[0][2](ppvPortDmaCallbackParamsArr[0][2]);
+		ppfPortDmaTCCallbackArr[0][2](ppvPortDmaTCCallbackParamsArr[0][2]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 2);
+	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 2))
+	{
+		ppfPortDmaTHCCallbackArr[0][2](ppvPortDmaTCCallbackParamsArr[0][2]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 2);
 	}
 }
 void DMA1_Channel4_IRQHandler(void)
 {
-if (ucPort_DMA_GET_TC_FLAG(0, 3))
+	if (ucPort_DMA_GET_TC_FLAG(0, 3))
 	{
-		ppfPortDmaCallbackArr[0][3](ppvPortDmaCallbackParamsArr[0][3]);
+		ppfPortDmaTCCallbackArr[0][3](ppvPortDmaTCCallbackParamsArr[0][3]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 3);
+	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 3))
+	{
+		ppfPortDmaTHCCallbackArr[0][3](ppvPortDmaTCCallbackParamsArr[0][3]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 3);
 	}
 }
 void DMA1_Channel5_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 4))
 	{
-		ppfPortDmaCallbackArr[0][4](ppvPortDmaCallbackParamsArr[0][4]);
+		ppfPortDmaTCCallbackArr[0][4](ppvPortDmaTCCallbackParamsArr[0][4]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 4);
+	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 4))
+	{
+		ppfPortDmaTHCCallbackArr[0][4](ppvPortDmaTCCallbackParamsArr[0][4]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 4);
 	}
 }
 void DMA1_Channel6_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 5))
 	{
-		ppfPortDmaCallbackArr[0][5](ppvPortDmaCallbackParamsArr[0][5]);
+		ppfPortDmaTCCallbackArr[0][5](ppvPortDmaTCCallbackParamsArr[0][5]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 5);
+	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 5))
+	{
+		ppfPortDmaTHCCallbackArr[0][5](ppvPortDmaTCCallbackParamsArr[0][5]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 5);
 	}
 }
 void DMA1_Channel7_IRQHandler(void)
 {
 	if (ucPort_DMA_GET_TC_FLAG(0, 6))
 	{
-		ppfPortDmaCallbackArr[0][6](ppvPortDmaCallbackParamsArr[0][6]);
+		ppfPortDmaTCCallbackArr[0][6](ppvPortDmaTCCallbackParamsArr[0][6]);
 		vPort_DMA_CLEAR_TC_FLAG(0, 6);
+	}
+	else if (ucPort_DMA_GET_THC_FLAG(0, 6))
+	{
+		ppfPortDmaTHCCallbackArr[0][6](ppvPortDmaTCCallbackParamsArr[0][6]);
+		vPort_DMA_CLEAR_THC_FLAG(0, 6);
 	}
 }
 

@@ -8,6 +8,7 @@
 #ifndef COTS_OS_INC_HAL_KEYPAD_KEYPAD_H_
 #define COTS_OS_INC_HAL_KEYPAD_KEYPAD_H_
 
+#include "HAL/Keypad/Keypad_Conf.h"
 
 typedef struct{
 	/*		PUBLIC		*/

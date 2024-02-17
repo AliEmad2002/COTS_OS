@@ -235,6 +235,11 @@ void vPort_TIM_generateOnePulse(	uint8_t ucUnitNumber,
 	vPORT_TIM_ENABLE_COUNTER(ucUnitNumber);
 }
 
+void vPort_TIM_enableTriggerOutput(uint8_t ucUnitNumber)
+{
+	LL_TIM_SetTriggerOutput(pxPortTimArr[ucUnitNumber], LL_TIM_TRGO_UPDATE);
+}
+
 
 /*******************************************************************************
  * ISRs:

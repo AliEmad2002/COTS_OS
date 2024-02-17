@@ -295,7 +295,14 @@ void vPort_TIM_generateOnePulse(	uint8_t ucUnitNumber,
 									uint8_t ucChannelNumber,
 									uint32_t uiTimeNanoSeconds);
 
-
+/*
+ * Enables timer trigger output on counter overflow.
+ *
+ * Notes:
+ * 		-	Used for synchronization of other modules.
+ * 		-	Available in most of arm based MCUs, and hence portable.
+ */
+void vPort_TIM_enableTriggerOutput(uint8_t ucUnitNumber);
 
 
 

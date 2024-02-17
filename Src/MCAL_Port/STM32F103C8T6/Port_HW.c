@@ -27,6 +27,7 @@
 #include "MCAL_Port/Port_ADC.h"
 #include "MCAL_Port/Port_I2C.h"
 #include "MCAL_Port/Port_SPI.h"
+#include "MCAL_Port/Port_Timer.h"
 
 void vPort_HW_init(void)
 {
@@ -41,6 +42,9 @@ void vPort_HW_init(void)
 
 	/*	Initialize ADC	*/
 	vPort_ADC_init(0);
+
+	/*	Initialize Timer	*/
+	uiPort_TIM_setOvfFreq(2, 1);
 
 	/*	Initialize USB	*/
 	vPort_USB_initHardware();

@@ -51,6 +51,16 @@ const uint32_t pxPortADCChannelsArr[] = {
 		LL_ADC_CHANNEL_17
 };
 
+const uint8_t pucPortADCTriggeringTimerUnitNumber[] = {
+		2,
+		2
+};
+
+const uint8_t pucPortADCDoesUnitSupportDMA[] = {
+		1,
+		0
+};
+
 #ifdef ucPORT_INTERRUPT_IRQ_DEF_ADC
 	void (*ppfPortAdcIsrCallback[2])(void*);
 	void* ppvPortAdcIsrParams[2];
@@ -140,6 +150,28 @@ void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,
 {
 	ppfPortAdcIsrCallback[ucUnitNumber] = pfCallback;
 	ppvPortAdcIsrParams[ucUnitNumber] = pvParams;
+}
+
+void vPort_ADC_setTriggerSource(uint8_t ucUnitNumber, uint8_t ucSrc)
+{
+	if (ucSrc == 0)
+	{
+		LL_ADC_REG_SetTriggerSource(pxPortADCArr[ucUnitNumber], LL_ADC_REG_TRIG_SOFTWARE);
+		LL_ADC_REG_StartConversionSWStart(pxPortADCArr[ucUnitNumber]);
+	}
+	else
+	{
+		LL_ADC_REG_SetTriggerSource(pxPortADCArr[ucUnitNumber], LL_ADC_REG_TRIG_EXT_TIM3_TRGO);
+		LL_ADC_REG_StartConversionExtTrig(pxPortADCArr[ucUnitNumber], LL_ADC_REG_TRIG_EXT_RISING);
+	}
+}
+
+void vPort_ADC_setConversionMode(uint8_t ucUnitNumber, uint8_t ucMode)
+{
+	if (ucMode == 0)
+		LL_ADC_REG_SetContinuousMode(pxPortADCArr[ucUnitNumber], LL_ADC_REG_CONV_CONTINUOUS);
+	else
+		LL_ADC_REG_SetContinuousMode(pxPortADCArr[ucUnitNumber], LL_ADC_REG_CONV_SINGLE);
 }
 
 

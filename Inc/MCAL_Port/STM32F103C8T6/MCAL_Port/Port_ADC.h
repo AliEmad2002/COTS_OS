@@ -22,7 +22,7 @@ extern ADC_TypeDef* const pxPortADCArr[];
 extern const uint32_t pxPortADCChannelsArr[];
 
 /*******************************************************************************
- * Macros (Defining values):
+ * Defining target dependent values (Needed by upper layers):
  ******************************************************************************/
 /*	Number of unit and channel connected to internal voltage reference	*/
 #define ucPORT_ADC_VREFINT_UNIT_NUMBER		(	0	)
@@ -46,6 +46,12 @@ extern const uint32_t pxPortADCChannelsArr[];
 #define iPORT_ADC_TEMP_SENS_B						(	15075000	)
 #define iPORT_ADC_TEMP_SENS_C						(	43			)
 
+/*
+ * Number of timer unit used as trigger source for the ADC unit. (Used by upper
+ * layer SW when there's a need o synchronize ADC sampling).
+ *
+ */
+extern const uint8_t pucPortADCTriggeringTimerUnitNumber[];
 
 /*******************************************************************************
  * API functions / macros:
@@ -104,7 +110,22 @@ void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,
 #define usPORT_ADC_GET_DR(ucAdcNumber)	\
 	(	LL_ADC_REG_ReadConversionData12(pxPortADCArr[(ucAdcNumber)])	)
 
+/*
+ * Selects conversion triggering source (SW or timer)
+ *
+ * Notes:
+ * 		-	"ucSrc": 0==> SW trigger,	1==> Timer trigger.
+ * 		-	Timer unit is configured in "pucPortADCTriggeringTimerUnitNumber[]".
+ */
+void vPort_ADC_setTriggerSource(uint8_t ucUnitNumber, uint8_t ucSrc);
 
+/*
+ * Selects conversion mode.
+ *
+ * Notes:
+ * 		-	"ucMode": 0 ==> Continuous, 1 ==> Single sample.
+ */
+void vPort_ADC_setConversionMode(uint8_t ucUnitNumber, uint8_t ucMode);
 
 
 /*******************************************************************************

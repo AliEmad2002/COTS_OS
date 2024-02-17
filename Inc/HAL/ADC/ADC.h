@@ -50,7 +50,19 @@ void vHOS_ADC_setSampleTime(	uint8_t ucUnitNumber,
 								uint32_t uiSampleTime	);
 
 /*
+ * Selects conversion triggering source (SW or timer)
+ *
+ * Notes:
+ * 		-	"ucSrc": 0==> SW trigger,	1==> Timer trigger.
+ * 		-	Timer unit is configured in "pucPortADCTriggeringTimerUnitNumber[]".
+ */
+void vHOS_ADC_setTriggerSource(uint8_t ucUnitNumber, uint8_t ucSrc);
+
+/*
  * Triggers ADC sample and conversion.
+ *
+ * Notes:
+ * 		-	SW triggering must be initially selected as trigger source.
  */
 void vHOS_ADC_triggerRead(uint8_t ucUnitNumber);
 
@@ -92,5 +104,20 @@ int32_t iHOS_ADC_getVoltageCalib(int32_t iRawRead, uint32_t uiVrefIntRead);
  * Converts ADC reading to uV directly using "uiPORT_ADC_VREF_IN_MV".
  */
 uint32_t uiHOS_ADC_getVoltageDirect(uint32_t uiRawRead);
+
+/*
+ * Initializes DMA accelerated sampling.
+ *
+ * Notes:
+ * 		-	Not all units or all microcontrollers support DMA accelerated ADC
+ * 			sampling. Hence, this function is not 100% portable, and
+ * 			"pucPortADCDoesUnitSupportDMA[]" in "port_ADC.h" must be set accordingly.
+ *
+ * 		-	DMA must be initialized first.
+ */
+void vHOS_ADC_initDmaSampling(	uint8_t ucUnitNumber,
+								uint8_t* pucChannelNumberSequenceArr,
+								uint8_t ucChannelSequenceLength,
+								);
 
 #endif /* COTS_OS_INC_HAL_ADC_ADC_H_ */

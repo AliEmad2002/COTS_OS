@@ -145,18 +145,26 @@ inline void vHOS_ADC_setSampleTime(	uint8_t ucUnitNumber,
 /*
  * See header for info.
  */
-void vHOS_ADC_triggerRead(uint8_t ucUnitNumber)
+inline void vHOS_ADC_setTriggerSource(uint8_t ucUnitNumber, uint8_t ucSrc)
+{
+	vPort_ADC_setTriggerSource(ucUnitNumber, ucSrc);
+}
+
+/*
+ * See header for info.
+ */
+inline void vHOS_ADC_triggerRead(uint8_t ucUnitNumber)
 {
 	vPORT_ADC_TRIGGER_CONVERSION(ucUnitNumber);
 }
-//
-///*
-// * See header for info.
-// */
-//void vHOS_ADC_selectMode(uint8_t ucUnitNumber, uint8_t ucMode)
-//{
-//
-//}
+
+/*
+ * See header for info.
+ */
+inline void vHOS_ADC_selectMode(uint8_t ucUnitNumber, uint8_t ucMode)
+{
+	vPort_ADC_setConversionMode(ucUnitNumber, ucMode);
+}
 
 /*
  * See header for info.

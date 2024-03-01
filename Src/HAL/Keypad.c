@@ -13,6 +13,8 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "RTOS_PRI_Config.h"
+
 /*	MCAL	*/
 #include "MCAL_Port/Port_DIO.h"
 
@@ -23,16 +25,14 @@
 /*******************************************************************************
  * RTOS task:
  ******************************************************************************/
+volatile uint32_t uiNPresses = 0;
 static void vTask(void* pvParams)
 {
 	xHOS_Keypad_t* pxHandle = (xHOS_Keypad_t*)pvParams;
 
-	TickType_t xLastPressTime = 0;
-
 	while(1)
 	{
 		/*	Execute one scan	*/
-		pxHandle->ucNPressedKeys = 0;
 
 		/*	For every column pin	*/
 		for (uint8_t ucCol = 0; ucCol < pxHandle->ucNCols; ucCol++)
@@ -59,22 +59,16 @@ static void vTask(void* pvParams)
 				/*	If row pin is high, then pin[row][col] is now pressed.	*/
 				if (ucRowPinState == 1)
 				{
-					/*	If there's still space in "ucNPressedKeys" array	*/
-					if (pxHandle->ucNPressedKeys < ucCONF_KEYPAD_MAX_NUMBER_OF_SIMULTANEOUSLY_PRESSED_KEYS)
-					{
-						/*	Add button value to the "ucNPressedKeys" array	*/
-						pxHandle->pcPressedKeys[pxHandle->ucNPressedKeys++] =
-								pxHandle->pcButtons[ucRow][ucCol]	;
-					}
+					pxHandle->cLastPressedKey =
+							pxHandle->pcButtons[ucRow * pxHandle->ucNCols + ucCol];
 
-					/*
-					 * Otherwise, there's no need to complete this scan, as no
-					 * new presses can be accepted.
-					 */
-					else
-					{
-						/*	TODO	*/
-					}
+					/*	Give new press semaphore	*/
+					xSemaphoreGive(pxHandle->xNewPressedKeySemphr);
+
+					uiNPresses++;
+
+					/*	Debouncing delay	*/
+					vTaskDelay(pdMS_TO_TICKS(pxHandle->uiMsDebouncingDelay));
 				}
 			}
 
@@ -83,14 +77,73 @@ static void vTask(void* pvParams)
 									pxHandle->pucColPinArr[ucCol],
 									0	);
 		}
-
-
 	}
 }
 
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
+/*
+ * See header for info.
+ */
+void vHOS_Keypad_init(xHOS_Keypad_t* pxHandle)
+{
+	/*	Initialize all row pins as pulled-down inputs	*/
+	for (uint8_t i = 0; i < pxHandle->ucNRows; i++)
+	{
+		vPort_DIO_initPinInput(	pxHandle->pucRowPortArr[i],
+								pxHandle->pucRowPinArr[i],
+								2	);
+	}
 
+	/*	Initialize all col pins as outputs (initially low)	*/
+	for (uint8_t i = 0; i < pxHandle->ucNCols; i++)
+	{
+		vPort_DIO_initPinOutput(	pxHandle->pucColPortArr[i],
+									pxHandle->pucColPinArr[i]	);
 
+		vPORT_DIO_WRITE_PIN(	pxHandle->pucColPortArr[i],
+								pxHandle->pucColPinArr[i],
+								0	);
+	}
 
+	/*
+	 * "cLastPressedKey" is initially '\0'. Indicating that no keys have been
+	 * pressed.
+	 */
+	pxHandle->cLastPressedKey = '\0';
+
+	/*	Initialize new press semaphore	*/
+	pxHandle->xNewPressedKeySemphr =
+			xSemaphoreCreateBinaryStatic(&pxHandle->xNewPressedKeySemphrStatic);
+
+	xSemaphoreTake(pxHandle->xNewPressedKeySemphr, 0);
+
+	/*	Initialize handle's task	*/
+	pxHandle->xTask = xTaskCreateStatic(
+		vTask,
+		"keypad",
+		configMINIMAL_STACK_SIZE,
+		(void*)pxHandle,
+		configHOS_SOFT_REAL_TIME_TASK_PRI,
+		pxHandle->puxTaskStack,
+		&pxHandle->xTaskStatic);
+}
+
+uint8_t ucHOS_Keypad_waitKey(	xHOS_Keypad_t* pxHandle,
+								char* pcButtonVal,
+								TickType_t xTimeout	)
+{
+	uint8_t ucState =
+			xSemaphoreTake(pxHandle->xNewPressedKeySemphr, xTimeout);
+
+	if (!ucState)
+		return 0;
+
+	*pcButtonVal = pxHandle->cLastPressedKey;
+
+	return 1;
+}
 
 
 

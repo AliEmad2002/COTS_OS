@@ -52,13 +52,29 @@ void vPort_HW_init(void)
 	xPort_I2C_HW_Conf_t xI2cConf = {
 		.ucClockMode = 0,
 		.ucIsAddress7Bit = 1,
-		.uiSclFrequencyHz = 100000,
+		.uiSclFrequencyHz = 10000,
 		.uiMaxRisingTimeNs = 1000
 	};
 	vPort_I2C_initHardware(0, &xI2cConf);
 
+	/*	Initialize SPI	*/
+	xPort_SPI_HW_Conf_t XSpiConf = {
+			.ucFullDuplexEn = 1,
+			.ucLSBitFirst = 0,
+			.ucIsMaster = 1,
+			.ucMOSIEn = 1,
+			.ucMISOEn = 1,
+			.ucNssEn = 0,
+			.ucComMode = 0,
+			.usBaudratePrescaler = 256
+	};
+	vPort_SPI_initHardware(1, &XSpiConf);
+
 	/*	Initialize USB	*/
 	vPort_USB_initHardware();
+
+	/*	Initialize extended output port	*/
+	vPort_DIO_initExtendedOutputPorts();
 }
 
 

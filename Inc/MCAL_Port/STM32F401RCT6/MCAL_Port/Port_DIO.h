@@ -24,6 +24,8 @@
 #include "stm32f401xc.h"
 #include "stm32f4xx_hal.h"
 
+#include "HAL/IOExtend/OExtendShiftRegister.h"
+
 /*
  * Driver-long needed values.
  *
@@ -40,6 +42,8 @@
  * 			in a header.
  */
 extern GPIO_TypeDef* const pxPortDioPortArr[];
+
+extern xHOS_OExtendShiftRegister_t pxPortDioOutputExtendedPortArr[1];
 
 /*
  * Initializes pin as digital input.
@@ -85,8 +89,14 @@ void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber);
  *
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
-#define vPORT_DIO_WRITE_PIN(ucPortNumber, ucPinNumber, ucLevel)	\
-	(	HAL_GPIO_WritePin(pxPortDioPortArr[(ucPortNumber)], 1 << (ucPinNumber), (ucLevel))	)
+#define vPORT_DIO_WRITE_PIN(ucPortNumber, ucPinNumber, ucLevel)																	\
+{                                                                                                                               \
+	if (ucPortNumber <= 2)                                                                                                      \
+		{	(	HAL_GPIO_WritePin(pxPortDioPortArr[(ucPortNumber)], 1 << (ucPinNumber), (ucLevel))	);	}                       \
+	else                                                                                                                        \
+		{	vHOS_OExtendShiftRegister_writePin(&pxPortDioOutputExtendedPortArr[ucPortNumber-3], (ucPinNumber), (ucLevel));	}	\
+}                                                                                                                               \
+
 
 /*
  * Toggles pin output value
@@ -125,6 +135,11 @@ void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber);
 	__temp |= (usVal);                                          \
 	pxPortDioPortArr[(ucPortNumber)]->ODR = __temp;             \
 }
+
+/*
+ * Initializes extended output ports.
+ */
+void vPort_DIO_initExtendedOutputPorts(void);
 
 #endif /* HAL_OS_PORT_PORT_DIO_H_ */
 

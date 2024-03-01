@@ -169,7 +169,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	 * TODO: Driver should handle I2C transreceiption without entering such long
 	 * time critical sections.
 	 */
-	taskENTER_CRITICAL();
+//	taskENTER_CRITICAL();
 
 	/*	Wait for bus if it was busy	*/
 	while(ucPort_I2C_readBusBusyFlag(pxParams->ucUnitNumber));
@@ -180,7 +180,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	if (ucFlag == 0)
 	{
 		vPort_I2C_generateStop(pxParams->ucUnitNumber);
-		taskEXIT_CRITICAL();
+//		taskEXIT_CRITICAL();
 		__BKPT(0);
 		return 0;
 	}
@@ -199,7 +199,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 		if (ucFlag == 0)
 		{
 			vPort_I2C_generateStop(pxParams->ucUnitNumber);
-			taskEXIT_CRITICAL();
+//			taskEXIT_CRITICAL();
 			__BKPT(0);
 			return 0;
 		}
@@ -209,7 +209,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	if (pxParams->uiRxSize == 0)
 	{
 		vPort_I2C_generateStop(pxParams->ucUnitNumber);
-		taskEXIT_CRITICAL();
+//		taskEXIT_CRITICAL();
 		return 1;
 	}
 
@@ -218,7 +218,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	if (ucFlag == 0)
 	{
 		vPort_I2C_generateStop(pxParams->ucUnitNumber);
-		taskEXIT_CRITICAL();
+//		taskEXIT_CRITICAL();
 		__BKPT(0);
 		return 0;
 	}
@@ -252,7 +252,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	pxParams->pucRxArr[pxParams->uiRxSize-1] = ucPort_I2C_readDrImm(pxParams->ucUnitNumber);
 
 	/*	return successful	*/
-	taskEXIT_CRITICAL();
+//	taskEXIT_CRITICAL();
 	return 1;
 }
 

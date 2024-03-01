@@ -27,13 +27,13 @@ typedef struct{
 	 *
 	 * Example for 4x3 keypad:
 	 * 		pcButtons = {
-	 * 			{'1', '2', '3'},
-	 * 			{'4', '5', '6'},
-	 * 			{'7', '8', '9'},
-	 * 			{'*', '0', '#'}
+	 * 			'1', '2', '3',
+	 * 			'4', '5', '6',
+	 * 			'7', '8', '9',
+	 * 			'*', '0', '#'
 	 * 		};
 	 */
-	char** pcButtons;
+	char* pcButtons;
 
 	/*
 	 * Debouncing delay in ms.
@@ -47,8 +47,14 @@ typedef struct{
 	uint32_t uiMsSettlingDelay;
 
 	/*		PRIVATE		*/
-	char pcPressedKeys[ucCONF_KEYPAD_MAX_NUMBER_OF_SIMULTANEOUSLY_PRESSED_KEYS];
-	uint8_t ucNPressedKeys;
+	char cLastPressedKey;
+
+	SemaphoreHandle_t xNewPressedKeySemphr;
+	StaticSemaphore_t xNewPressedKeySemphrStatic;
+
+	TaskHandle_t xTask;
+	StaticTask_t xTaskStatic;
+	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
 }xHOS_Keypad_t;
 
 /*

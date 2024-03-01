@@ -26,7 +26,7 @@
  *
  * If the used target does not have DMA, make sure that "portDMA_IS_AVAILABLE" is 0.
  */
-#define portDMA_IS_AVAILABLE					1
+#define portDMA_IS_AVAILABLE					0
 
 
 #if portDMA_IS_AVAILABLE

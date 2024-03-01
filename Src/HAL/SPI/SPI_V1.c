@@ -277,7 +277,7 @@ void vHOS_SPI_send(uint8_t ucUnitNumber, int8_t* pcArr, uint32_t uiSize)
 	}
 
 	/*	Block until last byte is completely transmitted on the bus	*/
-	vBlockUntilNotBusy(pxUnit);
+//	vBlockUntilNotBusy(pxUnit);
 
 	/*	Acknowledge end of transfer	*/
 	xSemaphoreGive(pxUnit->xTransferCompleteSemaphore);

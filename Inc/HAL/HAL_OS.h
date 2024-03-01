@@ -41,6 +41,8 @@
 #include "HAL/CalibratableAmplifier/CalibratableAmplifier.h"
 #include "HAL/Thermocouple/Thermocouple.h"
 #include "HAL/Relay/Relay.h"
-
+#include "HAL/IOExtend/OExtendShiftRegister.h"
+#include "HAL/Keypad/Keypad.h"
+#include "HAL/EEPROM/EEPROM.h"
 
 #endif /* HAL_OS_INC_HAL_OS_H_ */

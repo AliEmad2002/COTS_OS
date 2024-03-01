@@ -86,6 +86,9 @@ void vPort_Clock_initPeriphClock(void)
 
 	/*	Initialize I2C clock	*/
 	__HAL_RCC_I2C1_CLK_ENABLE();
+
+	/*	Initialize SPI clock	*/
+	__HAL_RCC_SPI2_CLK_ENABLE();
 }
 
 

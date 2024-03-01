@@ -59,7 +59,8 @@ typedef struct{
  * Private (Static) variables:
  ******************************************************************************/
 static const xPort_GPIO_SpiMap_t pxSpiMapArr[] = {
-	{0, 0, 1, 3, 1, 4, 1, 5}
+	{0, 0, 1, 3, 1, 4, 1, 5},
+	{0, 0, 1, 10, 1, 14, 1, 15}
 };
 
 static const xPort_GPIO_UartMap_t pxUartMapArr[] = {
@@ -69,7 +70,7 @@ static const xPort_GPIO_UartMap_t pxUartMapArr[] = {
 };
 
 static const xPort_GPIO_I2CMap_t pxI2CMapArr[] = {
-	{1, 6, 1, 7},
+	{1, 8, 1, 9},
 	{1, 10, 1, 11}
 };
 
@@ -104,6 +105,17 @@ static void vPort_GPIO_initPinAFOD(uint8_t ucPort, uint8_t ucPin, uint32_t uiAF)
 	xConf.Pin = 1ul << ucPin;
 	xConf.Mode = GPIO_MODE_AF_OD;
 	xConf.Pull = GPIO_NOPULL;
+	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
+	xConf.Alternate = uiAF;
+	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
+}
+
+static void vPort_GPIO_initPinAFODPU(uint8_t ucPort, uint8_t ucPin, uint32_t uiAF)
+{
+	GPIO_InitTypeDef xConf;
+	xConf.Pin = 1ul << ucPin;
+	xConf.Mode = GPIO_MODE_AF_OD;
+	xConf.Pull = GPIO_PULLUP;
 	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
 	xConf.Alternate = uiAF;
 	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
@@ -179,13 +191,13 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 void vPort_GPIO_initI2cPins(uint8_t ucUnitNumber)
 {
 	/*	init SCL pin	*/
-	vPort_GPIO_initPinAFPPPU(
+	vPort_GPIO_initPinAFODPU(
 			pxI2CMapArr[ucUnitNumber].ucSclPort,
 			pxI2CMapArr[ucUnitNumber].ucSclPin,
 			GPIO_AF4_I2C1	);
 
 	/*	init SDA pin	*/
-	vPort_GPIO_initPinAFPPPU(
+	vPort_GPIO_initPinAFODPU(
 			pxI2CMapArr[ucUnitNumber].ucSdaPort,
 			pxI2CMapArr[ucUnitNumber].ucSdaPin,
 			GPIO_AF4_I2C1	);

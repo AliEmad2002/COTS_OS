@@ -65,8 +65,7 @@ static const xPort_GPIO_SpiMap_t pxSpiMapArr[] = {
 
 static const xPort_GPIO_UartMap_t pxUartMapArr[] = {
 	{0, 9, 0, 10},
-	{0, 2, 0, 3},
-	{1, 10, 1, 11}
+	{0, 2, 0, 3}
 };
 
 static const xPort_GPIO_I2CMap_t pxI2CMapArr[] = {
@@ -94,6 +93,17 @@ static void vPort_GPIO_initPinAFPPPU(uint8_t ucPort, uint8_t ucPin, uint32_t uiA
 	xConf.Pin = 1ul << ucPin;
 	xConf.Mode = GPIO_MODE_AF_PP;
 	xConf.Pull = GPIO_PULLUP;
+	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
+	xConf.Alternate = uiAF;
+	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
+}
+
+static void vPort_GPIO_initPinAFPPPD(uint8_t ucPort, uint8_t ucPin, uint32_t uiAF)
+{
+	GPIO_InitTypeDef xConf;
+	xConf.Pin = 1ul << ucPin;
+	xConf.Mode = GPIO_MODE_AF_PP;
+	xConf.Pull = GPIO_PULLDOWN;
 	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
 	xConf.Alternate = uiAF;
 	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
@@ -182,6 +192,32 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 		ucPort = pxUartMapArr[ucUnitNumber].ucRxPort;
 		ucPin = pxUartMapArr[ucUnitNumber].ucRxPin;
 		vPort_GPIO_initPinAFPP(ucPort, ucPin, GPIO_AF7_USART1);
+	}
+}
+
+/*
+ * See header for info
+ */
+void vPort_GPIO_deInitUartPins(	uint8_t ucUnitNumber,
+								uint8_t ucDeInitTx,
+								uint8_t ucDeInitRx	)
+{
+	uint8_t ucPort, ucPin;
+
+	/*	De-init Tx	*/
+	if (ucDeInitTx)
+	{
+		ucPort = pxUartMapArr[ucUnitNumber].ucTxPort;
+		ucPin = pxUartMapArr[ucUnitNumber].ucTxPin;
+		vPort_DIO_initPinInput(ucPort, ucPin, 0);
+	}
+
+	/*	Init Rx	*/
+	if (ucDeInitRx)
+	{
+		ucPort = pxUartMapArr[ucUnitNumber].ucRxPort;
+		ucPin = pxUartMapArr[ucUnitNumber].ucRxPin;
+		vPort_DIO_initPinInput(ucPort, ucPin, 0);
 	}
 }
 

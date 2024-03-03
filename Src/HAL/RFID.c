@@ -268,15 +268,38 @@ void vHOS_RFID_init(xHOS_RFID_t* pxHandle)
 		1,
 		(uint8_t*)pxHandle->pucTempFrameQueueMemory,
 		&pxHandle->xTempFrameQueueStatic	);
+
+	/*	Initialize power enable pin	*/
+	vPort_DIO_initPinOutput(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin);
 }
 
 /*
- * Gets new reading (ID of newly scanned tag).
- *
- * Notes:
- * 		-	If a new reading was previously received, or was received within the
- * 			given timeout, the ID is copied to "pxID" and function returns 1.
- * 			Otherwise, it returns 0.
+ * See header for info.
+ */
+void vHOS_RFID_enablePower(xHOS_RFID_t* pxHandle)
+{
+	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 1);
+
+	/*	Resume task	*/
+	vTaskResume(pxHandle->xTask);
+}
+
+/*
+ * See header for info.
+ */
+void vHOS_RFID_disablePower(xHOS_RFID_t* pxHandle)
+{
+	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 0);
+
+	/*	Suspend task	*/
+	vTaskSuspend(pxHandle->xTask);
+
+	/*	Flush current frame's Rx buffers	*/
+
+}
+
+/*
+ * See header for info.
  */
 uint8_t ucHOS_RFID_getNewReading(	xHOS_RFID_t* pxHandle,
 									xHOS_RFID_ID_t* pxID,

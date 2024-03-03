@@ -83,6 +83,7 @@ void vPort_Clock_initPeriphClock(void)
 
 	/*	Initialize UART clock	*/
 	__HAL_RCC_USART1_CLK_ENABLE();
+	__HAL_RCC_USART2_CLK_ENABLE();
 
 	/*	Initialize I2C clock	*/
 	__HAL_RCC_I2C1_CLK_ENABLE();

@@ -181,7 +181,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	{
 		vPort_I2C_generateStop(pxParams->ucUnitNumber);
 //		taskEXIT_CRITICAL();
-		__BKPT(0);
+//		__BKPT(0);
 		return 0;
 	}
 
@@ -200,7 +200,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 		{
 			vPort_I2C_generateStop(pxParams->ucUnitNumber);
 //			taskEXIT_CRITICAL();
-			__BKPT(0);
+//			__BKPT(0);
 			return 0;
 		}
 	}
@@ -219,7 +219,7 @@ uint8_t ucHOS_I2C_masterTransReceive(xHOS_I2C_transreceiveParams_t* pxParams)
 	{
 		vPort_I2C_generateStop(pxParams->ucUnitNumber);
 //		taskEXIT_CRITICAL();
-		__BKPT(0);
+//		__BKPT(0);
 		return 0;
 	}
 

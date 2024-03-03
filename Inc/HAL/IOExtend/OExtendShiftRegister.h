@@ -48,7 +48,9 @@ void vHOS_OExtendShiftRegister_writePin(
 		uint8_t ucPinNumber,
 		uint8_t ucVal	);
 
-void vHOS_OExtendShiftRegister_writePort(uint32_t uiVal);
+void vHOS_OExtendShiftRegister_writePort(
+		xHOS_OExtendShiftRegister_t* pxHandle,
+		uint32_t uiVal	);
 
 
 

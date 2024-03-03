@@ -29,12 +29,12 @@ void vHOS_OExtendShiftRegister_init(xHOS_OExtendShiftRegister_t* pxHandle)
 	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
 	xSemaphoreGive(pxHandle->xMutex);
 
-	/*	Output word is initially zero	*/
-	pxHandle->uiCurrentOutputWord = 0;
-
 	/*	Initialize latch pin	*/
 	vPort_DIO_initPinOutput(pxHandle->ucLatchPort, pxHandle->ucLatchPin);
 	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 0);
+
+	/*	Output word is initially zero	*/
+	vHOS_OExtendShiftRegister_writePort(pxHandle, 0);
 }
 
 void vHOS_OExtendShiftRegister_writePin(
@@ -75,4 +75,36 @@ void vHOS_OExtendShiftRegister_writePin(
 	xSemaphoreGive(pxHandle->xMutex);
 }
 
-void vHOS_OExtendShiftRegister_writePort(uint32_t uiVal);
+void vHOS_OExtendShiftRegister_writePort(
+		xHOS_OExtendShiftRegister_t* pxHandle,
+		uint32_t uiVal	)
+{
+	/*	Lock mutex	*/
+	xSemaphoreTake(pxHandle->xMutex, portMAX_DELAY);
+
+	/*	Write Latch pin low	*/
+	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 0);
+
+	/*	Edit stored current value of the port	*/
+	pxHandle->uiCurrentOutputWord = uiVal;
+
+	/*	SPI transmit	*/
+	ucHOS_SPI_takeMutex(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
+
+	vHOS_SPI_setByteDirection(	pxHandle->ucSpiUnitNumber,
+								ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST	);
+
+	vHOS_SPI_send(	pxHandle->ucSpiUnitNumber,
+					(int8_t*)&pxHandle->uiCurrentOutputWord,
+					pxHandle->ucRegisterSizeInBytes	);
+
+	ucHOS_SPI_blockUntilTransferComplete(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
+
+	vHOS_SPI_releaseMutex(pxHandle->ucSpiUnitNumber);
+
+	/*	Write Latch pin high	*/
+	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 1);
+
+	/*	Unlock mutex	*/
+	xSemaphoreGive(pxHandle->xMutex);
+}

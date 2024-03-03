@@ -108,7 +108,7 @@
 
 //------------- CLASS -------------//
 #define CFG_TUD_CDC              ucCONF_USB_CDC_NUMBER_OF_UNITS
-#define CFG_TUD_MSC				 0
+#define CFG_TUD_MSC				 1
 #define CFG_TUD_HID              0
 #define CFG_TUD_MIDI             0
 #define CFG_TUD_VENDOR           0

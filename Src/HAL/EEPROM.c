@@ -67,6 +67,7 @@ uint8_t ucHOS_EEPROM_write(	xHOS_EEPROM_t* pxHandle,
 		pucFrame[1] = usAddress & 0xFF;
 		pucFrame[2] = pucBuffer[i];
 		while(!ucHOS_I2C_masterTransReceive(&xParams));
+		vTaskDelay(10);	/*	TODO	*/
 	}
 
 	return 1;
@@ -76,6 +77,7 @@ uint8_t ucHOS_EEPROM_write(	xHOS_EEPROM_t* pxHandle,
 /*
  * See header for info.
  */
+uint16_t usAddress;
 uint8_t ucHOS_EEPROM_read(	xHOS_EEPROM_t* pxHandle,
 							uint8_t* pucBuffer,
 							uint32_t uiBufferSz,
@@ -85,7 +87,7 @@ uint8_t ucHOS_EEPROM_read(	xHOS_EEPROM_t* pxHandle,
 	/*	Read byte by byte (TODO: page write)	*/
 	/*	TODO: Timeout	*/
 	uint8_t pucFrame[2];
-	uint16_t usAddress;
+
 
 	xHOS_I2C_transreceiveParams_t xParams = {
 			.ucUnitNumber = pxHandle->ucI2cUnitNumber,
@@ -107,6 +109,8 @@ uint8_t ucHOS_EEPROM_read(	xHOS_EEPROM_t* pxHandle,
 		xParams.pucRxArr = &pucBuffer[i];
 
 		while(!ucHOS_I2C_masterTransReceive(&xParams));
+
+//		vTaskDelay(1);	/*	TODO	*/
 	}
 
 	return 1;

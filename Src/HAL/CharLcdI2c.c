@@ -9,7 +9,7 @@
 #include "stdint.h"
 
 /*	MCAL (Ported)	*/
-
+#include "MCAL_Port/Port_DIO.h"
 
 /*	RTOS	*/
 #include "FreeRTOS.h"
@@ -116,6 +116,18 @@ void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle)
 	/*	Initialize handle's mutex	*/
 	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
 	xSemaphoreGive(pxHandle->xMutex);
+
+	/*	Initialize power enable pin	*/
+	vPort_DIO_initPinOutput(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin);
+
+	/*	Power reset	*/
+	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 0)
+
+	vTaskDelay(pdMS_TO_TICKS(100));
+
+	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 1)
+
+	vTaskDelay(pdMS_TO_TICKS(100));
 
 	/*	Bus is initially all ones	*/
 	pxHandle->ucBusVal = 255;

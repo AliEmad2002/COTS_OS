@@ -29,7 +29,7 @@
 #define USBD_STACK_SIZE    (700/4)
 static StackType_t  pxUsbDeviceTaskStack[USBD_STACK_SIZE];
 static StaticTask_t xUsbDeviceTaskStatic;
-static TaskHandle_t xUsbDeviceTask;
+TaskHandle_t xUsbDeviceTask;
 
 /*******************************************************************************
  * Global variables:
@@ -99,7 +99,7 @@ void vPort_USB_initHardware(void)
 						"usbd",
 						USBD_STACK_SIZE,
 						NULL,
-						configMAX_PRIORITIES - 1,
+						configMAX_PRIORITIES - 2,
 						pxUsbDeviceTaskStack,
 						&xUsbDeviceTaskStatic	);
 }

@@ -38,6 +38,13 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 								uint8_t ucInitRx	);
 
 /*
+ * De-initializes UART associated pins.
+ */
+void vPort_GPIO_deInitUartPins(	uint8_t ucUnitNumber,
+								uint8_t ucDeInitTx,
+								uint8_t ucDeInitRx	);
+
+/*
  * Initializes I2C associated pins.
  */
 void vPort_GPIO_initI2cPins(uint8_t ucUnitNumber);

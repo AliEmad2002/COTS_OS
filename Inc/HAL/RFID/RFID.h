@@ -35,6 +35,10 @@ typedef struct{
 	 */
 	uint8_t ucType;
 
+	/*	Power enable pin	*/
+	uint8_t ucPowerEnPort;
+	uint8_t ucPowerEnPin;
+
 	/*	PRIVATE	*/
 	StackType_t pxTaskStack[uiRFID_STACK_SIZE];
 	StaticTask_t xTaskStatic;
@@ -64,6 +68,12 @@ typedef struct{
  * 		-	UART driver must be previously initialized.
  */
 void vHOS_RFID_init(xHOS_RFID_t* pxHandle);
+
+/*	Enables power of given handle	*/
+void vHOS_RFID_enablePower(xHOS_RFID_t* pxHandle);
+
+/*	Disables power of given handle	*/
+void vHOS_RFID_disablePower(xHOS_RFID_t* pxHandle);
 
 /*
  * Gets new reading (ID of newly scanned tag).

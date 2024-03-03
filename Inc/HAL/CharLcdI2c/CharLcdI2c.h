@@ -24,6 +24,10 @@ typedef struct
 	/*	Address of the LCD I2C interface	*/
 	uint8_t ucAddress;
 
+	/*	Power enable pin (used for forced power reset)	*/
+	uint8_t ucPowerEnPort;
+	uint8_t ucPowerEnPin;
+
 	/*
 	 * Mutex of the LCD handle (Should be locked before using and unlocked after,
 	 * not using this mutex is user's responsibility).

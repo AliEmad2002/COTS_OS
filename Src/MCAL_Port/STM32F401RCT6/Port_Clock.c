@@ -90,6 +90,9 @@ void vPort_Clock_initPeriphClock(void)
 
 	/*	Initialize SPI clock	*/
 	__HAL_RCC_SPI2_CLK_ENABLE();
+
+	/*	Initialize TIM clock	*/
+	__HAL_RCC_TIM1_CLK_ENABLE();
 }
 
 

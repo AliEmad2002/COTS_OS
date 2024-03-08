@@ -218,7 +218,13 @@ uint8_t ucHOS_UsbCdc_receive(	uint8_t ucUnitNumber,
 	}
 }
 
-
+/*
+ * See header for info.
+ */
+uint8_t ucHOS_UsbCdc_isConnected(uint8_t ucUnitNumber)
+{
+	return tud_cdc_n_connected(ucUnitNumber);
+}
 
 
 

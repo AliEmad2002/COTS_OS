@@ -28,6 +28,7 @@
 #include "MCAL_Port/Port_USB.h"
 #include "MCAL_Port/Port_I2C.h"
 
+#include "softuart.h"
 
 void vPort_HW_init(void)
 {
@@ -59,7 +60,7 @@ void vPort_HW_init(void)
 	xPort_I2C_HW_Conf_t xI2cConf = {
 		.ucClockMode = 0,
 		.ucIsAddress7Bit = 1,
-		.uiSclFrequencyHz = 10000,
+		.uiSclFrequencyHz = 100000,
 		.uiMaxRisingTimeNs = 1000
 	};
 	vPort_I2C_initHardware(0, &xI2cConf);
@@ -76,6 +77,16 @@ void vPort_HW_init(void)
 			.usBaudratePrescaler = 256
 	};
 	vPort_SPI_initHardware(1, &XSpiConf);
+
+//	/*	Initialize TIM	*/
+//	vPort_TIM_setOvfCallback(0, SoftUartHandler, NULL);
+//	uiPort_TIM_setOvfFreq(0, 5*9600);
+//	VPORT_INTERRUPT_SET_PRIORITY(
+//			pxPortInterruptTimerOvfIrqNumberArr[0],
+//			configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	);
+//	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptTimerOvfIrqNumberArr[0]);
+//	vPORT_TIM_ENABLE_OVF_INTERRUPT(0);
+//	vPORT_TIM_ENABLE_COUNTER(0);
 
 	/*	Initialize USB	*/
 	vPort_USB_initHardware();

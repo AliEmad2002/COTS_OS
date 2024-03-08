@@ -38,16 +38,11 @@
 // whether host does safe-eject
 static bool ejected = false;
 
-// Some MCU doesn't have enough 8KB SRAM to store the whole disk
-// We will use Flash as read-only disk with board that has
-// CFG_EXAMPLE_MSC_READONLY defined
+/*	Starting address of the log file in flash memory	*/
+extern uint8_t const* pucLogFile;
 
-//#define CFG_EXAMPLE_MSC_READONLY
-
-#define README_CONTENTS \
-"This is tinyusb's MassStorage Class demo.\r\n\r\n\
-If you find any bugs or get any questions, feel free to file an\r\n\
-issue at github.com/hathach/tinyusb"
+/*	Index of writer pointer in the log file	*/
+extern uint32_t uiStreamLastWrtIndex;
 
 enum
 {
@@ -55,7 +50,7 @@ enum
   DISK_BLOCK_SIZE = 512
 };
 
-#include "fat12img.h"
+#include <fat12img.h>
 
 // Invoked when received SCSI_CMD_INQUIRY
 // Application fill vendor id, product id and revision with string up to 8, 16, 4 characters respectively
@@ -131,7 +126,14 @@ int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buff
   if ( lba >= DISK_BLOCK_NUM ) return -1;
 
   uint8_t const* addr = &pucFat12Img[lba*512 + offset];
-  memcpy(buffer, addr, bufsize);
+
+  for (uint32_t i = 0; i < bufsize; i++)
+  {
+	  if (&(addr[i]) >= &pucLogFile[uiStreamLastWrtIndex])
+		  ((uint8_t*)buffer)[i] = 0;
+	  else
+		  ((uint8_t*)buffer)[i] = addr[i];
+  }
 
   return (int32_t) bufsize;
 }

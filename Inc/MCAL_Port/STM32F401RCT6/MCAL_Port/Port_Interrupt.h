@@ -45,6 +45,9 @@
 #define VPORT_INTERRUPT_SET_PRIORITY(ucIRQNumber, ucPri)	\
 	(	NVIC_SetPriority((ucIRQNumber), (ucPri))	)
 
+#define VPORT_INTERRUPT_SET_VECTOR_TABLE_OFFSET(uiOffset)	\
+	(	SCB->VTOR = (uiOffset))
+
 /*******************************************************************************
  * IRQ numbers.
  * Notes:

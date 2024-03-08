@@ -113,9 +113,15 @@ static void vSendCmd(xHOS_CharLcdI2c_t* pxHandle, uint8_t ucCmd)
  ******************************************************************************/
 void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle)
 {
-	/*	Initialize handle's mutex	*/
-	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
-	xSemaphoreGive(pxHandle->xMutex);
+	static frst = 1;
+
+	if (frst)
+	{
+		/*	Initialize handle's mutex	*/
+		pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
+		xSemaphoreGive(pxHandle->xMutex);
+		frst = 0;
+	}
 
 	/*	Initialize power enable pin	*/
 	vPort_DIO_initPinOutput(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin);

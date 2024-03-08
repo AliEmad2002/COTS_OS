@@ -103,6 +103,9 @@ uint8_t ucHOS_UsbCdc_receive(	uint8_t ucUnitNumber,
 								uint32_t uiLen,
 								TickType_t xTimeout	);
 
-
+/*
+ * Checks if serial port is connected.
+ */
+uint8_t ucHOS_UsbCdc_isConnected(uint8_t ucUnitNumber);
 
 #endif /* COTS_OS_INC_HAL_USB_CDC_USB_CDC_H_ */

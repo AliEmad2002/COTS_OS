@@ -106,26 +106,8 @@ static void vSendCmd(xHOS_CharLcdI2c_t* pxHandle, uint8_t ucCmd)
 	vTaskDelay(pdMS_TO_TICKS(3));
 }
 
-
-
-/*******************************************************************************
- * API functions:
- ******************************************************************************/
-void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle)
+static void vInitSequence(xHOS_CharLcdI2c_t* pxHandle)
 {
-	static frst = 1;
-
-	if (frst)
-	{
-		/*	Initialize handle's mutex	*/
-		pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
-		xSemaphoreGive(pxHandle->xMutex);
-		frst = 0;
-	}
-
-	/*	Initialize power enable pin	*/
-	vPort_DIO_initPinOutput(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin);
-
 	/*	Power reset	*/
 	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 0)
 
@@ -144,7 +126,35 @@ void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle)
 	vSendCmd(pxHandle, 0x28);
 
 	/*	Clear display	*/
-	vHOS_CharLcdI2c_clearDisplay(pxHandle);
+	vHOS_CharLcdI2c_clearDisplay(pxHandle);	
+}
+
+/*******************************************************************************
+ * API functions:
+ ******************************************************************************/
+/*
+ * See header for info.
+ */
+void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle)
+{
+	/*	Initialize handle's mutex	*/
+	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexStatic);
+	xSemaphoreGive(pxHandle->xMutex);
+
+	/*	Initialize power enable pin	*/
+	vPort_DIO_initPinOutput(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin);
+
+	/*	Run initialization sequence	*/
+	vInitSequence(pxHandle);
+}
+
+/*
+ * See header for info.
+ */
+void vHOS_CharLcdI2c_reInit(xHOS_CharLcdI2c_t* pxHandle)
+{
+	/*	Run initialization sequence	*/
+	vInitSequence(pxHandle);
 }
 
 /*

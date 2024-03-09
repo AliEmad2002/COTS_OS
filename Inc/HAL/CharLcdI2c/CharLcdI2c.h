@@ -46,6 +46,8 @@ typedef struct
 
 void vHOS_CharLcdI2c_init(xHOS_CharLcdI2c_t* pxHandle);
 
+void vHOS_CharLcdI2c_reInit(xHOS_CharLcdI2c_t* pxHandle);
+
 void vHOS_CharLcdI2c_setCursorMode(xHOS_CharLcdI2c_t* pxHandle, uint8_t ucMode);
 
 void vHOS_CharLcdI2c_clearDisplay(xHOS_CharLcdI2c_t* pxHandle);

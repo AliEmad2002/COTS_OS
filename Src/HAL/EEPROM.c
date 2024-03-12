@@ -10,7 +10,7 @@
 #include "stdint.h"
 
 /*	RTOS	*/
-
+#include "FreeRTOS.h"
 
 /*	MCAL	*/
 #include "MCAL_Port/Port_DIO.h"

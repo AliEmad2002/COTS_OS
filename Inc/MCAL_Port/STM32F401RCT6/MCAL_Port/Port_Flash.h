@@ -5,6 +5,10 @@
  *      Author: Ali Emad
  */
 
+/*	Target checking	*/
+#include "MCAL_Port/Port_Target.h"
+#ifdef MCAL_PORT_TARGET_STM32F401RCT6
+
 #ifndef COTS_OS_INC_MCAL_PORT_STM32F401RCT6_MCAL_PORT_PORT_FLASH_H_
 #define COTS_OS_INC_MCAL_PORT_STM32F401RCT6_MCAL_PORT_PORT_FLASH_H_
 
@@ -22,8 +26,17 @@
  *
  * 		-	This shared buffer is defined and allocated only when the following
  * 			macro is uncommented.
+ *
+ * 		-	Higher layer code must consider size of this buffer when accessing.
+ * 			It is defined by: "uiPORT_FLASH_SHARED_RAM_BUFFER_SIZE_IN_BYTES".
  */
 #define ucPORT_FLASH_USE_SHARED_RAM_BUFFER
+
+#ifdef ucPORT_FLASH_USE_SHARED_RAM_BUFFER
+	#define uiPORT_FLASH_SHARED_RAM_BUFFER_SIZE_IN_BYTES	(16 * 1024)
+
+	extern uint8_t pucPortFlashRamTemporaryBuffer[uiPORT_FLASH_SHARED_RAM_BUFFER_SIZE_IN_BYTES];
+#endif
 
 
 /*	Initialize flash interface peripheral	*/
@@ -39,20 +52,28 @@ void vPort_Flash_lock(void);
  * Given a memory bound (starting address and size in bytes), this function
  * returns index of flash sector at which this memory bound starts, and number of
  * sectors across which it extends.
+ *
+ * Notes:
+ * 		-	If the given memory boundaries are not within flash boundaries, function
+ * 			writes -1 to "puiStartSector".
  */
 void vPort_Flash_getSectors(	void* pvStart,
 								uint32_t uiSizeInBytes,
-								uint32_t* puiStartSector,
+								int32_t* piStartSector,
 								uint32_t* puiNumberOfSectors	);
 
 /*
  * Given a memory bound (index of starting sector and number of sectors),
  * this function returns address of flash location at which this memory bound
  * starts, and size in bytes of this bound.
+ *
+ * Notes:
+ * 		-	If the given memory boundaries are not within flash boundaries, function
+ * 			writes 0xFFFFFFFF to "ppvStart".
  */
-void vPort_Flash_getSectors(	uint32_t uiStartSector,
+void vPort_Flash_getAddress(	uint32_t uiStartSector,
 								uint32_t uiNumberOfSectors,
-								void* pvStart,
+								void** ppvStart,
 								uint32_t* puiSizeInBytes	);
 
 /*
@@ -74,8 +95,16 @@ void vPort_Flash_erase(uint32_t uiStartSector, uint32_t uiNumberOfSectors);
 
 #endif	/*	ucPORT_FLASH_USE_SHARED_RAM_BUFFER	*/
 
-/*	Writes data to an initially erased section in flash memory	*/
+/*
+ * Writes data to an initially erased section in flash memory.
+ *
+ * Notes:
+ * 		-	Flash memory must be initially unlocked.
+ */
 void vPort_Flash_write(void* pvDst, uint8_t* pucData, uint32_t uiSizeInBytes);
 
 
 #endif /* COTS_OS_INC_MCAL_PORT_STM32F401RCT6_MCAL_PORT_PORT_FLASH_H_ */
+
+
+#endif	/*	Target cheking	*/

@@ -109,11 +109,11 @@ static void vSendCmd(xHOS_CharLcdI2c_t* pxHandle, uint8_t ucCmd)
 static void vInitSequence(xHOS_CharLcdI2c_t* pxHandle)
 {
 	/*	Power reset	*/
-	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 0)
+	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 0);
 
 	vTaskDelay(pdMS_TO_TICKS(100));
 
-	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 1)
+	vPORT_DIO_WRITE_PIN(pxHandle->ucPowerEnPort, pxHandle->ucPowerEnPin, 1);
 
 	vTaskDelay(pdMS_TO_TICKS(100));
 

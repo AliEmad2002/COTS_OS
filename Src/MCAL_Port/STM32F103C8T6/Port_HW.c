@@ -40,14 +40,8 @@ void vPort_HW_init(void)
 	/*	Initialize BKP	*/
 	vPort_BKP_init();
 
-	/*	Initialize ADC	*/
-	vPort_ADC_init(0);
-
-	/*	Initialize Timer	*/
-	uiPort_TIM_setOvfFreq(2, 1);
-
-	/*	Initialize USB	*/
-	vPort_USB_initHardware();
+	/*	Initialize timer	*/
+	uiPort_TIM_setOvfFreq(1, 100);
 }
 
 

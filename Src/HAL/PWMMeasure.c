@@ -36,6 +36,10 @@
 /*******************************************************************************
  * Callbacks:
  ******************************************************************************/
+extern volatile int32_t iVoltageDuty;
+extern volatile int32_t iTicks;
+extern volatile int32_t iDir;
+
 static void vCallback(void* pvParams)
 {
 	xHOS_PWMDutyMeasure_t* pxHandle = (xHOS_PWMDutyMeasure_t*)pvParams;
@@ -55,11 +59,21 @@ static void vCallback(void* pvParams)
 		 */
 		if (pxHandle->ucPrevEdge == 1)		return;
 
+		/*	Increment ticks	*/
+		if (ucPORT_DIO_READ_PIN(1, 0))
+			iTicks++;
+		else
+			iTicks--;
+
 		pxHandle->ucPrevEdge = 1;
 
 		/*	Calculate period (Time since  the previous rising edge	*/
-		pxHandle->uiPeriodTime = ulCurrentTime - pxHandle->ulPrevRisingTime;
-		pxHandle->ulPrevRisingTime = ulCurrentTime;
+		if (iTicks % 2 == 0)
+		{
+			pxHandle->uiPeriodTime = ulCurrentTime - pxHandle->ulPrevRisingTime;
+			pxHandle->ulPrevRisingTime = ulCurrentTime;
+		}
+
 	}
 
 	/*	Otherwise, if callback is due to a falling edge	*/
@@ -228,6 +242,12 @@ uint32_t uiHOS_PWMMeasure_getDuty(xHOS_PWMDutyMeasure_t* pxHandle)
  */
 uint32_t uiHOS_PWMMeasure_getFreq(xHOS_PWMDutyMeasure_t* pxHandle)
 {
+	/*	Check for zero frequency	*/
+	uint64_t ulCurrentTime = ulHOS_HWTime_getTimestamp();
+	uint64_t ulTimeSinceLastEdge = ulCurrentTime - pxHandle->ulPrevRisingTime;
+	if (ulHOS_HWTime_TICKS_TO_MS(ulTimeSinceLastEdge) > 200)
+		return 0;
+
 	uint32_t uiPeriodTime = pxHandle->uiPeriodTime;
 
 	if (uiPeriodTime == 0)

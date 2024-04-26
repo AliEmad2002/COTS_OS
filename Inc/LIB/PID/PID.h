@@ -1,27 +1,26 @@
-/*
- * PID.h
+ /* 
+ * File:   PID.h
+ * Author: ali20
  *
- *  Created on: Jun 28, 2023
- *      Author: Ali Emad
+ * Created on March 21, 2024, 12:28 AM
  */
 
-#ifndef HAL_OS_INC_PID_PID_H_
-#define HAL_OS_INC_PID_PID_H_
+#ifndef PID_H_
+#define PID_H_
 
-#include "FreeRTOS.h"
-#include "task.h"
-
+/*******************************************************************************
+ * Helping macros / preprocessors:
+ ******************************************************************************/
+typedef int32_t PID_Base_Type;
+ 
+ /*******************************************************************************
+ * Structures:
+ ******************************************************************************/
 typedef struct{
 	/*		PRIVATE		*/
-	float fE;
-	float fI;
-	float fD;
+	PID_Base_Type E;	// Previous error.
+	PID_Base_Type I;	// Integral term multiplied by 1000.
 
-	uint8_t ucIsEnabled;
-
-	StackType_t puxTaskStack[configMINIMAL_STACK_SIZE];
-	StaticTask_t xTaskStatic;
-	TaskHandle_t xTask;
 
 	/*		PUBLIC 		*/
 	/*
@@ -29,46 +28,39 @@ typedef struct{
 	 * running, and effects will take place next update. They must be initialized
 	 * with valid values before enabling the controller.
 	 */
-	uint32_t uiTimeIntervalMs;
+	uint8_t updateTimePeriodMs;
+	
+	PID_Base_Type setPoint;
 
-	float fSetPoint;
+    PID_Base_Type kp;	//	kp multiplied by 1000
+	PID_Base_Type ki;	//	ki multiplied by 1000
+    PID_Base_Type kd;	//	kp multiplied by 1000
 
-	float fKi;
-	float fKp;
-	float fKd;
+	PID_Base_Type iMax;	//	maximum value of accumulated integral term, multiplied by 1000
+	PID_Base_Type iMin;	//	minimum value of accumulated integral term, multiplied by 1000
 
-	float fIMax;
-	float fIMin;
-
-	float fDMax;
-	float fDMin;
-
-	float fOutMax;
-	float fOutMin;
-
-	float (*pfGetSample) (void);
-	void (*pfUpdate) (float);
-}xHOS_PID_t;
+    PID_Base_Type dMax;	//	maximum value of derivative term, multiplied by 1000
+    PID_Base_Type dMin;	//	minimum value of derivative term, multiplied by 1000
+    
+	PID_Base_Type outMax;	//	maximum value of controller's output, multiplied by 1000
+	PID_Base_Type outMin;	//	minimum value of controller's output, multiplied by 1000
+    
+    PID_Base_Type eMin; // Minimum error in order for the compensator to work
+}PID_t;
 
 /*
- * Initializes task of a PID controller.
+ * Initializes PID controller.
+ */
+void PID_init(PID_t* pid);
+
+/*
+ * Updates controller.
  *
- * Must be called before scheduler start.
- */
-void vHOS_PID_init(xHOS_PID_t* pxHandle);
+ * Notes:
+ *		-	This function should be called at a constant rate of "pid->ucUpdateTimePeriodMs".
+ *
+ *		-	Return value of this function is the value to be applied on the controlled quantity.
+ */ 
+PID_Base_Type PID_update(PID_t* pid, PID_Base_Type feedback);
 
-/*
- * Enables PID controller.
- * Notice that PID controller is disabled on initialization by default.
- * This function is inline.
- */
-void vHOS_PID_enable(xHOS_PID_t* pxHandle);
-
-/*
- * Disables PID controller.
- * Notice that PID controller is disabled on initialization by default.
- * This function is inline.
- */
-void vHOS_PID_disable(xHOS_PID_t* pxHandle);
-
-#endif /* HAL_OS_INC_PID_PID_H_ */
+#endif /* PID_H_ */

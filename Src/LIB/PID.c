@@ -1,23 +1,19 @@
-/*
- * PID.c
+ /* 
+ * File:   PID.c
+ * Author: ali20
  *
- *  Created on: Jun 28, 2023
- *      Author: Ali Emad
+ * Created on March 21, 2024, 12:28 AM
  */
+
+/*  CONF    */
+#include "configure.h"
 
 /*	LIB	*/
 #include <stdint.h>
 #include <stdio.h>
 
-/*	FreeRTOS	*/
-#include "FreeRTOS.h"
-#include "task.h"
-
-/*	HAL-OS	*/
-#include "RTOS_PRI_Config.h"
-
 /*	SELF	*/
-#include "LIB/PID/PID.h"
+#include "PID.h"
 
 /*******************************************************************************
  * Helping functions/macros:
@@ -30,102 +26,46 @@
 		(fVal) = (fMax);             \
 }
 
-/*******************************************************************************
- * Task function
- ******************************************************************************/
-static void vTask(void* pvParams)
-{
-	xHOS_PID_t* pxHandle = (xHOS_PID_t*)pvParams;
-
-	TickType_t xLastWakeTime = xTaskGetTickCount();
-	float fENew;
-	float fP;
-	float fSum;
-	float fC0, fC1;
-	while(1)
-	{
-		if (!pxHandle->ucIsEnabled)
-		{
-			pxHandle->fI = 0.0f;
-			pxHandle->fD = 0.0f;
-			vTaskSuspend(pxHandle->xTask);
-		}
-
-		/*	Get new error value	*/
-		fENew = pxHandle->fSetPoint - pxHandle->pfGetSample();
-
-		/*	calculate and clamp integral term	*/
-		fC0 = (pxHandle->fKi * pxHandle->uiTimeIntervalMs) / 2000.0f;
-		pxHandle->fI = pxHandle->fI + fC0 * (pxHandle->fE + fENew);
-		vCLAMP(pxHandle->fI, pxHandle->fIMin, pxHandle->fIMax);
-
-		/*	calculate and clamp derivative term	*/
-		fC1 = (2000.0f * pxHandle->fKd) / pxHandle->uiTimeIntervalMs;
-		pxHandle->fD = fC1 * (fENew - pxHandle->fE);
-		vCLAMP(pxHandle->fD, pxHandle->fDMin, pxHandle->fDMax);
-
-		/*	calculate proportional term	*/
-		fP = pxHandle->fKp * fENew;
-
-		/*	Sum  and clamp summation	*/
-		fSum = pxHandle->fI + pxHandle->fD + fP;
-		vCLAMP(fSum, pxHandle->fOutMin, pxHandle->fOutMax);
-
-		/*	update plant with the new sum value	*/
-		pxHandle->pfUpdate(fSum);
-
-		/*	update controller variables	*/
-		pxHandle->fE = fENew;
-
-		/*	Task is blocked until next sample time	*/
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(pxHandle->uiTimeIntervalMs));
-	}
-}
 
 /*******************************************************************************
  * API functions
  ******************************************************************************/
-/*
- * See header file for info.
- */
-void vHOS_PID_init(xHOS_PID_t* pxHandle)
+void PID_init(PID_t* pid)
 {
 	/*	Initialize handle variables	*/
-	pxHandle->fD = 0.0f;
-	pxHandle->fI = 0.0f;
-	pxHandle->fE = 0.0f;
-
-	pxHandle->ucIsEnabled = 0;
-
-	/*	Create task	*/
-	static uint8_t ucCreatedObjectsCount = 0;
-	char pcTaskName[configMAX_TASK_NAME_LEN];
-	sprintf(pcTaskName, "PID%d", ucCreatedObjectsCount++);
-
-	pxHandle->xTask = xTaskCreateStatic(	vTask,
-											pcTaskName,
-											configMINIMAL_STACK_SIZE,
-											(void*)pxHandle,
-											configHOS_HARD_REAL_TIME_TASK_PRI,
-											pxHandle->puxTaskStack,
-											&pxHandle->xTaskStatic	);
+	pid->I = 0;
+	pid->E = 0;
+    pid->setPoint = 0;
 }
 
-/*
- * See header file for info.
- */
-__attribute__((always_inline)) inline
-void vHOS_PID_enable(xHOS_PID_t* pxHandle)
+PID_Base_Type PID_update(PID_t* pid, PID_Base_Type feedback)
 {
-	pxHandle->ucIsEnabled = 1;
-	vTaskResume(pxHandle->xTask);
-}
+	/*	Get new error value	*/
+	PID_Base_Type eNew = pid->setPoint - feedback;
 
-/*
- * See header file for info.
- */
-__attribute__((always_inline)) inline
-void vHOS_PID_disable(xHOS_PID_t* pxHandle)
-{
-	pxHandle->ucIsEnabled = 0;
+	/*	If new error is below minimum error margin, make it zero	*/
+	if (abs(eNew) < pid->eMin)
+		eNew = 0;
+
+	/*	calculate integral term (Multiplied by 1000), and clamp it	*/
+	PID_Base_Type c0 = pid->ki * pid->updateTimePeriodMs;
+	pid->I = pid->I + (c0 * (pid->E + eNew)) / 2000;
+	vCLAMP(pid->I, pid->iMin, pid->iMax);
+
+    /*	calculate derivative term (Multiplied by 1000), and clamp it	*/
+    PID_Base_Type d = (pid->kd * 1000 * (eNew - pid->E)) / pid->updateTimePeriodMs;
+    vCLAMP(d, pid->dMin, pid->dMax);
+    
+	/*	calculate proportional term (Multiplied by 1000)	*/
+	PID_Base_Type p = pid->kp * eNew;
+
+	/*	Sum  and clamp summation	*/
+	PID_Base_Type sum = p + pid->I + d;
+	vCLAMP(sum, pid->outMin, pid->outMax);
+    
+	/*	update controller variables	*/
+	pid->E = eNew;
+
+	/*	update plant with the new sum value	*/
+	return sum / 1000;
 }

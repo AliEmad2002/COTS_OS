@@ -35,6 +35,30 @@ int32_t iLIB_ApproxTrig_Sin1(uint64_t ulX);
  */
 int64_t lLIB_ApproxTrig_Sin2(uint64_t ulX);
 
+/*
+ * This function evaluates the following formula:
+ *  f(x) ≈ atan(x)
+ *
+ * Using only integer operations.
+ *
+ * Notes:
+ * 		-	This function is valid only when x is in the range: (-1, 1).
+ */
+float fLIB_ApproxTrig_Atan1(float fX);
+
+/*
+ * This function evaluates the following formula:
+ *  f(x) ≈ 1000 * atan(x / 1000)
+ *
+ * Using only integer operations.
+ *
+ * Notes:
+ * 		-	This function is valid only when x is in the range: (-1000, 1000).
+ *		-	Maximum output error when tested: 0.003 rad.
+ */
+int32_t iLIB_ApproxTrig_Atan2(int32_t iX);
+
+
 
 
 #endif /* COTS_OS_INC_LIB_APPROXTRIG_H_ */

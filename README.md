@@ -7,7 +7,7 @@ FreeRTOS based HAL, LIB layers library.
     * MCAL dependancies are ported using files in "Port" folder.
   * A lot more time-efficient (less CPU busy wait load) than baremetal drivers.
   
-# Available drivers:
+# Available drivers: (This list is out of date. Check the directory for drivers' files)
   * SPI (Uses DMA if available).
   * I2C.
   * UART.

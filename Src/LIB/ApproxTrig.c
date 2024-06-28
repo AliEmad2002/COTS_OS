@@ -34,3 +34,22 @@ int64_t lLIB_ApproxTrig_Sin2(uint64_t ulX)
 	else
 		return (x * x - 1500000 * x + 500000000000) / 62500;
 }
+
+/*
+ * See header for info.
+ */
+float fLIB_ApproxTrig_Atan1(float fX)
+{
+	float fAbsX = abs(fX);
+	return 0.785398163f * fX - fX * (fAbsX - 1.0f) * (0.2447f + 0.0663f * fAbsX)
+}
+
+/*
+ * See header for info.
+ */
+int32_t iLIB_ApproxTrig_Atan2(int32_t iX)
+{
+	int64_t lX = iX;
+	int64_t lAbsX = abs(iX);
+	return (785398163 * lX - lX * (lAbsX - 1000) * (244700 + 66 * lAbsX)) / 1000000000;
+}

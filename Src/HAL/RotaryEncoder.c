@@ -46,6 +46,7 @@ static void vTask(void* pvParams)
 	int32_t iPrevDeltaPos = 0;
 	TickType_t xFirstZeroPosChangeTime = 0; // time of the sample at which position
 											// stopped changing.
+	int32_t iInc;
 
 
 	vTaskSuspend(pxHandle->xTask);
@@ -66,7 +67,17 @@ static void vTask(void* pvParams)
 			/*	if channel B is on high level	*/
 			if (pxHandle->xBFilter.ucLevelFiltered == 1)
 			{
-				pxHandle->iPos++;
+				if (pxHandle->iSpeed == 0)
+					iInc = 1;
+				else
+				{
+					iInc = 100000 / pxHandle->iSpeed;
+					if (iInc == 0)
+						iInc = 10;
+				}
+
+				pxHandle->iPos += iInc;
+
 				if (pxHandle->ucEnableCWCallback)
 					pxHandle->pfCWCallback(pxHandle->pvCWParams);
 			}
@@ -74,7 +85,17 @@ static void vTask(void* pvParams)
 			/*	if channel B is on low level	*/
 			else
 			{
-				pxHandle->iPos--;
+				if (pxHandle->iSpeed == 0)
+					iInc = -1;
+				else
+				{
+					iInc = 100000 / pxHandle->iSpeed;
+					if (iInc == 0)
+						iInc = -10;
+				}
+
+				pxHandle->iPos += iInc;
+
 				if (pxHandle->ucEnableCCWCallback)
 					pxHandle->pfCCWCallback(pxHandle->pvCCWParams);
 			}
@@ -150,6 +171,8 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle, uint8_t ucNFilter)
 	vLIB_BinaryFilter_init(&pxHandle->xBFilter);
 
 	pxHandle->iPos = 0;
+
+	pxHandle->iSpeed = 0;
 
 	/*	create task	*/
 	static uint8_t ucCreatedObjectsCount = 0;

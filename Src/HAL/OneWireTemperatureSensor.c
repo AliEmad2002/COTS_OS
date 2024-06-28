@@ -154,7 +154,7 @@ uint8_t ReadByte(xHOS_OneWireTemperatureSensor_t* pxHandle)
 void vHOS_OneWireTemperatureSensor_init(xHOS_OneWireTemperatureSensor_t* pxHandle)
 {
 	/*	Initialize mutex	*/
-	pxHandle->xMutex = xSemaphoreCreateMutexStatic(pxHandle->xMutexMem);
+	pxHandle->xMutex = xSemaphoreCreateMutexStatic(&pxHandle->xMutexMem);
 }
 
 /*

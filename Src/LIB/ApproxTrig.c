@@ -41,7 +41,7 @@ int64_t lLIB_ApproxTrig_Sin2(uint64_t ulX)
 float fLIB_ApproxTrig_Atan1(float fX)
 {
 	float fAbsX = abs(fX);
-	return 0.785398163f * fX - fX * (fAbsX - 1.0f) * (0.2447f + 0.0663f * fAbsX)
+	return 0.785398163f * fX - fX * (fAbsX - 1.0f) * (0.2447f + 0.0663f * fAbsX);
 }
 
 /*

@@ -59,12 +59,23 @@ extern xHOS_OExtendShiftRegister_t pxPortDioOutputExtendedPortArr[1];
 void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull);
 
 /*
- * Initializes pin as digital output.
+ * Initializes pin as push/pull digital output.
  *
  * Notes:
  * 		-	DIO clock (if controlled) must be initially enabled.
  */
 void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber);
+
+/*
+ * Initializes pin as open drain digital output.
+ *
+ * Notes:
+ * 		-	Not all MCUs, (or all pins in some MCUs) support this feature. Thus,
+ * 			a proper assertion should be implemented in the ".c" file of this driver.
+ *
+ * 		-	DIO clock (if controlled) must be initially enabled.
+ */
+void vPort_DIO_initPinOutputOpenDrain(uint8_t ucPortNumber, uint8_t ucPinNumber);
 
 /*
  * Reads pin input value

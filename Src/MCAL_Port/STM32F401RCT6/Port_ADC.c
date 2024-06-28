@@ -164,6 +164,14 @@ void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,
 	ppvPortAdcIsrParams[ucUnitNumber] = pvParams;
 }
 
+void vPort_ADC_setConversionMode(uint8_t ucUnitNumber, uint8_t ucMode)
+{
+	if (ucMode == 0)
+		LL_ADC_REG_SetContinuousMode(pxPortADCArr[ucUnitNumber], LL_ADC_REG_CONV_CONTINUOUS);
+	else
+		LL_ADC_REG_SetContinuousMode(pxPortADCArr[ucUnitNumber], LL_ADC_REG_CONV_SINGLE);
+}
+
 
 /*******************************************************************************
  * ISRs:

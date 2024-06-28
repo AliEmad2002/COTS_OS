@@ -35,48 +35,48 @@ void vPort_HW_init(void)
 	/*	Initialize peripherals' clocks	*/
 	vPort_Clock_initPeriphClock();
 
-	/*	Initialize RTC	*/
-	vPort_RTC_init();
-	vPort_RTC_enable();
+//	/*	Initialize RTC	*/
+//	vPort_RTC_init();
+//	vPort_RTC_enable();
 
 	/*	Initialize ADC	*/
 	vPort_ADC_init(0);
 
-	/*	Initialize UART	*/
-	vPort_UART_initHW(0);
-	vPort_UART_setTransferDirection(0, 2);
-	vPort_UART_setStopBitsLength(0, 1);
-	vPort_UART_setBaudRate(0, 9600);
-	vPort_GPIO_initUartPins(0, 0, 1);
+//	/*	Initialize UART	*/
+//	vPort_UART_initHW(0);
+//	vPort_UART_setTransferDirection(0, 2);
+//	vPort_UART_setStopBitsLength(0, 1);
+//	vPort_UART_setBaudRate(0, 9600);
+//	vPort_GPIO_initUartPins(0, 0, 1);
+//
+//
+//	vPort_UART_initHW(1);
+//	vPort_UART_setTransferDirection(1, 2);
+//	vPort_UART_setStopBitsLength(1, 1);
+//	vPort_UART_setBaudRate(1, 9600);
+//	vPort_GPIO_initUartPins(1, 0, 1);
 
-
-	vPort_UART_initHW(1);
-	vPort_UART_setTransferDirection(1, 2);
-	vPort_UART_setStopBitsLength(1, 1);
-	vPort_UART_setBaudRate(1, 9600);
-	vPort_GPIO_initUartPins(1, 0, 1);
-
-	/*	Initialize I2C	*/
-	xPort_I2C_HW_Conf_t xI2cConf = {
-		.ucClockMode = 0,
-		.ucIsAddress7Bit = 1,
-		.uiSclFrequencyHz = 100000,
-		.uiMaxRisingTimeNs = 1000
-	};
-	vPort_I2C_initHardware(0, &xI2cConf);
-
-	/*	Initialize SPI	*/
-	xPort_SPI_HW_Conf_t XSpiConf = {
-			.ucFullDuplexEn = 1,
-			.ucLSBitFirst = 0,
-			.ucIsMaster = 1,
-			.ucMOSIEn = 1,
-			.ucMISOEn = 1,
-			.ucNssEn = 0,
-			.ucComMode = 0,
-			.usBaudratePrescaler = 256
-	};
-	vPort_SPI_initHardware(1, &XSpiConf);
+//	/*	Initialize I2C	*/
+//	xPort_I2C_HW_Conf_t xI2cConf = {
+//		.ucClockMode = 0,
+//		.ucIsAddress7Bit = 1,
+//		.uiSclFrequencyHz = 100000,
+//		.uiMaxRisingTimeNs = 1000
+//	};
+//	vPort_I2C_initHardware(0, &xI2cConf);
+//
+//	/*	Initialize SPI	*/
+//	xPort_SPI_HW_Conf_t XSpiConf = {
+//			.ucFullDuplexEn = 1,
+//			.ucLSBitFirst = 0,
+//			.ucIsMaster = 1,
+//			.ucMOSIEn = 1,
+//			.ucMISOEn = 1,
+//			.ucNssEn = 0,
+//			.ucComMode = 0,
+//			.usBaudratePrescaler = 256
+//	};
+//	vPort_SPI_initHardware(1, &XSpiConf);
 
 //	/*	Initialize TIM	*/
 //	vPort_TIM_setOvfCallback(0, SoftUartHandler, NULL);
@@ -86,10 +86,10 @@ void vPort_HW_init(void)
 //			configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	);
 //	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptTimerOvfIrqNumberArr[0]);
 //	vPORT_TIM_ENABLE_OVF_INTERRUPT(0);
-//	vPORT_TIM_ENABLE_COUNTER(0);
+	vPORT_TIM_ENABLE_COUNTER(1);
 
-	/*	Initialize USB	*/
-	vPort_USB_initHardware();
+//	/*	Initialize USB	*/
+//	vPort_USB_initHardware();
 }
 
 

@@ -57,6 +57,12 @@ void vPort_GPIO_initI2cPins(uint8_t ucUnitNumber);
 void vPort_GPIO_initTimChannelPin(	uint8_t ucUnitNumber,
 									uint8_t ucChannelNumber	);
 
+/*
+ * Initializes ADC channel associated pin as analog input.
+ */
+void vPort_GPIO_initAdcChannelPinAsInput(	uint8_t ucAdcUnitNumber,
+											uint8_t ucAdcChannelNumber	);
+
 #endif /* HAL_OS_PORT_PORT_GPIO_H_ */
 
 

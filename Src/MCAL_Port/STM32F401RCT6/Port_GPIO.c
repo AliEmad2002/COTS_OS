@@ -9,6 +9,7 @@
 #include "MCAL_Port/Port_Target.h"
 #ifdef MCAL_PORT_TARGET_STM32F401RCT6
 
+#include "LIB/Assert.h"
 
 #include "stm32f401xc.h"
 #include "stm32f4xx_hal.h"
@@ -55,6 +56,18 @@ typedef struct{
 	uint8_t ucRxPin : 4;
 }xPort_GPIO_UartMap_t;
 
+typedef struct{
+	uint8_t ucPort : 4;
+	uint8_t ucPin : 4;
+}xPort_GPIO_AdcMap_t;
+
+typedef struct{
+	uint8_t ucPort : 4;
+	uint8_t ucPin : 4;
+	uint8_t ucAf;
+}xPort_GPIO_TimerMap_t;
+
+
 /*******************************************************************************
  * Private (Static) variables:
  ******************************************************************************/
@@ -72,6 +85,26 @@ static const xPort_GPIO_I2CMap_t pxI2CMapArr[] = {
 	{1, 8, 1, 9},
 	{1, 10, 1, 11}
 };
+
+static const xPort_GPIO_AdcMap_t pxAdcMapArr[] = {
+	{0, 0}, {0, 1}, {0, 2}, {0, 3},
+	{0, 4}, {0, 5}, {0, 6}, {0, 7},
+	{1, 0}, {1, 1}
+};
+
+static const xPort_GPIO_TimerMap_t pxTimer0MapArr[] = {
+	/*	TODO	*/
+};
+
+static const xPort_GPIO_TimerMap_t pxTimer1MapArr[] = {
+	{0, 5, GPIO_AF1_TIM2}, {0, 1, GPIO_AF1_TIM2},
+	{1, 10, GPIO_AF1_TIM2}, {1, 11, GPIO_AF1_TIM2}
+};
+
+static const xPort_GPIO_TimerMap_t* ppxTimerMapArr[] = {
+	pxTimer0MapArr, pxTimer1MapArr
+};
+
 
 /*******************************************************************************
  * Helping functions:
@@ -128,6 +161,16 @@ static void vPort_GPIO_initPinAFODPU(uint8_t ucPort, uint8_t ucPin, uint32_t uiA
 	xConf.Pull = GPIO_PULLUP;
 	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
 	xConf.Alternate = uiAF;
+	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
+}
+
+static void vPort_GPIO_initPinAnalogIn(uint8_t ucPort, uint8_t ucPin)
+{
+	GPIO_InitTypeDef xConf;
+	xConf.Pin = 1ul << ucPin;
+	xConf.Mode = GPIO_MODE_ANALOG;
+	xConf.Pull = GPIO_NOPULL;
+	xConf.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(pxPortDioPortArr[ucPort], &xConf);
 }
 
@@ -245,8 +288,26 @@ void vPort_GPIO_initI2cPins(uint8_t ucUnitNumber)
 void vPort_GPIO_initTimChannelPin(	uint8_t ucUnitNumber,
 									uint8_t ucChannelNumber	)
 {
-	vPort_GPIO_initPinAFPP(0, 8, GPIO_AF1_TIM1);
+	const xPort_GPIO_TimerMap_t* pxMap = ppxTimerMapArr[ucUnitNumber];
+	uint8_t ucPort = pxMap[ucChannelNumber].ucPort;
+	uint8_t ucPin = pxMap[ucChannelNumber].ucPin;
+	uint8_t ucAf = pxMap[ucChannelNumber].ucAf;
+
+	vPort_GPIO_initPinAFPP(ucPort, ucPin, ucAf);
 }
 
+/*
+ * See header for info
+ */
+void vPort_GPIO_initAdcChannelPinAsInput(	uint8_t ucAdcUnitNumber,
+											uint8_t ucAdcChannelNumber	)
+{
+	vLib_ASSERT(ucAdcChannelNumber <= 9, 0);
+
+	uint8_t ucPin = pxAdcMapArr[ucAdcChannelNumber].ucPin;
+	uint8_t ucPort = pxAdcMapArr[ucAdcChannelNumber].ucPort;
+
+	vPort_GPIO_initPinAnalogIn(ucPort, ucPin);
+}
 
 #endif /* Target checking */

@@ -1,19 +1,16 @@
- /* 
+ /*
  * File:   PID.c
  * Author: ali20
  *
  * Created on March 21, 2024, 12:28 AM
  */
 
-/*  CONF    */
-#include "configure.h"
-
 /*	LIB	*/
 #include <stdint.h>
 #include <stdio.h>
 
 /*	SELF	*/
-#include "PID.h"
+#include "LIB/PID/PID.h"
 
 /*******************************************************************************
  * Helping functions/macros:
@@ -55,14 +52,14 @@ PID_Base_Type PID_update(PID_t* pid, PID_Base_Type feedback)
     /*	calculate derivative term (Multiplied by 1000), and clamp it	*/
     PID_Base_Type d = (pid->kd * 1000 * (eNew - pid->E)) / pid->updateTimePeriodMs;
     vCLAMP(d, pid->dMin, pid->dMax);
-    
+
 	/*	calculate proportional term (Multiplied by 1000)	*/
 	PID_Base_Type p = pid->kp * eNew;
 
 	/*	Sum  and clamp summation	*/
 	PID_Base_Type sum = p + pid->I + d;
 	vCLAMP(sum, pid->outMin, pid->outMax);
-    
+
 	/*	update controller variables	*/
 	pid->E = eNew;
 

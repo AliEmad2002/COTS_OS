@@ -38,8 +38,8 @@ void vPort_Clock_initCpuClock(void)
 	  * in the RCC_OscInitTypeDef structure.
 	  */
 	  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_LSI;
-	  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-	  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+	  RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
+	  RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
 	  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
@@ -74,25 +74,26 @@ void vPort_Clock_initPeriphClock(void)
 	/*	Initialize PWR clock	*/
 	__HAL_RCC_PWR_CLK_ENABLE();
 
-	/*	Initialize RTC clock	*/
-	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-	__HAL_RCC_RTC_ENABLE();
+//	/*	Initialize RTC clock	*/
+//	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+//	__HAL_RCC_RTC_ENABLE();
 
 	/*	Initialize ADC clock	*/
 	__HAL_RCC_ADC1_CLK_ENABLE();
 
-	/*	Initialize UART clock	*/
-	__HAL_RCC_USART1_CLK_ENABLE();
-	__HAL_RCC_USART2_CLK_ENABLE();
+//	/*	Initialize UART clock	*/
+//	__HAL_RCC_USART1_CLK_ENABLE();
+//	__HAL_RCC_USART2_CLK_ENABLE();
 
-	/*	Initialize I2C clock	*/
-	__HAL_RCC_I2C1_CLK_ENABLE();
+//	/*	Initialize I2C clock	*/
+//	__HAL_RCC_I2C1_CLK_ENABLE();
 
-	/*	Initialize SPI clock	*/
-	__HAL_RCC_SPI2_CLK_ENABLE();
+//	/*	Initialize SPI clock	*/
+//	__HAL_RCC_SPI2_CLK_ENABLE();
 
-	/*	Initialize TIM clock	*/
+//	/*	Initialize TIM clock	*/
 	__HAL_RCC_TIM1_CLK_ENABLE();
+	__HAL_RCC_TIM2_CLK_ENABLE();
 }
 
 

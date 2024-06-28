@@ -156,6 +156,24 @@ void vHOS_HardwareDelay_init(
 /*
  * See header file for info.
  */
+uint8_t ucHOS_HardwareDelay_lock(
+	xHOS_HardwareDelay_t* pxHandle,
+	TickType_t xTimeout	)
+{
+	return xSemaphoreTake(pxHandle->xMutex, xTimeout);
+}
+
+/*
+ * See header file for info.
+ */
+void vHOS_HardwareDelay_unlock(xHOS_HardwareDelay_t* pxHandle)
+{
+	xSemaphoreGive(pxHandle->xMutex);
+}
+
+/*
+ * See header file for info.
+ */
 void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint64_t uiTicks)
 {
 	/*	get number of full counter overflows needed	*/

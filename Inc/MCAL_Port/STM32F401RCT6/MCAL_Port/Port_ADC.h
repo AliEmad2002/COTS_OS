@@ -109,7 +109,13 @@ void vPort_ADC_setInterruptCallback(	uint8_t ucUnitNumber,
 #define usPORT_ADC_GET_DR(ucAdcNumber)	\
 	(	LL_ADC_REG_ReadConversionData12(pxPortADCArr[(ucAdcNumber)])	)
 
-
+/*
+ * Selects conversion mode.
+ *
+ * Notes:
+ * 		-	"ucMode": 0 ==> Continuous, 1 ==> Single sample.
+ */
+void vPort_ADC_setConversionMode(uint8_t ucUnitNumber, uint8_t ucMode);
 
 
 /*******************************************************************************

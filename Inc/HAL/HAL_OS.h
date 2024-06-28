@@ -44,5 +44,6 @@
 #include "HAL/IOExtend/OExtendShiftRegister.h"
 #include "HAL/Keypad/Keypad.h"
 #include "HAL/EEPROM/EEPROM.h"
+#include "HAL/OneWireTemperatureSensor/OneWireTemperatureSensor.h"
 
 #endif /* HAL_OS_INC_HAL_OS_H_ */

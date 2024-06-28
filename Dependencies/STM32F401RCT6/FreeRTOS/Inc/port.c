@@ -437,7 +437,7 @@ void xPortPendSVHandler( void )
 {
 	/* This is a naked function. */
 
-	__asm volatile
+ 	__asm volatile
 	(
 	"	mrs r0, psp							\n"
 	"	isb									\n"
@@ -766,7 +766,7 @@ static void vPortEnableVFP( void )
 		to be pre-emption priority bits.  The following assertion will fail if
 		this is not the case (if some bits represent a sub-priority).
 
-		If the application only uses CMSIS libraries for interrupt
+	2	If the application only uses CMSIS libraries for interrupt
 		configuration then the correct setting can be achieved on all Cortex-M
 		devices by calling NVIC_SetPriorityGrouping( 0 ); before starting the
 		scheduler.  Note however that some vendor specific peripheral libraries

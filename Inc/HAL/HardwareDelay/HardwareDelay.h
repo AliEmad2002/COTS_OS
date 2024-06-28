@@ -29,15 +29,15 @@ typedef struct{
 	StaticSemaphore_t xHWStaticMutex;
 	SemaphoreHandle_t xHWMutex;
 
-	/*				Public				*/
-	uint8_t ucTimerUnitNumber;
-
 	/*	Must be taken first before using the "xHOS_HardwareDelay_t" object.	*/
 	StaticSemaphore_t xStaticMutex;
 	SemaphoreHandle_t xMutex;
 
+	/*				Public				*/
 	/*	Actual/accurate number of tick per second (Read only)	*/
 	uint32_t uiTicksPerSecond;
+
+	uint8_t ucTimerUnitNumber;
 }xHOS_HardwareDelay_t;
 
 /*
@@ -65,8 +65,17 @@ void vHOS_HardwareDelay_init(
 	xHOS_HardwareDelay_t* pxHandle,
 	xHOS_HardwareDelay_InitApproxFreq_t xFreqApproximate	);
 
+/*	Locks handle	*/
+uint8_t ucHOS_HardwareDelay_lock(
+	xHOS_HardwareDelay_t* pxHandle,
+	TickType_t xTimeout	);
+
+/*	Unlocks handle	*/
+void vHOS_HardwareDelay_unlock(xHOS_HardwareDelay_t* pxHandle);
+
 /*
- * Starts an RTOS blocking delay for a number of ticks. (i.e.: calling task would be blocked by FreeRTOS)
+ * Starts an RTOS blocking delay for a number of ticks. (i.e.: calling task
+ * would be blocked by FreeRTOS)
  *
  * Notes:
  * 		-	To guarantee correct timing, the calling task must be of a very high
@@ -75,9 +84,24 @@ void vHOS_HardwareDelay_init(
 void vHOS_HardwareDelay_delayTicks(xHOS_HardwareDelay_t* pxHandle, uint64_t uiTicks);
 
 /*
- * Starts an RTOS blocking delay for a number of microseconds. (i.e.: calling task would be blocked by FreeRTOS)
+ * Starts an RTOS blocking delay for a number of microseconds. (i.e.: calling
+ * task would be blocked by FreeRTOS)
+ *
+ * Notes:
+ * 		-	To guarantee correct timing, the calling task must be of a very high
+ * 			priority. otherwise delay time may be larger than requested.
  */
 void vHOS_HardwareDelay_delayUs(xHOS_HardwareDelay_t* pxHandle, uint32_t uiUs);
+
+
+
+
+
+
+
+
+
+
 
 
 #endif /* HAL_OS_INC_HARDWAREDELAY_HARDWAREDELAY_H_ */

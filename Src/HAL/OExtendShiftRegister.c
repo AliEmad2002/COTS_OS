@@ -34,7 +34,7 @@ void vHOS_OExtendShiftRegister_init(xHOS_OExtendShiftRegister_t* pxHandle)
 	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 0);
 
 	/*	Output word is initially zero	*/
-	vHOS_OExtendShiftRegister_writePort(pxHandle, 0);
+	vHOS_OExtendShiftRegister_writePort(pxHandle, 0xFFFFFFFF, 0);
 }
 
 void vHOS_OExtendShiftRegister_writePin(
@@ -77,6 +77,7 @@ void vHOS_OExtendShiftRegister_writePin(
 
 void vHOS_OExtendShiftRegister_writePort(
 		xHOS_OExtendShiftRegister_t* pxHandle,
+		uint32_t uiMask,
 		uint32_t uiVal	)
 {
 	/*	Lock mutex	*/
@@ -86,7 +87,8 @@ void vHOS_OExtendShiftRegister_writePort(
 	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 0);
 
 	/*	Edit stored current value of the port	*/
-	pxHandle->uiCurrentOutputWord = uiVal;
+	pxHandle->uiCurrentOutputWord &= ~(uiMask);                                        \
+	pxHandle->uiCurrentOutputWord |= (uiVal);
 
 	/*	SPI transmit	*/
 	ucHOS_SPI_takeMutex(pxHandle->ucSpiUnitNumber, portMAX_DELAY);

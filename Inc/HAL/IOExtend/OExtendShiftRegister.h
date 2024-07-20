@@ -50,6 +50,7 @@ void vHOS_OExtendShiftRegister_writePin(
 
 void vHOS_OExtendShiftRegister_writePort(
 		xHOS_OExtendShiftRegister_t* pxHandle,
+		uint32_t uiMask,
 		uint32_t uiVal	);
 
 

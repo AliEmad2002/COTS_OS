@@ -31,6 +31,14 @@
 		(	(pxHandle)->xAFilter.ucLevelFiltered == 0 && \
 			(pxHandle)->xAFilter.ucPrevLevelFiltered == 1	)
 
+#define ucIS_RISING_EDGE_ON_CHANNEL_A(pxHandle)	\
+		(	(pxHandle)->xAFilter.ucLevelFiltered == 1 && \
+			(pxHandle)->xAFilter.ucPrevLevelFiltered == 0	)
+
+#define ucIS_EDGE_ON_CHANNEL_A(pxHandle)	\
+		(	(pxHandle)->xAFilter.ucLevelFiltered != \
+			(pxHandle)->xAFilter.ucPrevLevelFiltered	)
+
 /*******************************************************************************
  * Task function
  ******************************************************************************/
@@ -48,9 +56,6 @@ static void vTask(void* pvParams)
 											// stopped changing.
 	int32_t iInc;
 
-
-	vTaskSuspend(pxHandle->xTask);
-
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
@@ -61,11 +66,10 @@ static void vTask(void* pvParams)
 		vLIB_BinaryFilter_updateFilter(&pxHandle->xAFilter, ucANewLevel);
 		vLIB_BinaryFilter_updateFilter(&pxHandle->xBFilter, ucBNewLevel);
 
-		/*	if a falling edge occurred on channel A	*/
-		if (ucIS_FALLING_EDGE_ON_CHANNEL_A(pxHandle))
+		/*	if an edge occurred on channel A	*/
+		if (ucIS_EDGE_ON_CHANNEL_A(pxHandle))
 		{
-			/*	if channel B is on high level	*/
-			if (pxHandle->xBFilter.ucLevelFiltered == 1)
+			if (pxHandle->xAFilter.ucLevelFiltered ^ pxHandle->xBFilter.ucLevelFiltered)
 			{
 				if (pxHandle->iSpeed == 0)
 					iInc = 1;
@@ -82,7 +86,6 @@ static void vTask(void* pvParams)
 					pxHandle->pfCWCallback(pxHandle->pvCWParams);
 			}
 
-			/*	if channel B is on low level	*/
 			else
 			{
 				if (pxHandle->iSpeed == 0)
@@ -159,16 +162,20 @@ static void vTask(void* pvParams)
  */
 void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle, uint8_t ucNFilter)
 {
+	uint8_t ucLevel;
+
 	/*	initialize A, B pins	*/
 	vPort_DIO_initPinInput(pxHandle->ucAPort, pxHandle->ucAPin, 1);
 	vPort_DIO_initPinInput(pxHandle->ucBPort, pxHandle->ucBPin, 1);
 
 	/*	initialize handle's variables	*/
+	ucLevel = ucPORT_DIO_READ_PIN(pxHandle->ucAPort, pxHandle->ucAPin);
 	pxHandle->xAFilter.ucNFilter = ucNFilter;
-	vLIB_BinaryFilter_init(&pxHandle->xAFilter);
+	vLIB_BinaryFilter_init(&pxHandle->xAFilter, ucLevel);
 
+	ucLevel = ucPORT_DIO_READ_PIN(pxHandle->ucAPort, pxHandle->ucAPin);
 	pxHandle->xBFilter.ucNFilter = ucNFilter;
-	vLIB_BinaryFilter_init(&pxHandle->xBFilter);
+	vLIB_BinaryFilter_init(&pxHandle->xBFilter, ucLevel);
 
 	pxHandle->iPos = 0;
 

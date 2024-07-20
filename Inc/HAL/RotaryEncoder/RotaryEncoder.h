@@ -73,7 +73,7 @@ void vHOS_RotaryEncoder_init(xHOS_RotaryEncoder_t* pxHandle, uint8_t ucNFilter);
  * Enables object.
  *
  * Notes:
- * 		-	A "xHOS_RotaryEncoder_t" is initially disabled.
+ * 		-	A "xHOS_RotaryEncoder_t" is initially enabled.
  * 		-	This is an inline function.
  */
 void vHOS_RotaryEncoder_enable(xHOS_RotaryEncoder_t* pxHandle);
@@ -82,7 +82,7 @@ void vHOS_RotaryEncoder_enable(xHOS_RotaryEncoder_t* pxHandle);
  * Disables object.
  *
  * Notes:
- * 		-	A "xHOS_RotaryEncoder_t" is initially disabled.
+ * 		-	A "xHOS_RotaryEncoder_t" is initially enabled.
  * 		-	This is an inline function.
  */
 void vHOS_RotaryEncoder_disable(xHOS_RotaryEncoder_t* pxHandle);

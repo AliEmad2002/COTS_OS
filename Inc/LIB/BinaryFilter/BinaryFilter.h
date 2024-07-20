@@ -27,7 +27,7 @@ typedef struct{
 /*
  * Initializes handle
  */
-void vLIB_BinaryFilter_init(xLIB_BinaryFilter_t* pxHandle);
+void vLIB_BinaryFilter_init(xLIB_BinaryFilter_t* pxHandle, uint8_t ucInitialState);
 
 /*
  * Updates filter handle with a new sample value.

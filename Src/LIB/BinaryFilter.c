@@ -14,11 +14,11 @@
 /*
  * See header file for info.
  */
-void vLIB_BinaryFilter_init(xLIB_BinaryFilter_t* pxHandle)
+void vLIB_BinaryFilter_init(xLIB_BinaryFilter_t* pxHandle, uint8_t ucInitialState)
 {
-	pxHandle->ucPrevLevelFiltered = 0;
-	pxHandle->ucLevelFiltered = 0;
-	pxHandle->ucPrevLevel = 0;
+	pxHandle->ucPrevLevelFiltered = ucInitialState;
+	pxHandle->ucLevelFiltered = ucInitialState;
+	pxHandle->ucPrevLevel = ucInitialState;
 	pxHandle->ucCount = 0;
 }
 
@@ -35,7 +35,7 @@ void vLIB_BinaryFilter_updateFilter(xLIB_BinaryFilter_t* pxHandle, uint8_t ucNew
 	{
 		pxHandle->ucCount++;
 		/*	If N samples on the same level were measured	*/
-		if (pxHandle->ucCount == pxHandle->ucNFilter)
+		if (pxHandle->ucCount + 1 == pxHandle->ucNFilter)
 		{
 			/*	Filter's level is now stable and could be used	*/
 			pxHandle->ucLevelFiltered = ucNewLevel;

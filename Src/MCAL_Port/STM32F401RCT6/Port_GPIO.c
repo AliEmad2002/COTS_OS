@@ -72,8 +72,8 @@ typedef struct{
  * Private (Static) variables:
  ******************************************************************************/
 static const xPort_GPIO_SpiMap_t pxSpiMapArr[] = {
-	{0, 0, 1, 3, 1, 4, 1, 5},
-	{0, 0, 1, 10, 1, 14, 1, 15}
+	{0, 0, 0, 5, 1, 4, 0, 7},
+	{0, 0, 1, 13, 1, 14, 1, 15}
 };
 
 static const xPort_GPIO_UartMap_t pxUartMapArr[] = {
@@ -202,7 +202,7 @@ void vPort_GPIO_initSpiPins(	uint8_t ucUnitNumber,
 	/*	init MISO pin	*/
 	if (ucInitMISO)
 	{
-		vPort_GPIO_initPinAFPP(pxMap->ucMISOPort, pxMap->ucMISOPin, GPIO_AF5_SPI1);
+		vPort_GPIO_initPinAFPPPU(pxMap->ucMISOPort, pxMap->ucMISOPin, GPIO_AF5_SPI1);
 	}
 
 	/*	init MOSI pin	*/

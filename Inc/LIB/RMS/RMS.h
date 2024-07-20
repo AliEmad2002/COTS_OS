@@ -50,7 +50,7 @@ uint8_t ucLIB_RMS_lock(xLIB_RMS_t* pxHandle, TickType_t xTimeout);
 /*
  * Unlocks handle.
  */
-vLIB_RMS_unlock(xLIB_RMS_t* pxHandle);
+void vLIB_RMS_unlock(xLIB_RMS_t* pxHandle);
 
 /*
  * Updates filter with new value.

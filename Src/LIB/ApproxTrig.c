@@ -6,6 +6,7 @@
  */
 
 #include "stdint.h"
+#include "stdlib.h"
 
 #include "LIB/ApproxTrig.h"
 

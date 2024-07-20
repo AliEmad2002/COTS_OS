@@ -26,12 +26,12 @@ void vLIB_RMS_init(	xLIB_RMS_t* pxHandle,
 					uint32_t uiN	)
 {
 	/*	Create queue handle	*/
-	pxHandle->xQueue = xQueueCreateStatic(	uiN,
+	pxHandle->xQueue = xQueueCreateStatic(	uiN - 2,
 	                                 	 	sizeof(float),
 											(uint8_t*)piDataArr,
 											&pxHandle->xQueueStatic	);
 
-	/*	Fill the queue with "uiN" zero samples	*/
+	/*	Fill the queue with "uiN" - 2 zero samples	*/
 	float fZero = 0;
 	for (uint32_t i = 0; i < uiN-2; i++)
 	{
@@ -61,7 +61,7 @@ uint8_t ucLIB_RMS_lock(xLIB_RMS_t* pxHandle, TickType_t xTimeout)
 /*
  * See header file for info.
  */
-vLIB_RMS_unlock(xLIB_RMS_t* pxHandle)
+void vLIB_RMS_unlock(xLIB_RMS_t* pxHandle)
 {
 	xSemaphoreGive(pxHandle->xMutex);
 }
@@ -85,7 +85,7 @@ void vLIB_RMS_update(xLIB_RMS_t* pxHandle, float fNewVal)
 	pxHandle->fSum += pxHandle->fX0;
 
 	/*	Add current first sample to back of the queue	*/
-	xQueueSend(pxHandle->xQueue, (void*)&pxHandle->fX0, 0);
+	xQueueSend(pxHandle->xQueue, (void*)&(pxHandle->fX0), 0);
 
 	/*	Write new value to current first sample	*/
 	pxHandle->fX0 = fNewVal * fNewVal;
@@ -93,7 +93,10 @@ void vLIB_RMS_update(xLIB_RMS_t* pxHandle, float fNewVal)
 
 float fLIB_RMS_getValue(xLIB_RMS_t* pxHandle)
 {
-	return sqrt((pxHandle->fX0 + pxHandle->fXN_1 + 2.0f * pxHandle->fSum) / (2.0f * (float)pxHandle->uiN));
+	return sqrt(
+			(pxHandle->fX0 + pxHandle->fXN_1 + pxHandle->fSum) /
+			(float)pxHandle->uiN
+		);
 }
 
 

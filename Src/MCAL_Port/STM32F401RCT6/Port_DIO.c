@@ -34,7 +34,7 @@ void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t u
 void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
 {
 	/*	If port is of extended ports, return	*/
-	if (ucPortNumber >2)
+	if (ucPortNumber > 2)
 		return;
 
 	GPIO_InitTypeDef conf = {
@@ -65,10 +65,10 @@ void vPort_DIO_initPinOutputOpenDrain(uint8_t ucPortNumber, uint8_t ucPinNumber)
 
 void vPort_DIO_initExtendedOutputPorts(void)
 {
-	pxPortDioOutputExtendedPortArr[0].ucSpiUnitNumber = 1;
-	pxPortDioOutputExtendedPortArr[0].ucRegisterSizeInBytes = 3;
-	pxPortDioOutputExtendedPortArr[0].ucLatchPort = 1;
-	pxPortDioOutputExtendedPortArr[0].ucLatchPin = 13;
+	pxPortDioOutputExtendedPortArr[0].ucSpiUnitNumber = 0;
+	pxPortDioOutputExtendedPortArr[0].ucRegisterSizeInBytes = 2;
+	pxPortDioOutputExtendedPortArr[0].ucLatchPort = 0;
+	pxPortDioOutputExtendedPortArr[0].ucLatchPin = 6;
 	vHOS_OExtendShiftRegister_init(&pxPortDioOutputExtendedPortArr[0]);
 }
 

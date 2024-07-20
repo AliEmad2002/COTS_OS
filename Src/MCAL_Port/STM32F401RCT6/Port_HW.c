@@ -65,18 +65,31 @@ void vPort_HW_init(void)
 //	};
 //	vPort_I2C_initHardware(0, &xI2cConf);
 //
-//	/*	Initialize SPI	*/
-//	xPort_SPI_HW_Conf_t XSpiConf = {
-//			.ucFullDuplexEn = 1,
-//			.ucLSBitFirst = 0,
-//			.ucIsMaster = 1,
-//			.ucMOSIEn = 1,
-//			.ucMISOEn = 1,
-//			.ucNssEn = 0,
-//			.ucComMode = 0,
-//			.usBaudratePrescaler = 256
-//	};
-//	vPort_SPI_initHardware(1, &XSpiConf);
+
+	/*	Initialize SPI	*/
+	xPort_SPI_HW_Conf_t XSpiConf0 = {
+			.ucFullDuplexEn = 1,
+			.ucLSBitFirst = 0,
+			.ucIsMaster = 1,
+			.ucMOSIEn = 1,
+			.ucMISOEn = 0,
+			.ucNssEn = 0,
+			.ucComMode = 0,
+			.usBaudratePrescaler = 32
+	};
+	vPort_SPI_initHardware(0, &XSpiConf0);
+
+	xPort_SPI_HW_Conf_t XSpiConf1 = {
+			.ucFullDuplexEn = 1,
+			.ucLSBitFirst = 0,
+			.ucIsMaster = 1,
+			.ucMOSIEn = 1,
+			.ucMISOEn = 1,
+			.ucNssEn = 0,
+			.ucComMode = 0,
+			.usBaudratePrescaler = 256
+	};
+	vPort_SPI_initHardware(1, &XSpiConf1);
 
 //	/*	Initialize TIM	*/
 //	vPort_TIM_setOvfCallback(0, SoftUartHandler, NULL);

@@ -57,7 +57,7 @@ static void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
 	vTaskDelay(pdMS_TO_TICKS(1));
 
 	vPORT_DIO_WRITE_PIN(pxTFT->ucRstPort, pxTFT->ucRstPin, 1);
-	vTaskDelay(pdMS_TO_TICKS(120));
+	vTaskDelay(pdMS_TO_TICKS(170));
 }
 
 /*
@@ -73,10 +73,16 @@ static void vHOS_TFT_reset(xHOS_TFT_t* pxTFT)
 __attribute__((always_inline)) inline
 static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
 {
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
-
 	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucCmd, 1);
+#else
+	vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 0);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 0);
+	vPORT_DIO_WRITE_PORT(pxTFT->ucDataPort, 0b11111111, ucCmd);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 1);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
 /*
@@ -92,34 +98,44 @@ static inline void vHOS_TFT_writeCmd(xHOS_TFT_t* pxTFT, uint8_t ucCmd)
 __attribute__((always_inline)) inline
 static inline void vHOS_TFT_writeDataByte(xHOS_TFT_t* pxTFT, int8_t ucByte)
 {
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
-
 	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, (int8_t*)&ucByte, 1);
+#else
+	vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 0);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
+	vPORT_DIO_WRITE_PORT(pxTFT->ucDataPort, 0b11111111, ucByte);
+	vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 1);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
 static void vHOS_TFT_writeDataArr(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize)
 {
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
-
 	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
-
 	vHOS_SPI_setByteDirection(	pxTFT->ucSpiUnitNumber,
 								ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST	);
-
 	vHOS_SPI_send(pxTFT->ucSpiUnitNumber, pcArr, uiSize);
+#else
+	for (uint32_t i = 0; i < uiSize; i++)
+		vHOS_TFT_writeDataByte(pxTFT, pcArr[i]);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
 static void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint32_t uiSize, uint32_t uiN)
 {
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	ucHOS_SPI_blockUntilTransferComplete(pxTFT->ucSpiUnitNumber, portMAX_DELAY);
-
 	vPORT_DIO_WRITE_PIN(pxTFT->ucA0Port, pxTFT->ucA0Pin, 1);
-
 	vHOS_SPI_setByteDirection(	pxTFT->ucSpiUnitNumber,
 								ucHOS_SPI_BYTE_DIRECTION_LSBYTE_FIRST	);
-
 	vHOS_SPI_sendMultiple(pxTFT->ucSpiUnitNumber, pcArr, uiSize, uiN);
+#else
+	for (uint32_t i = 0; i < uiN; i++)
+		vHOS_TFT_writeDataArr(pxTFT, pcArr, uiSize);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
 /*******************************************************************************
@@ -130,13 +146,21 @@ static void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint
  */
 void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 {
-	/*	Initialize A0, reset and CS pins HW	*/
+	/*	Initialize A0, reset, WR and CS pins HW	*/
 	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
 	vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);
-	vPort_DIO_initPinOutput(pxTFT->ucCSPort, pxTFT->ucCSPin);
 
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_PARALLEL
+	vPort_DIO_initPinOutput(pxTFT->ucWrPort, pxTFT->ucWrPin);
+	/*	WR is initially low	*/
+	vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 0);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
+
+#if ucHOS_TFT_USE_CS == 1
+	vPort_DIO_initPinOutput(pxTFT->ucCSPort, pxTFT->ucCSPin);
 	/*	CS is initially low (TFT is selected by default)	*/
 	vTFT_CS_ENABLE(pxTFT);
+#endif		/*	ucHOS_TFT_USE_CS		*/
 
 	/*	initialize TFT mutex	*/
 	pxTFT->xMutex = xSemaphoreCreateMutexStatic(&pxTFT->xMutexStatic);
@@ -187,15 +211,24 @@ uint8_t ucHOS_TFT_blockUntilInitDone(xHOS_TFT_t* pxTFT, TickType_t xTimeout)
  */
 uint8_t ucHOS_TFT_enableCommunication(xHOS_TFT_t* pxTFT, TickType_t xTimeout)
 {
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	uint8_t ucState = ucHOS_SPI_takeMutex(pxTFT->ucSpiUnitNumber, xTimeout);
 
 	if (ucState)
 	{
+#if ucHOS_TFT_USE_CS == 1
 		vTFT_CS_ENABLE(pxTFT);
+#endif		/*	ucHOS_TFT_USE_CS		*/
 		return 1;
 	}
 	else
 		return 0;
+#else
+#if ucHOS_TFT_USE_CS == 1
+	vTFT_CS_ENABLE(pxTFT);
+#endif		/*	ucHOS_TFT_USE_CS		*/
+	return 1;
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
 /*
@@ -203,9 +236,13 @@ uint8_t ucHOS_TFT_enableCommunication(xHOS_TFT_t* pxTFT, TickType_t xTimeout)
  */
 void vHOS_TFT_disableCommunication(xHOS_TFT_t* pxTFT)
 {
+#if ucHOS_TFT_USE_CS == 1
 	vTFT_CS_DISABLE(pxTFT);
+#endif		/*	ucHOS_TFT_USE_CS		*/
 
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	vHOS_SPI_releaseMutex(pxTFT->ucSpiUnitNumber);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
 /*

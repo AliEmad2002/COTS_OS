@@ -5,12 +5,33 @@
  *      Author: Ali Emad
  *
  * Notes:
+ * 		-	Tested on ST7735S with SPI.
+ *
  * 		-	For standardization, color format is 16-bit RGB565 format. (Less than
  * 			this would be oppressive for coloring, more is oppressive for memory)
  */
 
 #ifndef HAL_OS_INC_TFT_TFT_H_
 #define HAL_OS_INC_TFT_TFT_H_
+
+/*******************************************************************************
+ * Driver configurations:
+ ******************************************************************************/
+/*
+ * Method of connection of data pins.
+ *
+ * Notes:
+ * 		-	If serial (SPI), define "ucHOS_TFT_DATA_CONNECTION" as "ucHOS_TFT_DATA_CONNECTION_SPI".
+ * 		-	If parallel, define "ucHOS_TFT_DATA_CONNECTION" as "ucHOS_TFT_DATA_CONNECTION_PARALLEL".
+ */
+#define ucHOS_TFT_DATA_CONNECTION_SPI 			0
+#define ucHOS_TFT_DATA_CONNECTION_PARALLEL 		1
+#define ucHOS_TFT_DATA_CONNECTION				ucHOS_TFT_DATA_CONNECTION_PARALLEL
+
+
+/*	Usage of CS pin	*/
+#define ucHOS_TFT_USE_CS						0
+
 
 /*******************************************************************************
  * Include dependencies:
@@ -29,8 +50,21 @@ typedef struct{
 	SemaphoreHandle_t xInitDoneSemaphore;
 
 	/*		PUBLIC		*/
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_SPI
 	/*	number of SPI unit used to communicate the TFT	*/
 	uint8_t ucSpiUnitNumber;
+#elif ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_PARALLEL
+	/*
+	 * So-far, this driver only supports parallel mode when all 8 data pins are
+	 * connected in order to the least significant 8 pins of a DIO port.
+	 */
+	uint8_t ucDataPort;
+
+	uint8_t ucWrPin;
+	uint8_t ucWrPort;
+#else
+#error "\r\nPlease select a connection type!\r\n"
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 
 	/*	reset pin of the TFT module.	*/
 	uint8_t ucRstPin;
@@ -40,9 +74,11 @@ typedef struct{
 	uint8_t ucA0Pin;
 	uint8_t ucA0Port;
 
+#if ucHOS_TFT_USE_CS == 1
 	/*	Chip Select pin of the TFT module.	*/
 	uint8_t ucCSPin;
 	uint8_t ucCSPort;
+#endif		/*	ucHOS_TFT_USE_CS		*/
 
 	/*	Dimensions of the display.	*/
 	uint32_t uiWidth;

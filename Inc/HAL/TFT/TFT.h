@@ -223,6 +223,15 @@ void vHOS_TFT_drawNextNPixFromSingleColor(	xHOS_TFT_t* pxTFT,
 											xLIB_Color16_t xColor,
 											uint32_t uiN	);
 
+/*
+ *
+ */
+void vHOS_TFT_drawText(	xHOS_TFT_t* pxTFT,
+						xLIB_Color16_t xColor,
+						uint16_t usXStart,
+						uint16_t usYStart,
+						uint8_t ucSize,
+						char* pcTxt	);
 
 
 

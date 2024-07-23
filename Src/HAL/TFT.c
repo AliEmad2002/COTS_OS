@@ -7,6 +7,7 @@
 
 /*	LIB	*/
 #include <stdint.h>
+#include "LIB/Graphics/font8x8.h"
 
 /*	FreeRTOS	*/
 #include "FreeRTOS.h"
@@ -367,4 +368,61 @@ void inline vHOS_TFT_drawNextNPixFromSingleColor(	xHOS_TFT_t* pxTFT,
 {
 	vHOS_TFT_writeDataArrMultiple(pxTFT, (int8_t*)&xColor, 2, uiN);
 }
+
+/*
+ * See header file for info.
+ */
+void vHOS_TFT_drawText(	xHOS_TFT_t* pxTFT,
+						xLIB_Color16_t xColor,
+						uint16_t usXStart,
+						uint16_t usYStart,
+						uint8_t ucSize,
+						char* pcTxt	)
+{
+	ucSize--;
+
+	for (uint8_t i = 0; pcTxt[i] != '\0'; i++)
+	{
+		for (uint16_t j = 0; j < 8; j++)
+		{
+			for (uint16_t k = 0; k < 8; k++)
+			{
+				if (pucFont8x8[(uint8_t)pcTxt[i]][7-j] & (1 << (k)))
+				{
+					if (ucSize == 0)
+					{
+						vHOS_TFT_setPix(pxTFT, usXStart+j, usYStart+k+i*8, xColor);
+					}
+					else
+					{
+						vHOS_TFT_fillRectangle(
+								pxTFT,
+
+								usXStart + j*ucSize,
+								usXStart + (j+1)*ucSize,
+
+								usYStart + i*ucSize*8 + k*ucSize,
+								usYStart + i*ucSize*8 + (k+1)*ucSize,
+
+								xColor
+							);
+					}
+				}
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -36,12 +36,12 @@ static inline uint32_t uiPort_ASM_reverseEach16(uint32_t uiX)
   return result;
 }
 
-///*
-// * Reverses byte order of a given 16-bit value.
-// */
-//__attribute__((always_inline)) inline
-//static inline uint16_t uiPort_ASM_reverse16(uint16_t uiX)
-//{
+/*
+ * Reverses byte order of a given 16-bit value.
+ */
+__attribute__((always_inline)) inline
+static inline uint16_t uiPort_ASM_reverse16(uint16_t usX)
+{
 //  uint32_t result = uiX;
 //
 //  asm volatile(
@@ -50,7 +50,9 @@ static inline uint32_t uiPort_ASM_reverseEach16(uint32_t uiX)
 //				  "r"	(result)	);
 //
 //  return (uint16_t)result;
-//}
+	  uint16_t result = (usX >> 8) | (usX << 8);
+	  return result;
+}
 
 /*
  * Executes an "NOP" instruction.

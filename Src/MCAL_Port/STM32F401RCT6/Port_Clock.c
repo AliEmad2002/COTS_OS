@@ -94,7 +94,8 @@ void vPort_Clock_initPeriphClock(void)
 
 //	/*	Initialize TIM clock	*/
 	__HAL_RCC_TIM1_CLK_ENABLE();
-	__HAL_RCC_TIM2_CLK_ENABLE();
+//	__HAL_RCC_TIM2_CLK_ENABLE();
+	__HAL_RCC_TIM4_CLK_ENABLE();
 }
 
 

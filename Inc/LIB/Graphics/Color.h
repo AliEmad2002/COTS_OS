@@ -20,6 +20,4 @@ typedef uint16_t xLIB_Color16_t;
 	(uiPort_ASM_reverse16((uint16_t)(xR | (xG << 5) | (xG << 11))))
 
 
-
-
 #endif /* COTS_OS_INC_LIB_GRAPHICS_COLOR_H_ */

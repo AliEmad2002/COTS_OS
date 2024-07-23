@@ -91,15 +91,11 @@ void vPort_HW_init(void)
 	};
 	vPort_SPI_initHardware(1, &XSpiConf1);
 
-//	/*	Initialize TIM	*/
-//	vPort_TIM_setOvfCallback(0, SoftUartHandler, NULL);
-//	uiPort_TIM_setOvfFreq(0, 5*9600);
-//	VPORT_INTERRUPT_SET_PRIORITY(
-//			pxPortInterruptTimerOvfIrqNumberArr[0],
-//			configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	);
-//	vPORT_INTERRUPT_ENABLE_IRQ(pxPortInterruptTimerOvfIrqNumberArr[0]);
-//	vPORT_TIM_ENABLE_OVF_INTERRUPT(0);
-	vPORT_TIM_ENABLE_COUNTER(1);
+	/*	Initialize TIM	*/
+//	vPort_TIM_setOvfCallback(3, SoftUartHandler, NULL);
+//	uiPort_TIM_setOvfFreq(3, 5*9600);
+//
+//	vPORT_TIM_ENABLE_COUNTER(1);
 
 //	/*	Initialize USB	*/
 //	vPort_USB_initHardware();

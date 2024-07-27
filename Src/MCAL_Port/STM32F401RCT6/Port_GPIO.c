@@ -110,7 +110,7 @@ static const xPort_GPIO_TimerMap_t pxTimer3MapArr[] = {
 	{1, 8, GPIO_AF2_TIM4}, {1, 11, GPIO_AF2_TIM4}
 };
 
-static const xPort_GPIO_TimerMap_t ppxTimerMapArr[] = {
+static const xPort_GPIO_TimerMap_t* ppxTimerMapArr[] = {
 	pxTimer0MapArr, pxTimer1MapArr, pxTimer2MapArr, pxTimer3MapArr,
 };
 

@@ -20,7 +20,19 @@
 
 typedef struct{
 	/*	PUBLIC	*/
+	/*
+	 * If HW SPI is used, write unit number to "ucSpiUnitNumber". Otherwise,
+	 * write "ucSpiUnitNumber" with value of 255.
+	 *
+	 */
 	uint8_t ucSpiUnitNumber;
+
+	/*	Used only when no HW SPI unit is used	*/
+	uint8_t ucSckPort;
+	uint8_t ucSckPin;
+	uint8_t ucDataPort;
+	uint8_t ucDataPin;
+
 	uint8_t ucRegisterSizeInBytes; // maximum: 4-bytes
 
 	uint8_t ucLatchPort;

@@ -17,7 +17,7 @@
 
 GPIO_TypeDef* const pxPortDioPortArr[] = {GPIOA, GPIOB, GPIOC};
 
-xHOS_OExtendShiftRegister_t pxPortDioOutputExtendedPortArr[1];
+xHOS_OExtendShiftRegister_t pxPortDioOutputExtendedPortArr[2];
 
 void vPort_DIO_initPinInput(uint8_t ucPortNumber, uint8_t ucPinNumber, uint8_t ucPull)
 {
@@ -70,6 +70,16 @@ void vPort_DIO_initExtendedOutputPorts(void)
 	pxPortDioOutputExtendedPortArr[0].ucLatchPort = 0;
 	pxPortDioOutputExtendedPortArr[0].ucLatchPin = 6;
 	vHOS_OExtendShiftRegister_init(&pxPortDioOutputExtendedPortArr[0]);
+
+	pxPortDioOutputExtendedPortArr[1].ucSpiUnitNumber = 255;
+	pxPortDioOutputExtendedPortArr[1].ucRegisterSizeInBytes = 1;
+	pxPortDioOutputExtendedPortArr[1].ucSckPort = 1;
+	pxPortDioOutputExtendedPortArr[1].ucSckPin = 8;
+	pxPortDioOutputExtendedPortArr[1].ucDataPort = 1;
+	pxPortDioOutputExtendedPortArr[1].ucDataPin = 7;
+	pxPortDioOutputExtendedPortArr[1].ucLatchPort = 1;
+	pxPortDioOutputExtendedPortArr[1].ucLatchPin = 6;
+	vHOS_OExtendShiftRegister_init(&pxPortDioOutputExtendedPortArr[1]);
 }
 
 

@@ -23,6 +23,49 @@
 #include "HAL/IOExtend/OExtendShiftRegister.h"
 
 
+static void  vSpiTransmit(xHOS_OExtendShiftRegister_t* pxHandle)
+{
+	if (pxHandle->ucSpiUnitNumber != 255)
+	{
+		ucHOS_SPI_takeMutex(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
+
+		vHOS_SPI_setByteDirection(	pxHandle->ucSpiUnitNumber,
+									ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST	);
+
+		vHOS_SPI_send(	pxHandle->ucSpiUnitNumber,
+						(int8_t*)&pxHandle->uiCurrentOutputWord,
+						pxHandle->ucRegisterSizeInBytes	);
+
+		ucHOS_SPI_blockUntilTransferComplete(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
+
+		vHOS_SPI_releaseMutex(pxHandle->ucSpiUnitNumber);
+	}
+
+	else
+	{
+		for (int8_t reg = pxHandle->ucRegisterSizeInBytes - 1; reg >= 0; reg--)
+		{
+			for (int8_t i = 7; i >= 0; i--)
+			{
+				uint8_t ucState = (pxHandle->uiCurrentOutputWord >> (i + reg * 8)) & 1;
+				vPORT_DIO_WRITE_PIN(pxHandle->ucDataPort, pxHandle->ucDataPin, ucState);
+
+				vTaskDelay(pdMS_TO_TICKS(1));
+
+				vPORT_DIO_WRITE_PIN(pxHandle->ucSckPort, pxHandle->ucSckPin, 1);
+
+				vTaskDelay(pdMS_TO_TICKS(1));
+
+				vPORT_DIO_WRITE_PIN(pxHandle->ucSckPort, pxHandle->ucSckPin, 0);
+
+				vTaskDelay(pdMS_TO_TICKS(1));
+			}
+		}
+
+	}
+}
+
+
 void vHOS_OExtendShiftRegister_init(xHOS_OExtendShiftRegister_t* pxHandle)
 {
 	/*	Initialize mutex	*/
@@ -32,6 +75,16 @@ void vHOS_OExtendShiftRegister_init(xHOS_OExtendShiftRegister_t* pxHandle)
 	/*	Initialize latch pin	*/
 	vPort_DIO_initPinOutput(pxHandle->ucLatchPort, pxHandle->ucLatchPin);
 	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 0);
+
+	/*	Initialize SCK and data pins (only if HW SPI is not used)	*/
+	if (pxHandle->ucSpiUnitNumber == 255)
+	{
+		vPort_DIO_initPinOutput(pxHandle->ucSckPort, pxHandle->ucSckPin);
+		vPORT_DIO_WRITE_PIN(pxHandle->ucSckPort, pxHandle->ucSckPin, 0);
+
+		vPort_DIO_initPinOutput(pxHandle->ucDataPort, pxHandle->ucDataPin);
+		vPORT_DIO_WRITE_PIN(pxHandle->ucDataPort, pxHandle->ucDataPin, 0);
+	}
 
 	/*	Output word is initially zero	*/
 	vHOS_OExtendShiftRegister_writePort(pxHandle, 0xFFFFFFFF, 0);
@@ -55,18 +108,7 @@ void vHOS_OExtendShiftRegister_writePin(
 		pxHandle->uiCurrentOutputWord &= (~(1ul << ucPinNumber));
 
 	/*	SPI transmit	*/
-	ucHOS_SPI_takeMutex(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
-
-	vHOS_SPI_setByteDirection(	pxHandle->ucSpiUnitNumber,
-								ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST	);
-
-	vHOS_SPI_send(	pxHandle->ucSpiUnitNumber,
-					(int8_t*)&pxHandle->uiCurrentOutputWord,
-					pxHandle->ucRegisterSizeInBytes	);
-
-	ucHOS_SPI_blockUntilTransferComplete(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
-
-	vHOS_SPI_releaseMutex(pxHandle->ucSpiUnitNumber);
+	vSpiTransmit(pxHandle);
 
 	/*	Write Latch pin high	*/
 	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 1);
@@ -91,18 +133,7 @@ void vHOS_OExtendShiftRegister_writePort(
 	pxHandle->uiCurrentOutputWord |= (uiVal);
 
 	/*	SPI transmit	*/
-	ucHOS_SPI_takeMutex(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
-
-	vHOS_SPI_setByteDirection(	pxHandle->ucSpiUnitNumber,
-								ucHOS_SPI_BYTE_DIRECTION_MSBYTE_FIRST	);
-
-	vHOS_SPI_send(	pxHandle->ucSpiUnitNumber,
-					(int8_t*)&pxHandle->uiCurrentOutputWord,
-					pxHandle->ucRegisterSizeInBytes	);
-
-	ucHOS_SPI_blockUntilTransferComplete(pxHandle->ucSpiUnitNumber, portMAX_DELAY);
-
-	vHOS_SPI_releaseMutex(pxHandle->ucSpiUnitNumber);
+	vSpiTransmit(pxHandle);
 
 	/*	Write Latch pin high	*/
 	vPORT_DIO_WRITE_PIN(pxHandle->ucLatchPort, pxHandle->ucLatchPin, 1);

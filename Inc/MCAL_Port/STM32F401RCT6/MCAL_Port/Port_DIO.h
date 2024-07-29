@@ -43,7 +43,7 @@
  */
 extern GPIO_TypeDef* const pxPortDioPortArr[];
 
-extern xHOS_OExtendShiftRegister_t pxPortDioOutputExtendedPortArr[1];
+extern xHOS_OExtendShiftRegister_t pxPortDioOutputExtendedPortArr[2];
 
 /*
  * Initializes pin as digital input.

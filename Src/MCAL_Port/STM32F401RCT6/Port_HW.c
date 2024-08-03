@@ -35,9 +35,9 @@ void vPort_HW_init(void)
 	/*	Initialize peripherals' clocks	*/
 	vPort_Clock_initPeriphClock();
 
-//	/*	Initialize RTC	*/
-//	vPort_RTC_init();
-//	vPort_RTC_enable();
+	/*	Initialize RTC	*/
+	vPort_RTC_init();
+	vPort_RTC_enable();
 
 	/*	Initialize ADC	*/
 	vPort_ADC_init(0);
@@ -75,7 +75,7 @@ void vPort_HW_init(void)
 			.ucMISOEn = 0,
 			.ucNssEn = 0,
 			.ucComMode = 0,
-			.usBaudratePrescaler = 32
+			.usBaudratePrescaler = 64
 	};
 	vPort_SPI_initHardware(0, &XSpiConf0);
 

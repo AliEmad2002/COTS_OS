@@ -38,7 +38,7 @@ void vPort_Clock_initCpuClock(void)
 	  * in the RCC_OscInitTypeDef structure.
 	  */
 	  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_LSI;
-	  RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
+	  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
 	  RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
 	  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -75,8 +75,8 @@ void vPort_Clock_initPeriphClock(void)
 	__HAL_RCC_PWR_CLK_ENABLE();
 
 //	/*	Initialize RTC clock	*/
-//	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-//	__HAL_RCC_RTC_ENABLE();
+	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+	__HAL_RCC_RTC_ENABLE();
 
 	/*	Initialize ADC clock	*/
 	__HAL_RCC_ADC1_CLK_ENABLE();

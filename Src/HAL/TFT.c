@@ -139,39 +139,8 @@ static void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint
 #endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
 }
 
-/*******************************************************************************
- * API functions
- ******************************************************************************/
-/*
- * See header file for info.
- */
-void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
+static void vReset(xHOS_TFT_t* pxTFT)
 {
-	/*	Initialize A0, reset, WR and CS pins HW	*/
-	vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
-	vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);
-
-#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_PARALLEL
-	vPort_DIO_initPinOutput(pxTFT->ucWrPort, pxTFT->ucWrPin);
-	/*	WR is initially low	*/
-	vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 0);
-#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
-
-#if ucHOS_TFT_USE_CS == 1
-	vPort_DIO_initPinOutput(pxTFT->ucCSPort, pxTFT->ucCSPin);
-	/*	CS is initially low (TFT is selected by default)	*/
-	vTFT_CS_ENABLE(pxTFT);
-#endif		/*	ucHOS_TFT_USE_CS		*/
-
-	/*	initialize TFT mutex	*/
-	pxTFT->xMutex = xSemaphoreCreateMutexStatic(&pxTFT->xMutexStatic);
-	xSemaphoreGive(pxTFT->xMutex);
-
-	/*	initialize initialization done semaphore	*/
-	pxTFT->xInitDoneSemaphore =
-		xSemaphoreCreateMutexStatic(&pxTFT->xInitDoneSemaphoreStatic);
-	xSemaphoreTake(pxTFT->xInitDoneSemaphore, 0);
-
 	/*	execute reset sequence	*/
 	vHOS_TFT_reset(pxTFT);
 
@@ -185,6 +154,50 @@ void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 
 	/*	display on	*/
 	vHOS_TFT_writeCmd(pxTFT, ucTFT_CMD_DISPLAY_ON);
+}
+
+/*******************************************************************************
+ * API functions
+ ******************************************************************************/
+/*
+ * See header file for info.
+ */
+void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
+{
+	static uint8_t ucIsFirstTime = 1;
+
+	if (ucIsFirstTime)
+	{
+		ucIsFirstTime = 0;
+
+		/*	Initialize A0, reset, WR and CS pins HW	*/
+		vPort_DIO_initPinOutput(pxTFT->ucA0Port, pxTFT->ucA0Pin);
+		vPort_DIO_initPinOutput(pxTFT->ucRstPort, pxTFT->ucRstPin);
+
+#if ucHOS_TFT_DATA_CONNECTION == ucHOS_TFT_DATA_CONNECTION_PARALLEL
+		vPort_DIO_initPinOutput(pxTFT->ucWrPort, pxTFT->ucWrPin);
+		/*	WR is initially low	*/
+		vPORT_DIO_WRITE_PIN(pxTFT->ucWrPort, pxTFT->ucWrPin, 0);
+#endif		/*	ucHOS_TFT_DATA_CONNECTION		*/
+
+#if ucHOS_TFT_USE_CS == 1
+		vPort_DIO_initPinOutput(pxTFT->ucCSPort, pxTFT->ucCSPin);
+		/*	CS is initially low (TFT is selected by default)	*/
+		vTFT_CS_ENABLE(pxTFT);
+#endif		/*	ucHOS_TFT_USE_CS		*/
+
+		/*	initialize TFT mutex	*/
+		pxTFT->xMutex = xSemaphoreCreateMutexStatic(&pxTFT->xMutexStatic);
+		xSemaphoreGive(pxTFT->xMutex);
+
+		/*	initialize initialization done semaphore	*/
+		pxTFT->xInitDoneSemaphore =
+			xSemaphoreCreateMutexStatic(&pxTFT->xInitDoneSemaphoreStatic);
+		xSemaphoreTake(pxTFT->xInitDoneSemaphore, 0);
+	}
+
+	/*	reset	*/
+	vReset(pxTFT);
 
 	/*	Release initialization done semaphore	*/
 	xSemaphoreGive(pxTFT->xInitDoneSemaphore);

@@ -4,7 +4,7 @@
  *  Created on: Jun 17, 2023
  *      Author: Ali Emad
  *
- * This is the SPI source code used for targets which do not have DMA.
+ * This is the SPI source code used for targets which have DMA.
  */
 
 /*	LIB	*/

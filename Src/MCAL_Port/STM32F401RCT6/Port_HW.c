@@ -75,7 +75,7 @@ void vPort_HW_init(void)
 			.ucMISOEn = 0,
 			.ucNssEn = 0,
 			.ucComMode = 0,
-			.usBaudratePrescaler = 64
+			.usBaudratePrescaler = 32
 	};
 	vPort_SPI_initHardware(0, &XSpiConf0);
 

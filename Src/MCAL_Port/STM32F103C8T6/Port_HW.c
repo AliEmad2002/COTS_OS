@@ -40,11 +40,18 @@ void vPort_HW_init(void)
 	/*	Initialize BKP	*/
 	vPort_BKP_init();
 
+	/*	Initialize UART	*/
+	vPort_UART_initHW(0);
+	vPort_UART_setTransferDirection(0, 2);
+	vPort_UART_setStopBitsLength(0, 1);
+	vPort_UART_setBaudRate(0, 9600);
+	vPort_GPIO_initUartPins(0, 1, 1);
+
 //	/*	Initialize timer	*/
 //	uiPort_TIM_setOvfFreq(1, 100);
 
-	/*	Initialize USB	*/
-	vPort_USB_initHardware();
+//	/*	Initialize USB	*/
+//	vPort_USB_initHardware();
 }
 
 

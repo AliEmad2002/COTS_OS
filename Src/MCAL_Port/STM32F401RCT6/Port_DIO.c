@@ -72,13 +72,13 @@ void vPort_DIO_initExtendedOutputPorts(void)
 	vHOS_OExtendShiftRegister_init(&pxPortDioOutputExtendedPortArr[0]);
 
 	pxPortDioOutputExtendedPortArr[1].ucSpiUnitNumber = 255;
-	pxPortDioOutputExtendedPortArr[1].ucRegisterSizeInBytes = 1;
-	pxPortDioOutputExtendedPortArr[1].ucSckPort = 1;
-	pxPortDioOutputExtendedPortArr[1].ucSckPin = 8;
+	pxPortDioOutputExtendedPortArr[1].ucRegisterSizeInBytes = 2;
+	pxPortDioOutputExtendedPortArr[1].ucSckPort = 0;
+	pxPortDioOutputExtendedPortArr[1].ucSckPin = 15;
 	pxPortDioOutputExtendedPortArr[1].ucDataPort = 1;
-	pxPortDioOutputExtendedPortArr[1].ucDataPin = 7;
+	pxPortDioOutputExtendedPortArr[1].ucDataPin = 4;
 	pxPortDioOutputExtendedPortArr[1].ucLatchPort = 1;
-	pxPortDioOutputExtendedPortArr[1].ucLatchPin = 6;
+	pxPortDioOutputExtendedPortArr[1].ucLatchPin = 3;
 	vHOS_OExtendShiftRegister_init(&pxPortDioOutputExtendedPortArr[1]);
 }
 

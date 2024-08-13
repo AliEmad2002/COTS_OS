@@ -139,18 +139,18 @@ void vPort_DIO_initPinOutputOpenDrain(uint8_t ucPortNumber, uint8_t ucPinNumber)
  * 		-	This function is very useful when there's need for synchronized writing
  * 			multiple pins.
  */
-#define vPORT_DIO_WRITE_PORT(ucPortNumber, usMask, usVal)		                                                        \
+#define vPORT_DIO_WRITE_PORT(ucPortNumber, uiMask, uiVal)		                                                        \
 {                                                                                                                       \
 	if ((ucPortNumber < 3))                                                                                             \
 	{                                                                                                                   \
 		uint16_t __temp = pxPortDioPortArr[(ucPortNumber)]->ODR;                                                        \
-		__temp &= ~(usMask);                                                                                            \
-		__temp |= (usVal);                                                                                              \
+		__temp &= ~(uiMask);                                                                                            \
+		__temp |= (uiVal);                                                                                              \
 		pxPortDioPortArr[(ucPortNumber)]->ODR = __temp;                                                                 \
 	}                                                                                                                   \
 	else                                                                                                                \
 	{                                                                                                                   \
-		vHOS_OExtendShiftRegister_writePort(&pxPortDioOutputExtendedPortArr[(ucPortNumber)-3], (usMask), (usVal));      \
+		vHOS_OExtendShiftRegister_writePort(&pxPortDioOutputExtendedPortArr[(ucPortNumber)-3], (uiMask), (uiVal));      \
 	}                                                                                                                   \
 }
 

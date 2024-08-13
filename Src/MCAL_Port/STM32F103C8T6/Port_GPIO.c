@@ -163,16 +163,15 @@ void vPort_GPIO_initI2CPins(uint8_t ucUnitNumber, uint8_t ucMapNumber)
 }
 
 void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
-								uint8_t ucMapNumber,
 								uint8_t ucInitTx,
 								uint8_t ucInitRx	)
 {
-	const xPort_GPIO_UartMap_t pxUart1MapArr[] = { {0, 9, 0, 10}, {1, 6, 1, 7} };
-	const xPort_GPIO_UartMap_t pxUart2MapArr[] = { {0, 2, 0, 3} };
-	const xPort_GPIO_UartMap_t pxUart3MapArr[] = { {1, 10, 1, 11} };
+	const xPort_GPIO_UartMap_t xUart1Map = {0, 9, 0, 10};
+	const xPort_GPIO_UartMap_t xUart2Map = {0, 2, 0, 3};
+	const xPort_GPIO_UartMap_t xUart3Map = {1, 10, 1, 11};
 
-	const xPort_GPIO_UartMap_t* const ppxUartMapsArr[] = {
-		pxUart1MapArr, pxUart2MapArr, pxUart3MapArr
+	const xPort_GPIO_UartMap_t const pxUartMapArr[] = {
+		xUart1Map, xUart2Map, xUart3Map
 	};
 
 	uint8_t ucPort, ucPin;
@@ -180,16 +179,16 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 	/*	Init Tx	*/
 	if (ucInitTx)
 	{
-		ucPort = ppxUartMapsArr[ucUnitNumber][ucMapNumber].ucTxPort;
-		ucPin = ppxUartMapsArr[ucUnitNumber][ucMapNumber].ucTxPin;
+		ucPort = pxUartMapArr[ucUnitNumber].ucTxPort;
+		ucPin = pxUartMapArr[ucUnitNumber].ucTxPin;
 		vPort_GPIO_initPinAFPP(ucPort, ucPin);
 	}
 
 	/*	Init Rx	*/
 	if (ucInitRx)
 	{
-		ucPort = ppxUartMapsArr[ucUnitNumber][ucMapNumber].ucRxPort;
-		ucPin = ppxUartMapsArr[ucUnitNumber][ucMapNumber].ucRxPin;
+		ucPort = pxUartMapArr[ucUnitNumber].ucRxPort;
+		ucPin = pxUartMapArr[ucUnitNumber].ucRxPin;
 		vPort_DIO_initPinInput(ucPort, ucPin, 0);
 	}
 }

@@ -42,19 +42,12 @@ void vPort_HW_init(void)
 	/*	Initialize ADC	*/
 	vPort_ADC_init(0);
 
-//	/*	Initialize UART	*/
-//	vPort_UART_initHW(0);
-//	vPort_UART_setTransferDirection(0, 2);
-//	vPort_UART_setStopBitsLength(0, 1);
-//	vPort_UART_setBaudRate(0, 9600);
-//	vPort_GPIO_initUartPins(0, 0, 1);
-//
-//
-//	vPort_UART_initHW(1);
-//	vPort_UART_setTransferDirection(1, 2);
-//	vPort_UART_setStopBitsLength(1, 1);
-//	vPort_UART_setBaudRate(1, 9600);
-//	vPort_GPIO_initUartPins(1, 0, 1);
+	/*	Initialize UART	*/
+	vPort_UART_initHW(0);
+	vPort_UART_setTransferDirection(0, 2);
+	vPort_UART_setStopBitsLength(0, 1);
+	vPort_UART_setBaudRate(0, 9600);
+	vPort_GPIO_initUartPins(0, 1, 1);
 
 //	/*	Initialize I2C	*/
 //	xPort_I2C_HW_Conf_t xI2cConf = {

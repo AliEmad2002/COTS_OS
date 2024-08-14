@@ -107,7 +107,8 @@ static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 	}
 
 	/*	if point active is on the currently active digit, activate it, otherwise de-activate it	*/
-	ucState = (pxHandle->cPointIndex == (int8_t)ucCurrent);
+	ucState = pxHandle->ucPointIndex & (1 << ucCurrent);
+//	ucState = (pxHandle->cPointIndex == (int8_t)ucCurrent);
 	ucPort = pxSegPortNumberArr[7];
 	ucPin = pxSegPinNumberArr[7];
 	ucLevel = ucGET_LEVEL(ucState, ucActiveLevel);
@@ -120,8 +121,6 @@ static inline void vWriteCurrentlyActiveDigit(xHOS_SevenSegmentMux_t* pxHandle)
 static void vTask(void* pvParams)
 {
 	xHOS_SevenSegmentMux_t* pxHandle = (xHOS_SevenSegmentMux_t*)pvParams;
-
-	vTaskSuspend(pxHandle->xTask);
 
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	while(1)
@@ -186,7 +185,7 @@ void vHOS_SevenSegmentMux_init(xHOS_SevenSegmentMux_t* pxHandle)
 	}
 
 	/*	Initially, point is disabled	*/
-	pxHandle->cPointIndex = -1;
+	pxHandle->ucPointIndex = 0;
 
 	/*	Create task	*/
 	sprintf(pcTaskName, "SSMux%d", ucCreatedObjectsCount++);
@@ -205,7 +204,7 @@ void vHOS_SevenSegmentMux_init(xHOS_SevenSegmentMux_t* pxHandle)
  */
 void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxHandle,
 									uint32_t uiNum,
-									int8_t cPointIndex	)
+									uint8_t ucPointIndex	)
 {
     uint8_t i;
     uint8_t ucDigVal;
@@ -225,7 +224,7 @@ void vHOS_SevenSegmentMux_write(	xHOS_SevenSegmentMux_t* pxHandle,
     	pucDigArr[i] = 0;
     }
 
-    pxHandle->cPointIndex = cPointIndex;
+    pxHandle->ucPointIndex = ucPointIndex;
 }
 
 /*

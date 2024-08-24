@@ -50,15 +50,15 @@ static void  vSpiTransmit(xHOS_OExtendShiftRegister_t* pxHandle)
 				uint8_t ucState = (pxHandle->uiCurrentOutputWord >> (i + reg * 8)) & 1;
 				vPORT_DIO_WRITE_PIN(pxHandle->ucDataPort, pxHandle->ucDataPin, ucState);
 
-				vTaskDelay(pdMS_TO_TICKS(1));
+				vTaskDelay(pdMS_TO_TICKS(10));
 
 				vPORT_DIO_WRITE_PIN(pxHandle->ucSckPort, pxHandle->ucSckPin, 1);
 
-				vTaskDelay(pdMS_TO_TICKS(1));
+				vTaskDelay(pdMS_TO_TICKS(10));
 
 				vPORT_DIO_WRITE_PIN(pxHandle->ucSckPort, pxHandle->ucSckPin, 0);
 
-				vTaskDelay(pdMS_TO_TICKS(1));
+				vTaskDelay(pdMS_TO_TICKS(10));
 			}
 		}
 

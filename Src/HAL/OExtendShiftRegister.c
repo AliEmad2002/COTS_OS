@@ -11,6 +11,7 @@
 /*	RTOS	*/
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "task.h"
 
 /*	MCAL	*/
 #include "MCAL_Port/Port_SPI.h"

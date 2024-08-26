@@ -47,6 +47,9 @@ void vPort_HW_init(void)
 	vPort_UART_setBaudRate(0, 9600);
 	vPort_GPIO_initUartPins(0, 1, 1);
 
+	/*	Initialize ADC	*/
+	vPort_ADC_init(0);
+
 //	/*	Initialize timer	*/
 //	uiPort_TIM_setOvfFreq(1, 100);
 

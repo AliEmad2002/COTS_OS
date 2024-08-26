@@ -170,7 +170,7 @@ void vPort_GPIO_initUartPins(	uint8_t ucUnitNumber,
 	const xPort_GPIO_UartMap_t xUart2Map = {0, 2, 0, 3};
 	const xPort_GPIO_UartMap_t xUart3Map = {1, 10, 1, 11};
 
-	const xPort_GPIO_UartMap_t const pxUartMapArr[] = {
+	const xPort_GPIO_UartMap_t pxUartMapArr[] = {
 		xUart1Map, xUart2Map, xUart3Map
 	};
 
@@ -263,7 +263,7 @@ void vPort_GPIO_initDacChannelPinAsOutput(	uint8_t ucDacUnitNumber,
 	vPort_GPIO_initTimerChannelPinAsOutput(ucDacUnitNumber, ucDacChannelNumber, ucMapNumber);
 }
 
-void vPort_GPIO_initAdcChannelPinAsOutput(	uint8_t ucAdcUnitNumber,
+void vPort_GPIO_initAdcChannelPinAsInput(	uint8_t ucAdcUnitNumber,
 											uint8_t ucAdcChannelNumber	)
 {
 	vLib_ASSERT(ucAdcChannelNumber <= 9, 0);

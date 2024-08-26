@@ -40,6 +40,36 @@ void vPort_DIO_initPinOutput(uint8_t ucPortNumber, uint8_t ucPinNumber)
 	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
 }
 
+void vPort_DIO_initPinOutputOpenDrain(uint8_t ucPortNumber, uint8_t ucPinNumber)
+{
+	/*	If port is of extended ports, return	*/
+	if (ucPortNumber >2)
+		return;
 
+	GPIO_InitTypeDef conf = {
+		.Pin = 1ul << ucPinNumber,
+		.Mode = GPIO_MODE_OUTPUT_OD,
+		.Pull = GPIO_NOPULL,
+		.Speed = GPIO_SPEED_FREQ_HIGH
+	};
+
+	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
+}
+
+void vPort_DIO_initPinOutputOpenDrainPU(uint8_t ucPortNumber, uint8_t ucPinNumber)
+{
+	/*	If port is of extended ports, return	*/
+	if (ucPortNumber >2)
+		return;
+
+	GPIO_InitTypeDef conf = {
+		.Pin = 1ul << ucPinNumber,
+		.Mode = GPIO_MODE_OUTPUT_OD,
+		.Pull = GPIO_PULLUP,
+		.Speed = GPIO_SPEED_FREQ_HIGH
+	};
+
+	HAL_GPIO_Init(pxPortDioPortArr[ucPortNumber], &conf);
+}
 
 #endif /* Target checking */

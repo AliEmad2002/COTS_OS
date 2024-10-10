@@ -141,6 +141,11 @@ static void vHOS_TFT_writeDataArrMultiple(xHOS_TFT_t* pxTFT, int8_t* pcArr, uint
 
 static void vReset(xHOS_TFT_t* pxTFT)
 {
+	/*	Flush shift register	*/
+	vPORT_DIO_WRITE_PORT(pxTFT->ucDataPort, (uint16_t)0xFFFF, 0);
+	vPORT_DIO_WRITE_PORT(pxTFT->ucDataPort, (uint16_t)0xFFFF, 0);
+	vPORT_DIO_WRITE_PORT(pxTFT->ucDataPort, (uint16_t)0xFFFF, 0);
+
 	/*	execute reset sequence	*/
 	vHOS_TFT_reset(pxTFT);
 
@@ -195,6 +200,8 @@ void vHOS_TFT_init(xHOS_TFT_t* pxTFT)
 			xSemaphoreCreateMutexStatic(&pxTFT->xInitDoneSemaphoreStatic);
 		xSemaphoreTake(pxTFT->xInitDoneSemaphore, 0);
 	}
+
+	/*	Lock LCD	*/
 
 	/*	reset	*/
 	vReset(pxTFT);

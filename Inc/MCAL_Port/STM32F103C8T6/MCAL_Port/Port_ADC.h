@@ -24,12 +24,16 @@ extern const uint32_t pxPortADCChannelsArr[];
 /*******************************************************************************
  * Defining target dependent values (Needed by upper layers):
  ******************************************************************************/
-/*	Number of unit and channel connected to internal voltage reference	*/
-#define ucPORT_ADC_VREFINT_UNIT_NUMBER		(	0	)
-#define ucPORT_ADC_VREFINT_CH_NUMBER		(	17	)
+#define ucPORT_ADC_IS_VREF_INT_AVAILABLE		1
 
-/*	Value of internal voltage reference in mV	*/
-#define uiPORT_ADC_VREFINT_IN_MV			(	1200	)
+#if ucPORT_ADC_IS_VREF_INT_AVAILABLE
+	/*	Number of unit and channel connected to internal voltage reference	*/
+	#define ucPORT_ADC_VREFINT_UNIT_NUMBER		(	0	)
+	#define ucPORT_ADC_VREFINT_CH_NUMBER		(	17	)
+
+	/*	Value of internal voltage reference in mV	*/
+	#define uiPORT_ADC_VREFINT_IN_MV			(	1200	)
+#endif	/*	ucPORT_ADC_IS_VREF_INT_AVAILABLE	*/
 
 /*	Value of voltage reference in mV	*/
 #define uiPORT_ADC_VREF_IN_MV				(	3300	)
@@ -127,18 +131,6 @@ void vPort_ADC_setTriggerSource(uint8_t ucUnitNumber, uint8_t ucSrc);
  */
 void vPort_ADC_setConversionMode(uint8_t ucUnitNumber, uint8_t ucMode);
 
-
-/*******************************************************************************
- * u16Port_ADC_PollingRead.
- * Purpose:
- * 		- return the ADC conversion
- * 		- it is a blocking function
- * 		- timeout define the max time in the function
- *
- * return:
- * 		- the analog value on the pin the (12 bit res)
- *******************************************************************************/
-uint16_t usPort_ADC_PollingRead(uint8_t ucAdcNumbe,uint32_t ulTimeout);
 
 
 

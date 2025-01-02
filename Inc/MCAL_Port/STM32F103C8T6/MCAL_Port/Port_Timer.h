@@ -241,6 +241,9 @@ uint32_t uiPort_TIM_setOvfFreq(uint8_t ucUnitNumber, uint32_t uiFreq);
 
 /*
  * Initializes timer channel for PWM output.
+ *
+ * Notes:
+ * 		-	Channels' GPIO configuration must be done separately (if needed).
  */
 void vPort_TIM_initChannelPwmOutput(uint8_t ucUnitNumber, uint8_t ucChannelNumber);
 
